@@ -14,6 +14,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -362,7 +363,7 @@ public class LL extends Activity {
                 LayoutInflater layoutInflater
                         = (LayoutInflater)getBaseContext()
                         .getSystemService(LAYOUT_INFLATER_SERVICE);
-                View popupView = layoutInflater.inflate(R.layout.popup, null);
+                final View popupView = layoutInflater.inflate(R.layout.popup, null);
                 final PopupWindow popupWindow = new PopupWindow(
                         popupView,
                         LayoutParams.WRAP_CONTENT,
@@ -387,41 +388,37 @@ public class LL extends Activity {
                 popupWindow.setFocusable(true);
                 popupWindow.showAsDropDown(LoginButton, 1000, 800);
 
-                GoTecPysButton.setOnClickListener(new Button.OnClickListener(){
+                GoTecPysButton.setOnClickListener(new Button.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
                         // TODO Auto-generated method stub
 
-                        int SelectedId=radioButtonGroup.getCheckedRadioButtonId();
-
+                        int SelectedId = radioButtonGroup.getCheckedRadioButtonId();
+                        Button selectedButton = (RadioButton)popupView.findViewById(SelectedId);
                         //for Technician Interface
-                        if(SelectedId%2==1){
-
-                            if(PinCode.getText().toString().equals("tabc")){
+                        if (selectedButton.getText().equals("Technician")) {
+                            if (PinCode.getText().toString().equals("tabc")) {
                                 popupWindow.dismiss();
                                 Intent intent = new Intent(LL.this, TechnitianInterface.class);
                                 startActivity(intent);
-                            }
-                            else
+                            } else
                                 Toast.makeText(getApplicationContext(), "Wrong Pin Code! Try Again!!!", Toast.LENGTH_SHORT).show();
 
 
                         }
                         //for Physician Interface
-                        else if(SelectedId%2==0) {
-                            if(PinCode.getText().toString().equals("pabc")){
+                        else if (selectedButton.getText().equals("Physician")) {
+                            if (PinCode.getText().toString().equals("pabc")) {
                                 popupWindow.dismiss();
                                 Intent intent = new Intent(LL.this, PhysicianInterface.class);
                                 startActivity(intent);
-                            }
-                            else
+                            } else
                                 Toast.makeText(getApplicationContext(), "Wrong Pin Code! Try Again!!!", Toast.LENGTH_SHORT).show();
 
                         }
-
-
-                    }});
+                    }
+                });
             }
         });
 

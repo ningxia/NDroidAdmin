@@ -57,10 +57,10 @@ public class PhysicianInterface extends Activity {
     private static Map<Integer, Boolean> finishedMetrics;
     private int totalMetrics;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_physician_interface);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_physician_interface);
 
         listView = (ListView) findViewById(R.id.physician_listView);
 
@@ -91,7 +91,7 @@ public class PhysicianInterface extends Activity {
         monitorReports = new SparseArray<>();
         finishedMetrics = new HashMap<>();
 
-	}
+    }
 
     private HandlerThread backgroundThread = new HandlerThread("physicianinterface") {
         @Override

@@ -114,9 +114,9 @@ public class CimonListAdapter extends BaseExpandableListAdapter {
 		
 		inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mGroupCursorHelper = new MyCursorHelper(null);
-		mChildrenCursorHelpers = new SparseArray<MyCursorHelper>();
-		groupViews = new SparseArray<GroupHolder>();
-		childViews = new SparseArray<ChildHolder[]>();
+		mChildrenCursorHelpers = new SparseArray<>();
+		groupViews = new SparseArray<>();
+		childViews = new SparseArray<>();
 		expandedViews = new SparseBooleanArray();
 	}
 
@@ -300,7 +300,7 @@ public class CimonListAdapter extends BaseExpandableListAdapter {
 			return convertView;
 		}
 		
-		View view = null;
+		View view;
 		if(convertView == null) {
 			view = inflater.inflate(R.layout.cimon_item, null);
 			final ChildHolder viewHolder = new ChildHolder();
@@ -456,7 +456,7 @@ public class CimonListAdapter extends BaseExpandableListAdapter {
 														break;
 												}
 											}
-											
+
 											((CimonListView)mContext).registerPeriodic(
 													metricId, period, duration, metadata.isChecked(),
 													email.isChecked(), dropbox.isChecked(),
@@ -553,7 +553,7 @@ public class CimonListAdapter extends BaseExpandableListAdapter {
 			return convertView;
 		}
 		final Cursor cursor = mGroupCursorHelper.getCursor();
-		View view = null;
+		View view;
 		if(convertView == null) {
 			GroupHolder viewHolder;
 			if (cursor.getInt(MetricInfoTable.INDEX_SUPPORTED) == 0) {

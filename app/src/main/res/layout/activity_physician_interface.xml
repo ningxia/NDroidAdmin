@@ -70,7 +70,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Message"
+        android:text="Running..."
         android:id="@+id/physician_message"
         android:layout_marginTop="20dp"
         android:layout_gravity="center_horizontal"

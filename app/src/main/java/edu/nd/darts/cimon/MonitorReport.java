@@ -62,6 +62,7 @@ public class MonitorReport {
 	private Context context;
 	private int metricId;
 	private int monitorId;
+    private Handler handler;
 	private AdminObserver adminObserver;
 	private boolean metadata;
 	private boolean email;
@@ -78,6 +79,7 @@ public class MonitorReport {
 		this.context = context;
 		this.metricId = metricId;
 		this.monitorId = monitorId;
+        this.handler = handler;
 		this.adminObserver = observer;
 		this.metadata = metadata;
 		this.email = email;	
@@ -113,11 +115,12 @@ public class MonitorReport {
 				context.getContentResolver().unregisterContentObserver(this);
 				SendReport sendReport = new SendReport();
 				sendReport.execute((Void[])null);
+                handler.sendEmptyMessage(metricId);
 			}
 			super.onChange(selfChange);
 		}
 		
-	};
+	}
 	
 	/**
 	 * Asynchronous task which generates monitor report and notification to send it.
@@ -149,7 +152,7 @@ public class MonitorReport {
 				if (email) {
 					Intent emailIntent = new Intent(Intent.ACTION_SEND);
 					emailIntent.setType("message/rfc822");
-					emailIntent.putExtra(Intent.EXTRA_EMAIL  , new String[]{"raktar@nd.edu"});
+					emailIntent.putExtra(Intent.EXTRA_EMAIL  , new String[]{"nxia@nd.edu"});
 					emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Monitoring report " + monitorId);
 					emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + reportFile));
 					emailIntent.putExtra(Intent.EXTRA_TEXT   , "The attached file is a tab " +

@@ -115,7 +115,6 @@ public class MonitorReport {
 				context.getContentResolver().unregisterContentObserver(this);
 				SendReport sendReport = new SendReport();
 				sendReport.execute((Void[])null);
-                handler.sendEmptyMessage(metricId);
 			}
 			super.onChange(selfChange);
 		}

@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -22,13 +23,13 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -48,14 +49,23 @@ public class PhysicianInterface extends Activity {
     private static TextView message;
 
     private CimonInterface mCimonInterface = null;
-    private SparseArray<MonitorReport> monitorReports;
+//    private SparseArray<MonitorReport> monitorReports;
     private Handler backgroundHandler = null;
     private AdminObserver adminObserver;
 
     private static long period = 1000;
-    private static long duration = 10 * 1000;
-    private static Map<Integer, Boolean> finishedMetrics;
-    private int totalMetrics;
+    private static long duration = 1000 * 3600 * 24 * 365;      // running for one year
+
+    private static final String PHYSICIAN_METRICS = "physician_metrics";
+    private static final String CHECKED_CATEGORIES = "checked_categories";
+    private static final String RUNNING_MONITOR_IDS = "running_monitor_ids";
+    private static SharedPreferences settings;
+    private static Set<String> checkedCategories;
+    /**
+     * {@link edu.nd.darts.cimon.database.MonitorTable} ids
+     */
+    public static Set<String> runningMonitorIds;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,28 +98,18 @@ public class PhysicianInterface extends Activity {
 
         backgroundThread.start();
 
-        monitorReports = new SparseArray<>();
-        finishedMetrics = new HashMap<>();
+//        monitorReports = new SparseArray<>();
 
+        settings = getSharedPreferences(PHYSICIAN_METRICS, MODE_PRIVATE);
+        if (ifPreference()) {
+            resumeStatus();
+        }
     }
 
     private HandlerThread backgroundThread = new HandlerThread("physicianinterface") {
         @Override
         protected void onLooperPrepared() {
-            backgroundHandler = new Handler(getMainLooper()) {
-                public void handleMessage(Message msg) {
-                    if(DebugLog.DEBUG) {
-                        Log.d(TAG, "PhysicianInterface handleMessage: metricId " + msg.what + " is finished.");
-                    }
-                    finishedMetrics.put(msg.what, true);
-                    if (totalMetrics == finishedMetrics.size()) {
-                        btnMonitor.setText("Monitor");
-                        enableCheckbox(true);
-                        monitorManager(false);
-                        message.setText("Monitoring Complete");
-                    }
-                }
-            };
+            backgroundHandler = new Handler(getMainLooper());
             super.onLooperPrepared();
         }
     };
@@ -141,35 +141,87 @@ public class PhysicianInterface extends Activity {
     };
 
     /**
-     * Register a new periodic update when metric is enabled through administration activity.
-     * This method is called by the onCheckedChanged listener for the Enable button
-     * of the administration rows when the state is changed to enable.
-     *
+     * Set preference
+     * @param bool boolean value indicating set or clear preferences
+     */
+    public void setPreference(boolean bool) {
+        if (DebugLog.DEBUG) {
+            Log.d(TAG, "Physician.setPreference - preferences set " + bool);
+        }
+        SharedPreferences.Editor editor = settings.edit();
+
+        if (bool) {
+            checkedCategories = new HashSet<>();
+            for (ActivityCategory ac : categories) {
+                if (ac.isChecked()) {
+                    checkedCategories.add(ac.getTitle());
+                }
+            }
+            editor.putStringSet(CHECKED_CATEGORIES, checkedCategories);
+            editor.putStringSet(RUNNING_MONITOR_IDS, runningMonitorIds);
+        }
+        else {
+            editor.clear();
+        }
+
+        editor.commit();
+    }
+
+    private void resumeStatus() {
+        if (ifPreference()) {
+            Toast.makeText(this, "Monitors are running...", Toast.LENGTH_LONG).show();
+            for (ActivityCategory ac : categories) {
+                if (checkedCategories.contains(ac.getTitle())) {
+                    ac.setChecked(true);
+                }
+            }
+            btnMonitor.setText("Stop");
+            btnMonitor.setEnabled(true);
+            message.setText("Running...");
+            message.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private static boolean ifPreference() {
+        checkedCategories = settings.getStringSet(CHECKED_CATEGORIES, null);
+        if (checkedCategories != null) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * Register a new periodic update when metric is selected via ActivityCategory.
      * @param metric    integer representing metric (per {@link Metrics}) to register
      * @param period    period between updates, in milliseconds
-     * @param duration    duration to run monitor, in milliseconds
+     * @param duration  duration to run monitor, in milliseconds
+     * @return  unique id of registered monitor, -1 on failure (typically because metric is not supported on this system)
      */
-    public void registerPeriodic(int metric, long period, long duration) {
+    public int registerPeriodic(int metric, long period, long duration) {
         if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.registerPeriodic - metric:" + metric + " period:" +
                 period + " duration:" + duration);
+        int monitorId = -1;
         if (mCimonInterface == null) {
             if (DebugLog.INFO) Log.i(TAG, "PhysicianInterface - register: service inactive");
         }
         else {
             try {
                 if (!adminObserver.getStatus(metric)) {
-                    int monitorId = mCimonInterface.registerPeriodic(
+                    monitorId = mCimonInterface.registerPeriodic(
                             metric, period, duration, false, null);	//mMessenger
                     adminObserver.setActive(metric, monitorId);
-                    monitorReports.append(monitorId,
-                            new MonitorReport(this, metric, monitorId, backgroundHandler, adminObserver,
-                                    true, true, false, false, false));
+//                    monitorReports.append(monitorId,
+//                            new MonitorReport(this, metric, monitorId, backgroundHandler, adminObserver,
+//                                    true, true, false, false, false));
                 }
             } catch (RemoteException e) {
                 if (DebugLog.INFO) Log.i(TAG, "PhysicianInterface - register failed");
                 e.printStackTrace();
             }
         }
+        return monitorId;
     }
 
     /**
@@ -221,16 +273,23 @@ public class PhysicianInterface extends Activity {
 
     /**
      * Manage multiple monitors registering
+     * @param register register multiple monitors or not
      */
     private void monitorManager(boolean register) {
-        totalMetrics = 0;
+        int monitorId;
+        runningMonitorIds = new HashSet<>();
         for (ActivityItem ai : allItems) {
-            if (ai.isSelected()) {
+            if (ai.getSelected()) {
                 for (int i = ai.getGroupId(); i < ai.getGroupId() + ai.getMembers(); i ++) {
-                    finishedMetrics.put(i, false);
+                    if (DebugLog.DEBUG) {
+                        Log.d(TAG, "PhysicianInterface.monitorManager - metric: " + i);
+                    }
                     if (register) {
-                        PhysicianInterface.this.registerPeriodic(i, period, duration);
-                        totalMetrics ++;
+                        monitorId = PhysicianInterface.this.registerPeriodic(i, period, duration);
+                        if (DebugLog.DEBUG) {
+                            Log.d(TAG, "PhysicianInterface.monitorManager - monitorId: " + monitorId);
+                        }
+                        runningMonitorIds.add(Integer.toString(monitorId));
                     }
                     else {
                         PhysicianInterface.this.unregisterPeriodic(i);
@@ -238,9 +297,19 @@ public class PhysicianInterface extends Activity {
                 }
             }
         }
+
+        // set or clear the SharedPreference accordingly
+        setPreference(register);
     }
 
+    /**
+     * Manage accessibility of CheckBoxes and TextViews
+     * @param bool enable or disable
+     */
     private void enableCheckbox(boolean bool) {
+        if (DebugLog.DEBUG) {
+            Log.d(TAG, "PhysicianInterface.enableCheckbox - " + bool);
+        }
         ListView lv = (ListView) findViewById(R.id.physician_listView);
         for (int i = 0; i < lv.getCount(); i ++) {
             RelativeLayout rl = (RelativeLayout) lv.getChildAt(i);
@@ -272,7 +341,7 @@ public class PhysicianInterface extends Activity {
 
     private void loadCategoryList() {
 
-        gps = new ActivityItem("GPS", Metrics.LOCATION_CATEGORY, 4);
+        gps = new ActivityItem("GPS", Metrics.LOCATION_CATEGORY, 3);
         accelerometer = new ActivityItem("Accelerometer", Metrics.ACCELEROMETER, 4);
         gyroscope = new ActivityItem("Gyroscope", Metrics.GYROSCOPE, 4);
 
@@ -320,7 +389,7 @@ public class PhysicianInterface extends Activity {
                 location, mobility, activity, everything
         ));
 
-        allItems = new HashSet<>();
+        allItems = new LinkedHashSet<>();
         allItems.addAll(location.getItems());
         allItems.addAll(mobility.getItems());
         allItems.addAll(activity.getItems());
@@ -445,6 +514,10 @@ public class PhysicianInterface extends Activity {
             }
         }
 
+        public boolean getSelected() {
+            return this.selected;
+        }
+
         public void addCategory(ActivityCategory ac) {
             this.categories.add(ac);
         }
@@ -544,6 +617,9 @@ public class PhysicianInterface extends Activity {
             else {
                 textView.setText("");
             }
+
+            checkBox.setEnabled(!ifPreference());
+            textView.setEnabled(!ifPreference());
 
             return convertView;
         }

@@ -5,11 +5,14 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -34,6 +37,9 @@ import android.widget.Toast;
 
 
 public class LL extends Activity {
+
+    private static final String TAG = "NDroid";
+
     DBAdapter myDb;
     WorkDatabase workDb;
     Calendar cal;
@@ -53,6 +59,10 @@ public class LL extends Activity {
     long tt_sec=0, tt_min=0, tt_hour=0, tt_day=0, tt=0;
     long rest_hour=0, rest_min=0, rest_day=0;
 
+    private static final String PHYSICIAN_METRICS = "physician_metrics";
+    private static final String RUNNING_MONITOR_IDS = "running_monitor_ids";
+    private static SharedPreferences physicianPrefs;
+    private static Set<String> runningMonitorIds;
 
     @SuppressLint("NewApi")
     @SuppressWarnings("unchecked")
@@ -62,8 +72,8 @@ public class LL extends Activity {
         setContentView(R.layout.activity_ll);
         openDB();
 
-
-
+        // retrieve preference from PhysicianInterface
+        physicianPrefs = getSharedPreferences(PHYSICIAN_METRICS, Context.MODE_PRIVATE);
 
         myDb.deleteAll();
         workDb.deleteAll();
@@ -199,6 +209,17 @@ public class LL extends Activity {
                     spinner2.setVisibility(spinner2.INVISIBLE);
                     LoginButton.setEnabled(true);
 
+                    runningMonitorIds = physicianPrefs.getStringSet(RUNNING_MONITOR_IDS, null);
+                    if (runningMonitorIds != null) {
+                        if (DebugLog.DEBUG) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("\n");
+                            for (String ids : runningMonitorIds) {
+                                sb.append(ids).append("\t");
+                            }
+                            Toast.makeText(LL.this, "LL.saveButton.setOnClickListener - running monitorIds: " + sb.toString(), Toast.LENGTH_LONG).show();
+                        }
+                    }
 
                     long newId = myDb.insertRow(work, time, date);
 
@@ -402,10 +423,11 @@ public class LL extends Activity {
                                 popupWindow.dismiss();
                                 Intent intent = new Intent(LL.this, TechnitianInterface.class);
                                 startActivity(intent);
-                            } else
-                                Toast.makeText(getApplicationContext(), "Wrong Pin Code! Try Again!!!", Toast.LENGTH_SHORT).show();
-
-
+                            }
+                            else {
+                                PinCode.setText("");
+                                Toast.makeText(getApplicationContext(), "Wrong Pin Code! Please Try Again!!!", Toast.LENGTH_LONG).show();
+                            }
                         }
                         //for Physician Interface
                         else if (selectedButton.getText().equals("Physician")) {
@@ -413,9 +435,11 @@ public class LL extends Activity {
                                 popupWindow.dismiss();
                                 Intent intent = new Intent(LL.this, PhysicianInterface.class);
                                 startActivity(intent);
-                            } else
-                                Toast.makeText(getApplicationContext(), "Wrong Pin Code! Try Again!!!", Toast.LENGTH_SHORT).show();
-
+                            }
+                            else {
+                                PinCode.setText("");
+                                Toast.makeText(getApplicationContext(), "Wrong Pin Code! Please Try Again!!!", Toast.LENGTH_LONG).show();
+                            }
                         }
                     }
                 });

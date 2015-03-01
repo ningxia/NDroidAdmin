@@ -1,6 +1,7 @@
 package edu.nd.darts.cimon;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -48,23 +49,28 @@ public class PhysicianInterface extends Activity {
     private static Button btnMonitor;
     private static TextView message;
 
-    private CimonInterface mCimonInterface = null;
+    private static  CimonInterface mCimonInterface = null;
 //    private SparseArray<MonitorReport> monitorReports;
     private Handler backgroundHandler = null;
-    private AdminObserver adminObserver;
+    private static AdminObserver adminObserver;
 
     private static long period = 1000;
-    private static long duration = 1000 * 3600 * 24 * 365;      // running for one year
+    private static long duration = 1000 * 3600 * 24 * 720;      // running for one year
 
     private static final String PHYSICIAN_METRICS = "physician_metrics";
     private static final String CHECKED_CATEGORIES = "checked_categories";
+    private static final String RUNNING_METRICS = "running_metrics";
     private static final String RUNNING_MONITOR_IDS = "running_monitor_ids";
     private static SharedPreferences settings;
     private static Set<String> checkedCategories;
     /**
-     * {@link edu.nd.darts.cimon.database.MonitorTable} ids
+     * Monitor Ids {@link edu.nd.darts.cimon.database.MonitorTable}
      */
-    public static Set<String> runningMonitorIds;
+    private static Set<String> runningMonitorIds;
+    /**
+     * Metrics {@link edu.nd.darts.cimon.Metrics}
+     */
+    private static Set<String> runningMetrics;
 
 
     @Override
@@ -159,6 +165,7 @@ public class PhysicianInterface extends Activity {
             }
             editor.putStringSet(CHECKED_CATEGORIES, checkedCategories);
             editor.putStringSet(RUNNING_MONITOR_IDS, runningMonitorIds);
+            editor.putStringSet(RUNNING_METRICS, runningMetrics);
         }
         else {
             editor.clear();
@@ -182,7 +189,7 @@ public class PhysicianInterface extends Activity {
         }
     }
 
-    private static boolean ifPreference() {
+    public static boolean ifPreference() {
         checkedCategories = settings.getStringSet(CHECKED_CATEGORIES, null);
         if (checkedCategories != null) {
             return true;
@@ -199,7 +206,7 @@ public class PhysicianInterface extends Activity {
      * @param duration  duration to run monitor, in milliseconds
      * @return  unique id of registered monitor, -1 on failure (typically because metric is not supported on this system)
      */
-    public int registerPeriodic(int metric, long period, long duration) {
+    public static int registerPeriodic(int metric, long period, long duration) {
         if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.registerPeriodic - metric:" + metric + " period:" +
                 period + " duration:" + duration);
         int monitorId = -1;
@@ -278,6 +285,7 @@ public class PhysicianInterface extends Activity {
     private void monitorManager(boolean register) {
         int monitorId;
         runningMonitorIds = new HashSet<>();
+        runningMetrics = new HashSet<>();
         for (ActivityItem ai : allItems) {
             if (ai.getSelected()) {
                 for (int i = ai.getGroupId(); i < ai.getGroupId() + ai.getMembers(); i ++) {
@@ -290,6 +298,7 @@ public class PhysicianInterface extends Activity {
                             Log.d(TAG, "PhysicianInterface.monitorManager - monitorId: " + monitorId);
                         }
                         runningMonitorIds.add(Integer.toString(monitorId));
+                        runningMetrics.add(Integer.toString(i));
                     }
                     else {
                         PhysicianInterface.this.unregisterPeriodic(i);

@@ -25,9 +25,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Receiver which starts CIMON monitoring service on boot.
  * User may disable this feature in options menu of administration app.
@@ -47,22 +44,9 @@ public class AutoStartReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		SharedPreferences appPrefs = context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
 	    boolean startup = appPrefs.getBoolean(PREF_STARTUP, true);
-
-        SharedPreferences physicianPrefs = context.getSharedPreferences(PhysicianInterface.PHYSICIAN_METRICS, Context.MODE_PRIVATE);
-        Set<String> runningMonitorIds = new HashSet<>();
-        Set<String> runningMetrics = physicianPrefs.getStringSet(PhysicianInterface.RUNNING_METRICS, null);
 	    if (startup) {
 			context.startService(new Intent(context, NDroidService.class));
 			if (DebugLog.DEBUG) Log.d(TAG, "+ start CIMON Monitor +");
-            if (runningMetrics != null) {
-                for (String m : runningMetrics) {
-                    int metric = Integer.parseInt(m);
-                    int monitorId = PhysicianInterface.registerPeriodic(metric, PhysicianInterface.period, PhysicianInterface.duration);
-                    runningMonitorIds.add(Integer.toString(monitorId));
-                }
-                SharedPreferences.Editor editor = physicianPrefs.edit();
-                editor.putStringSet(PhysicianInterface.RUNNING_MONITOR_IDS, runningMonitorIds);
-            }
 	    }
 	    else {
 	    	if (DebugLog.DEBUG) Log.d(TAG, "+ CIMON Monitor - non-start on boot +");

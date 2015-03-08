@@ -730,6 +730,9 @@ public abstract class MetricService<T extends Comparable<T>> implements Observab
 			case Metrics.INCOMINGMMS:
 				if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch mms activity service");
 				return MMSService.getInstance();
+            case Metrics.BLUETOOTH_DEVICE:
+                if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch Bluetooth activity service");
+                return BluetoothService.getInstance();
 			default:
 				if (DebugLog.INFO) Log.i(TAG, "MetricService.getService - unrecognized metric");
 				return null;

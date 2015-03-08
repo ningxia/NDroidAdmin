@@ -605,6 +605,15 @@ public final class Metrics {
 	
 	public static final int MAX_METRIC = 185;
 //	public static final int CATEGORY_SIZE = 10;
+
+    /** Category for Bluetooth related metrics */
+    public static final int BLUETOOTH_CATEGORY = 190;
+
+    /**
+     * Bluetooth device ID
+     * Type: String <br>
+     */
+    public static final int BLUETOOTH_DEVICE = 190;
 	
 	public static final int[] SYSTEM_METRICS = {MEMORY_CATEGORY,
 												CPULOAD_CATEGORY,
@@ -632,7 +641,8 @@ public final class Metrics {
 	public static final int[] USER_METRICS = {SCREEN_ON,
 												TELEPHONY,
 												SMS_CATEGORY,
-												MMS_CATEGORY
+												MMS_CATEGORY,
+                                                BLUETOOTH_CATEGORY
 	};
 
 	/**

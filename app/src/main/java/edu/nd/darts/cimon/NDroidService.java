@@ -25,6 +25,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -32,6 +33,10 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import edu.nd.darts.cimon.R;
 import edu.nd.darts.cimon.database.CimonDatabaseAdapter;
 
@@ -86,7 +91,6 @@ public class NDroidService extends Service {
 			if (DebugLog.DEBUG) Log.d(TAG, "NDroidService.onLooperPrepared - get handler " + THREADTAG);
 			eventHandler = new Handler(getLooper());
 			EventList.getInstance().setHandler(eventHandler);
-			
 			super.onLooperPrepared();
 		}
 	};
@@ -151,7 +155,7 @@ public class NDroidService extends Service {
 		return mBinder;
 	}
 
-	private final CimonInterface.Stub mBinder = new CimonInterface.Stub() {
+	private static final CimonInterface.Stub mBinder = new CimonInterface.Stub() {
 		
 		public int registerPeriodic(int metric, long period, long duration, boolean eavesdrop,
 				Messenger callback) throws RemoteException {

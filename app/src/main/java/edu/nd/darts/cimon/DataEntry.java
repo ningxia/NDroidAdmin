@@ -36,7 +36,6 @@ public class DataEntry {
 
 	public long timestamp;
 	public float value;
-	
 	/**
 	 * Time and value pair for a single data entry in the Data table.
 	 * Used to batch inserts for efficiency.

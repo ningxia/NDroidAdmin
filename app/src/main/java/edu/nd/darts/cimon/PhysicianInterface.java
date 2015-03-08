@@ -45,7 +45,7 @@ public class PhysicianInterface extends Activity {
     private static Set<ActivityItem> allItems;
     private ArrayAdapter<ActivityCategory> listAdapter;
     private ActivityCategory location, mobility, activity, communication, wellbeing, social, everything;
-    private ActivityItem gps, accelerometer, gyroscope;
+    private ActivityItem gps, accelerometer, gyroscope, bluetooth;
     private static Button btnMonitor;
     private static TextView message;
 
@@ -54,13 +54,14 @@ public class PhysicianInterface extends Activity {
     private Handler backgroundHandler = null;
     private static AdminObserver adminObserver;
 
-    private static long period = 1000;
-    private static long duration = 1000 * 3600 * 24 * 720;      // running for one year
+    public static long period = 1000;
+//    public static long duration = 1000 * 3600 * 24 * 720;      // running for one year
+    public static long duration = 0;
 
-    private static final String PHYSICIAN_METRICS = "physician_metrics";
+    public static final String PHYSICIAN_METRICS = "physician_metrics";
     private static final String CHECKED_CATEGORIES = "checked_categories";
-    private static final String RUNNING_METRICS = "running_metrics";
-    private static final String RUNNING_MONITOR_IDS = "running_monitor_ids";
+    public static final String RUNNING_METRICS = "running_metrics";
+    public static final String RUNNING_MONITOR_IDS = "running_monitor_ids";
     private static SharedPreferences settings;
     private static Set<String> checkedCategories;
     /**
@@ -90,7 +91,7 @@ public class PhysicianInterface extends Activity {
         btnMonitor.setOnClickListener(btnMonitorHandler);
         message = (TextView) findViewById(R.id.physician_message);
 
-        startService(new Intent(this, NDroidService.class));
+//        startService(new Intent(this, NDroidService.class));
         adminObserver = SensorObserver.getInstance();
 
         Intent intent = new Intent(NDroidService.class.getName());
@@ -102,7 +103,7 @@ public class PhysicianInterface extends Activity {
             if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.onCreate - bind service failed.");
         }
 
-        backgroundThread.start();
+//        backgroundThread.start();
 
 //        monitorReports = new SparseArray<>();
 
@@ -112,13 +113,13 @@ public class PhysicianInterface extends Activity {
         }
     }
 
-    private HandlerThread backgroundThread = new HandlerThread("physicianinterface") {
-        @Override
-        protected void onLooperPrepared() {
-            backgroundHandler = new Handler(getMainLooper());
-            super.onLooperPrepared();
-        }
-    };
+//    private HandlerThread backgroundThread = new HandlerThread("physicianinterface") {
+//        @Override
+//        protected void onLooperPrepared() {
+//            backgroundHandler = new Handler(getMainLooper());
+//            super.onLooperPrepared();
+//        }
+//    };
 
     /**
      * Class for interacting with the main interface of the service.
@@ -353,11 +354,12 @@ public class PhysicianInterface extends Activity {
         gps = new ActivityItem("GPS", Metrics.LOCATION_CATEGORY, 3);
         accelerometer = new ActivityItem("Accelerometer", Metrics.ACCELEROMETER, 4);
         gyroscope = new ActivityItem("Gyroscope", Metrics.GYROSCOPE, 4);
+        bluetooth = new ActivityItem("Bluetooth", Metrics.BLUETOOTH_CATEGORY, 1);
 
         location = new ActivityCategory(
                 "Location",
                 new ArrayList<>(Arrays.asList(
-                        gps
+                        gps, bluetooth
                 ))
         );
 
@@ -393,6 +395,8 @@ public class PhysicianInterface extends Activity {
         gyroscope.addCategory(mobility);
         gyroscope.addCategory(activity);
         gyroscope.addCategory(everything);
+
+        bluetooth.addCategory(location);
 
         categories = new ArrayList<>(Arrays.asList(
                 location, mobility, activity, everything

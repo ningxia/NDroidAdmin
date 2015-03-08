@@ -18,26 +18,32 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
     <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
 
     <application
-        android:name="edu.nd.darts.cimon.MyApplication"
+        android:name=".MyApplication"
         android:icon="@drawable/cimon_logo_green_xhdpi"
         android:label="@string/app_name" >
         <activity
-            android:name="edu.nd.darts.cimon.NDroidAdmin"
+            android:name=".NDroidAdmin"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/app_name"
             android:launchMode="singleTask" >
         </activity>
 
-        <service android:name="edu.nd.darts.cimon.NDroidService" >
+        <service android:name=".NDroidService" >
             <intent-filter>
                 <action android:name="edu.nd.darts.cimon.NDroidService" />
             </intent-filter>
         </service>
 
         <receiver
-            android:name="edu.nd.darts.cimon.AutoStartReceiver"
+            android:name=".AutoStartReceiver"
             android:enabled="true" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -45,31 +51,23 @@
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </receiver>
-        
-        <receiver
-            android:name="edu.nd.darts.cimon.PhysicianInterface$PhysicianReceiver"
-            android:enabled="true" >
-        </receiver>
 
         <provider
-            android:name="edu.nd.darts.cimon.contentprovider.CimonContentProvider"
+            android:name=".contentprovider.CimonContentProvider"
             android:authorities="edu.nd.darts.cimon.contentprovider" >
         </provider>
 
         <activity
-            android:name="edu.nd.darts.cimon.CimonListView"
+            android:name=".CimonListView"
             android:label="@string/app_name" />
         <!--
              <activity android:name="edu.nd.darts.cimon.NDroidSystem" android:label="@string/app_name" 
 			/> <activity android:name="edu.nd.darts.cimon.NDroidSensor" android:label="@string/app_name" 
 			/> <activity android:name="edu.nd.darts.cimon.NDroidUser" android:label="@string/app_name" 
 			/>
-
-
-
         -->
         <activity
-            android:name="edu.nd.darts.cimon.LL"
+            android:name=".LL"
             android:label="@string/title_activity_ll" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -78,14 +76,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="edu.nd.darts.cimon.TechnitianInterface"
-            android:label="@string/title_activity_technitian_interface"
-            android:configChanges="orientation|screenSize">
+            android:name=".TechnitianInterface"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_activity_technitian_interface" >
         </activity>
         <activity
-            android:name="edu.nd.darts.cimon.PhysicianInterface"
-            android:label="@string/title_activity_physician_interface"
-            android:configChanges="orientation|screenSize">
+            android:name=".PhysicianInterface"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_activity_physician_interface" >
         </activity>
     </application>
 

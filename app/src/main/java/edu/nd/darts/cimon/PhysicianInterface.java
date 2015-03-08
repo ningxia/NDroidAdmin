@@ -49,7 +49,7 @@ public class PhysicianInterface extends Activity {
     private static Button btnMonitor;
     private static TextView message;
 
-    private static  CimonInterface mCimonInterface = null;
+    private static CimonInterface mCimonInterface = null;
 //    private SparseArray<MonitorReport> monitorReports;
     private Handler backgroundHandler = null;
     private static AdminObserver adminObserver;
@@ -212,7 +212,7 @@ public class PhysicianInterface extends Activity {
                 period + " duration:" + duration);
         int monitorId = -1;
         if (mCimonInterface == null) {
-            if (DebugLog.INFO) Log.i(TAG, "PhysicianInterface - register: service inactive");
+            if (DebugLog.INFO) Log.i(TAG, "PhysicianInterface.registerPeriodic - register: service inactive");
         }
         else {
             try {
@@ -225,7 +225,7 @@ public class PhysicianInterface extends Activity {
 //                                    true, true, false, false, false));
                 }
             } catch (RemoteException e) {
-                if (DebugLog.INFO) Log.i(TAG, "PhysicianInterface - register failed");
+                if (DebugLog.INFO) Log.i(TAG, "PhysicianInterface.registerPeriodic - register failed");
                 e.printStackTrace();
             }
         }
@@ -240,7 +240,7 @@ public class PhysicianInterface extends Activity {
      * @param metric    integer representing metric (per {@link Metrics}) to unregister
      */
     public void unregisterPeriodic(int metric) {
-        if (DebugLog.DEBUG) Log.d(TAG, "CimonListView.OnClickListener - unregister periodic");
+        if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.OnClickListener - unregister periodic");
         if (mCimonInterface != null) {
             try {
                 int monitorId = adminObserver.getMonitor(metric);
@@ -249,7 +249,7 @@ public class PhysicianInterface extends Activity {
                     adminObserver.setInactive(metric, monitorId);
                 }
             } catch (RemoteException e) {
-                if (DebugLog.INFO) Log.i(TAG, "CimonListView.OnClickListener - unregister failed");
+                if (DebugLog.INFO) Log.i(TAG, "PhysicianInterface.unregisterPeriodic - unregister failed");
                 e.printStackTrace();
             }
         }

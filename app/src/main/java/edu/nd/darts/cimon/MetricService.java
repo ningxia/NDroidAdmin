@@ -733,6 +733,9 @@ public abstract class MetricService<T extends Comparable<T>> implements Observab
             case Metrics.BLUETOOTH_DEVICE:
                 if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch Bluetooth activity service");
                 return BluetoothService.getInstance();
+            case Metrics.WIFI_CATEGORY:
+                if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch Wifi activity service");
+                return WifiService.getInstance();
 			default:
 				if (DebugLog.INFO) Log.i(TAG, "MetricService.getService - unrecognized metric");
 				return null;

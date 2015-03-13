@@ -46,7 +46,7 @@ import android.util.SparseArray;
 public class ValueNode<T extends Comparable<T>> implements CurrentNode<T> {	//Number & //
 	
 	private static final String TAG = "NDroid";
-	private static final int BATCH_SIZE = 500;
+	private static final int BATCH_SIZE = 60;
 
 	private int metric;
 	private T key;
@@ -178,7 +178,8 @@ public class ValueNode<T extends Comparable<T>> implements CurrentNode<T> {	//Nu
 				dataList = new ArrayList<DataEntry>();
 				batchedData.put(monitorId, dataList);
 			}
-			dataList.add(new DataEntry(timestamp, ((Number) value).floatValue()));
+//			dataList.add(new DataEntry(timestamp, ((Number) value).floatValue()));
+            dataList.add(new DataEntry(timestamp, value));
 			try {
 				Messenger messenger = iter.getCallback();
 				if (messenger != null) {
@@ -219,7 +220,8 @@ public class ValueNode<T extends Comparable<T>> implements CurrentNode<T> {	//Nu
 				dataList = new ArrayList<DataEntry>();
 				batchedData.put(monitorId, dataList);
 			}
-			dataList.add(new DataEntry(timestamp, ((Number) value).floatValue()));
+//			dataList.add(new DataEntry(timestamp, ((Number) value).floatValue()));
+            dataList.add(new DataEntry(timestamp, value));
 			try {
 //				Bundle b = new Bundle();
 //				b.putLong("value", value);

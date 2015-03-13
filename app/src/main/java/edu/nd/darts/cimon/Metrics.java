@@ -614,8 +614,17 @@ public final class Metrics {
      * Type: String <br>
      */
     public static final int BLUETOOTH_DEVICE = 190;
-	
-	public static final int[] SYSTEM_METRICS = {MEMORY_CATEGORY,
+
+    /** Category for Wifi related metrics */
+    public static final int WIFI_CATEGORY = 195;
+
+    /**
+     * Wifi network
+     * Type: String <br>
+     */
+    public static final int WIFI_NETWORK = 195;
+
+    public static final int[] SYSTEM_METRICS = {MEMORY_CATEGORY,
 												CPULOAD_CATEGORY,
 												PROCESSOR_CATEGORY,
 												BATTERY_CATEGORY,
@@ -639,10 +648,11 @@ public final class Metrics {
 	};
 	
 	public static final int[] USER_METRICS = {SCREEN_ON,
-												TELEPHONY,
-												SMS_CATEGORY,
-												MMS_CATEGORY,
-                                                BLUETOOTH_CATEGORY
+											  TELEPHONY,
+										      SMS_CATEGORY,
+											  MMS_CATEGORY,
+                                              BLUETOOTH_CATEGORY,
+                                              WIFI_CATEGORY
 	};
 
 	/**

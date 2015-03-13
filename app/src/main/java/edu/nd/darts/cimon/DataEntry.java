@@ -32,10 +32,10 @@ import edu.nd.darts.cimon.database.CimonDatabaseAdapter;
  * @see CimonDatabaseAdapter
  *
  */
-public class DataEntry {
+public class DataEntry<T> {
 
 	public long timestamp;
-	public float value;
+	public T value;
 	/**
 	 * Time and value pair for a single data entry in the Data table.
 	 * Used to batch inserts for efficiency.
@@ -43,8 +43,17 @@ public class DataEntry {
 	 * @param timestamp    timestamp of data acquisition
 	 * @param value    value acquired for metric
 	 */
-	public DataEntry(long timestamp, float value) {
+	public DataEntry(long timestamp, T value) {
 		this.timestamp = SystemClock.elapsedRealtime();
 		this.value = value;
 	}
+
+    public boolean isString() {
+        return String.class.isAssignableFrom(value.getClass());
+    }
+
+    public boolean isFloat() {
+        return Float.class.isAssignableFrom(value.getClass());
+    }
+
 }

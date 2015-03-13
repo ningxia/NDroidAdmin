@@ -206,7 +206,12 @@ public final class CimonDatabaseAdapter {
 			for (DataEntry entry : data) {
 				ContentValues contentValues=new ContentValues(values);
 				contentValues.put(DataTable.COLUMN_TIMESTAMP, entry.timestamp);
-				contentValues.put(DataTable.COLUMN_VALUE, entry.value);
+                if (entry.isFloat()) {
+                    contentValues.put(DataTable.COLUMN_VALUE, (Float) entry.value);
+                }
+                else if (entry.isString()) {
+                    contentValues.put(DataTable.COLUMN_VALUE, (String) entry.value);
+                }
 				if (database.insert(DataTable.TABLE_DATA,null,contentValues) >= 0) {
 					rowsInserted++;
 				}
@@ -226,52 +231,6 @@ public final class CimonDatabaseAdapter {
 		}
 		return rowsInserted;
 	}
-
-    /**
-     * Insert batch of new text data into Data table.
-     * Batch comes as array list of {@link TextDataEntry} (timestamp - data pairs).
-     *
-     * @param metric       id of metric
-     * @param monitor      id of monitor
-     * @param data         array list of {@link TextDataEntry} pairs
-     * @return    number of rows inserted (should equal size of _data_ array list on success)
-     *
-     * @see TextDataTable
-     */
-    public synchronized long insertBatchTextData(int metric, int monitor,
-                                             ArrayList<DataEntry> data) {
-        if (DebugLog.DEBUG) Log.d(TAG, "CimonDatabaseAdapter.insertBatchData - insert into Data table: " +
-                "metric-" + metric);
-        long rowsInserted = 0;
-        ContentValues values = new ContentValues();
-        values.put(TextDataTable.COLUMN_METRIC_ID, metric);
-        values.put(TextDataTable.COLUMN_MONITOR_ID, monitor);
-
-        database.beginTransaction();
-        try {
-            for (DataEntry entry : data) {
-                ContentValues contentValues = new ContentValues(values);
-                contentValues.put(TextDataTable.COLUMN_TIMESTAMP, entry.timestamp);
-                contentValues.put(TextDataTable.COLUMN_VALUE, entry.value);
-                if (database.insert(TextDataTable.TABLE_DATA, null, contentValues) >= 0) {
-                    rowsInserted ++;
-                }
-            }
-            // Transaction is successful and all the records have been inserted
-            database.setTransactionSuccessful();
-        } catch(Exception e) {
-            if (DebugLog.ERROR) Log.e(TAG, "Error on batch insert: " + e.toString());
-        } finally {
-            //End the transaction
-            database.endTransaction();
-        }
-        if (rowsInserted > 0) {
-            Uri uri = Uri.withAppendedPath(CimonContentProvider.MONITOR_DATA_URI,
-                    String.valueOf(monitor));
-            context.getContentResolver().notifyChange(uri, null);
-        }
-        return rowsInserted;
-    }
 	
 	/**
 	 * Insert new monitor into Monitor table, automatically generating monitor id.

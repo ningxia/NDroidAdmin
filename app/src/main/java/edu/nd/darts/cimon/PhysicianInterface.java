@@ -1,10 +1,12 @@
 package edu.nd.darts.cimon;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -45,7 +47,7 @@ public class PhysicianInterface extends Activity {
     private static Set<ActivityItem> allItems;
     private ArrayAdapter<ActivityCategory> listAdapter;
     private ActivityCategory location, mobility, activity, communication, wellbeing, social, everything;
-    private ActivityItem gps, accelerometer, gyroscope, bluetooth;
+    private ActivityItem gps, accelerometer, gyroscope, bluetooth, wifi;
     private static Button btnMonitor;
     private static TextView message;
 
@@ -54,9 +56,8 @@ public class PhysicianInterface extends Activity {
     private Handler backgroundHandler = null;
     private static AdminObserver adminObserver;
 
-    public static long period = 1000;
-//    public static long duration = 1000 * 3600 * 24 * 720;      // running for one year
-    public static long duration = 0;
+    public static final long PERIOD = 1000;
+    public static final long DURATION = 0;                  // continuous
 
     public static final String PHYSICIAN_METRICS = "physician_metrics";
     private static final String CHECKED_CATEGORIES = "checked_categories";
@@ -73,6 +74,8 @@ public class PhysicianInterface extends Activity {
      */
     private static Set<String> runningMetrics;
 
+    private BluetoothAdapter mBluetoothAdapter;
+    private static final int REQUEST_ENABLE_BT = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,8 +107,6 @@ public class PhysicianInterface extends Activity {
         }
 
 //        backgroundThread.start();
-
-//        monitorReports = new SparseArray<>();
 
         settings = getSharedPreferences(PHYSICIAN_METRICS, MODE_PRIVATE);
         if (ifPreference()) {
@@ -294,7 +295,7 @@ public class PhysicianInterface extends Activity {
                         Log.d(TAG, "PhysicianInterface.monitorManager - metric: " + i);
                     }
                     if (register) {
-                        monitorId = PhysicianInterface.this.registerPeriodic(i, period, duration);
+                        monitorId = PhysicianInterface.this.registerPeriodic(i, ai.getPeriod(), DURATION);
                         if (DebugLog.DEBUG) {
                             Log.d(TAG, "PhysicianInterface.monitorManager - monitorId: " + monitorId);
                         }
@@ -352,14 +353,16 @@ public class PhysicianInterface extends Activity {
     private void loadCategoryList() {
 
         gps = new ActivityItem("GPS", Metrics.LOCATION_CATEGORY, 3);
-        accelerometer = new ActivityItem("Accelerometer", Metrics.ACCELEROMETER, 4);
+        accelerometer = new ActivityItem("Acceler" +
+                "ometer", Metrics.ACCELEROMETER, 4);
         gyroscope = new ActivityItem("Gyroscope", Metrics.GYROSCOPE, 4);
-        bluetooth = new ActivityItem("Bluetooth", Metrics.BLUETOOTH_CATEGORY, 1);
+        bluetooth = new ActivityItem("Bluetooth", Metrics.BLUETOOTH_CATEGORY, 1, 60000);     // with 5 minutes period
+        wifi = new ActivityItem("Wifi", Metrics.WIFI_CATEGORY, 1);
 
         location = new ActivityCategory(
                 "Location",
                 new ArrayList<>(Arrays.asList(
-                        gps, bluetooth
+                        gps
                 ))
         );
 
@@ -374,6 +377,13 @@ public class PhysicianInterface extends Activity {
                 "Activity",
                 new ArrayList<>(Arrays.asList(
                         accelerometer, gyroscope
+                ))
+        );
+
+        communication = new ActivityCategory(
+                "Communication",
+                new ArrayList<>(Arrays.asList(
+                        bluetooth, wifi
                 ))
         );
 
@@ -396,16 +406,18 @@ public class PhysicianInterface extends Activity {
         gyroscope.addCategory(activity);
         gyroscope.addCategory(everything);
 
-        bluetooth.addCategory(location);
+        bluetooth.addCategory(communication);
+        wifi.addCategory(communication);
 
         categories = new ArrayList<>(Arrays.asList(
-                location, mobility, activity, everything
+                location, mobility, activity, communication, everything
         ));
 
         allItems = new LinkedHashSet<>();
         allItems.addAll(location.getItems());
         allItems.addAll(mobility.getItems());
         allItems.addAll(activity.getItems());
+        allItems.addAll(communication.getItems());
         allItems.addAll(everything.getItems());
 
     }
@@ -470,7 +482,8 @@ public class PhysicianInterface extends Activity {
         private String title;
         private int groupId;
         private int members;
-        private boolean selected = false;
+        private boolean selected;
+        private long period = PERIOD;
         private List<ActivityCategory> categories = new ArrayList<>();
 
         public ActivityItem(String title, int groupId, int members) {
@@ -478,6 +491,12 @@ public class PhysicianInterface extends Activity {
             this.groupId = groupId;
             this.members = members;
             this.selected = false;
+            this.period = PERIOD;
+        }
+
+        public ActivityItem(String title, int groupId, int members, long period) {
+            this(title, groupId, members);
+            this.period = period;
         }
 
         public void setTitle(String title) {
@@ -531,6 +550,14 @@ public class PhysicianInterface extends Activity {
             return this.selected;
         }
 
+        public void setPeriod(long period) {
+            this.period = period;
+        }
+
+        public long getPeriod() {
+            return period;
+        }
+
         public void addCategory(ActivityCategory ac) {
             this.categories.add(ac);
         }
@@ -560,7 +587,7 @@ public class PhysicianInterface extends Activity {
     }
 
 
-    private static class ActivityArrayAdapter extends ArrayAdapter<ActivityCategory> {
+    private class ActivityArrayAdapter extends ArrayAdapter<ActivityCategory> {
 
         private LayoutInflater inflater;
 
@@ -606,6 +633,13 @@ public class PhysicianInterface extends Activity {
                         textView.setText("");
                     }
 
+                    if (ac.isChecked() && ac.getItems().contains(bluetooth)) {
+                        enableBluetooth();
+                    }
+                    else {
+                        disableBluetooth();
+                    }
+
                     if (isChecked()) {
                         btnMonitor.setEnabled(true);
                     }
@@ -637,4 +671,36 @@ public class PhysicianInterface extends Activity {
             return convertView;
         }
     }
+
+
+    public void enableBluetooth() {
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!mBluetoothAdapter.isEnabled()) {
+            Log.i(TAG, "PhysicianInterface.enableBluetooth - is enabled");
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+        }
+
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        registerReceiver(BluetoothService.bluetoothReceiver, filter);
+        Log.i(TAG, "PhysicianInterface.enableBluetooth - registerReceiver");
+    }
+
+    public void disableBluetooth() {
+        unregisterReceiver(BluetoothService.bluetoothReceiver);
+        Log.i(TAG, "PhysicianInterface.enableBluetooth - unregisterReceiver");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_ENABLE_BT){
+            if(mBluetoothAdapter.isEnabled()) {
+                Toast.makeText(this, "Bluetooth is enabled.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "It is necessary to turn on Bluetooth!", Toast.LENGTH_SHORT).show();
+                enableBluetooth();
+            }
+        }
+    }
+
 }

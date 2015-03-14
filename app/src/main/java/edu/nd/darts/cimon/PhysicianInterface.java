@@ -112,6 +112,8 @@ public class PhysicianInterface extends Activity {
         if (ifPreference()) {
             resumeStatus();
         }
+
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
 //    private HandlerThread backgroundThread = new HandlerThread("physicianinterface") {
@@ -356,7 +358,7 @@ public class PhysicianInterface extends Activity {
         accelerometer = new ActivityItem("Acceler" +
                 "ometer", Metrics.ACCELEROMETER, 4);
         gyroscope = new ActivityItem("Gyroscope", Metrics.GYROSCOPE, 4);
-        bluetooth = new ActivityItem("Bluetooth", Metrics.BLUETOOTH_CATEGORY, 1, 60000);     // with 5 minutes period
+        bluetooth = new ActivityItem("Bluetooth", Metrics.BLUETOOTH_CATEGORY, 1, 60000);     // with 1 minute period
         wifi = new ActivityItem("Wifi", Metrics.WIFI_CATEGORY, 1);
 
         location = new ActivityCategory(
@@ -636,7 +638,7 @@ public class PhysicianInterface extends Activity {
                     if (ac.isChecked() && ac.getItems().contains(bluetooth)) {
                         enableBluetooth();
                     }
-                    else {
+                    else if (ac.getItems().contains(bluetooth)) {
                         disableBluetooth();
                     }
 
@@ -674,7 +676,6 @@ public class PhysicianInterface extends Activity {
 
 
     public void enableBluetooth() {
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "PhysicianInterface.enableBluetooth - is enabled");
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);

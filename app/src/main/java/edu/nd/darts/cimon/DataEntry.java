@@ -56,4 +56,8 @@ public class DataEntry<T> {
         return Float.class.isAssignableFrom(value.getClass());
     }
 
+    public boolean isDouble() {
+        return Double.class.isAssignableFrom(value.getClass());
+    }
+
 }

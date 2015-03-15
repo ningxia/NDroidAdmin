@@ -46,7 +46,7 @@ public final class CimonDatabaseAdapter {
 	private static final String TAG = "NDroid";
 	
 	private static CimonDatabaseAdapter mInstance = null;
-	private static SQLiteDatabase database;
+	public static SQLiteDatabase database;
 	private static CimonDatabaseHelper dbHelper;
 	private static Context context;
 //	private String[] allColumns = { MySQLiteHelper.COLUMN_ID,
@@ -212,6 +212,9 @@ public final class CimonDatabaseAdapter {
                 else if (entry.isString()) {
                     contentValues.put(DataTable.COLUMN_VALUE, (String) entry.value);
                 }
+                else if (entry.isDouble()) {
+                    contentValues.put(DataTable.COLUMN_VALUE, (Double) entry.value);
+                }
 				if (database.insert(DataTable.TABLE_DATA,null,contentValues) >= 0) {
 					rowsInserted++;
 				}
@@ -229,6 +232,9 @@ public final class CimonDatabaseAdapter {
 					String.valueOf(monitor));
 			context.getContentResolver().notifyChange(uri, null);
 		}
+
+        Log.d(TAG, "CimonDatabaseAdapter - test insert count: " + rowsInserted);
+
 		return rowsInserted;
 	}
 	

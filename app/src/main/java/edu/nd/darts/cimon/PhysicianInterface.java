@@ -36,11 +36,13 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Physician Interface
  * @author ningxia
  */
 public class PhysicianInterface extends Activity {
 
     private static final String TAG = "NDroid";
+    private static final String PACKAGE_NAME = "edu.nd.darts.cimon";
 
     private static ListView listView;
     private static List<ActivityCategory> categories;
@@ -51,24 +53,14 @@ public class PhysicianInterface extends Activity {
     private static Button btnMonitor;
     private static TextView message;
 
-    private static CimonInterface mCimonInterface = null;
-//    private SparseArray<MonitorReport> monitorReports;
-    private Handler backgroundHandler = null;
-    private static AdminObserver adminObserver;
-
     public static final long PERIOD = 1000;
     public static final long DURATION = 0;                  // continuous
 
     public static final String PHYSICIAN_METRICS = "physician_metrics";
     private static final String CHECKED_CATEGORIES = "checked_categories";
     public static final String RUNNING_METRICS = "running_metrics";
-    public static final String RUNNING_MONITOR_IDS = "running_monitor_ids";
     private static SharedPreferences settings;
     private static Set<String> checkedCategories;
-    /**
-     * Monitor Ids {@link edu.nd.darts.cimon.database.MonitorTable}
-     */
-    private static Set<String> runningMonitorIds;
     /**
      * Metrics {@link edu.nd.darts.cimon.Metrics}
      */
@@ -76,6 +68,7 @@ public class PhysicianInterface extends Activity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private static final int REQUEST_ENABLE_BT = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,19 +87,8 @@ public class PhysicianInterface extends Activity {
         btnMonitor.setOnClickListener(btnMonitorHandler);
         message = (TextView) findViewById(R.id.physician_message);
 
-//        startService(new Intent(this, NDroidService.class));
-        adminObserver = SensorObserver.getInstance();
-
-        Intent intent = new Intent(NDroidService.class.getName());
-        intent.setPackage("edu.nd.darts.cimon");
-        if(getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE)) {
-            if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.onCreate - bind service.");
-        }
-        else {
-            if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.onCreate - bind service failed.");
-        }
-
-//        backgroundThread.start();
+        // make sure that the NDroidService is running
+        startService(new Intent(this, NDroidService.class));
 
         settings = getSharedPreferences(PHYSICIAN_METRICS, MODE_PRIVATE);
         if (ifPreference()) {
@@ -116,47 +98,13 @@ public class PhysicianInterface extends Activity {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
-//    private HandlerThread backgroundThread = new HandlerThread("physicianinterface") {
-//        @Override
-//        protected void onLooperPrepared() {
-//            backgroundHandler = new Handler(getMainLooper());
-//            super.onLooperPrepared();
-//        }
-//    };
-
-    /**
-     * Class for interacting with the main interface of the service.
-     * On connection, acquire binder to {@link CimonInterface} from the
-     * CIMON background service.
-     */
-    private ServiceConnection mConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // This is called when the connection with the service has been
-            // established, giving us the service object we can use to
-            // interact with the service.  We are communicating with our
-            // service through an IDL interface, so get a client-side
-            // representation of that from the raw service object.
-            if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.NDroidSystem.onServiceConnected - connected");
-            mCimonInterface = CimonInterface.Stub.asInterface(service);
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
-            // This is called when the connection with the service has been
-            // unexpectedly disconnected -- that is, its process crashed.
-            if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.NDroidSystem.onServiceDisconnected - disconnected");
-            mCimonInterface = null;
-
-        }
-    };
-
     /**
      * Set preference
      * @param bool boolean value indicating set or clear preferences
      */
     public void setPreference(boolean bool) {
         if (DebugLog.DEBUG) {
-            Log.d(TAG, "Physician.setPreference - preferences set " + bool);
+            Log.d(TAG, "PhysicianInterface.setPreference - preferences set " + bool);
         }
         SharedPreferences.Editor editor = settings.edit();
 
@@ -168,7 +116,6 @@ public class PhysicianInterface extends Activity {
                 }
             }
             editor.putStringSet(CHECKED_CATEGORIES, checkedCategories);
-            editor.putStringSet(RUNNING_MONITOR_IDS, runningMonitorIds);
             editor.putStringSet(RUNNING_METRICS, runningMetrics);
         }
         else {
@@ -178,6 +125,9 @@ public class PhysicianInterface extends Activity {
         editor.commit();
     }
 
+    /**
+     * Resume previous status
+     */
     private void resumeStatus() {
         if (ifPreference()) {
             Toast.makeText(this, "Monitors are running...", Toast.LENGTH_LONG).show();
@@ -193,6 +143,10 @@ public class PhysicianInterface extends Activity {
         }
     }
 
+    /**
+     * Check if there is SharedPreference
+     * @return boolean
+     */
     public static boolean ifPreference() {
         checkedCategories = settings.getStringSet(CHECKED_CATEGORIES, null);
         if (checkedCategories != null) {
@@ -200,61 +154,6 @@ public class PhysicianInterface extends Activity {
         }
         else {
             return false;
-        }
-    }
-
-    /**
-     * Register a new periodic update when metric is selected via ActivityCategory.
-     * @param metric    integer representing metric (per {@link Metrics}) to register
-     * @param period    period between updates, in milliseconds
-     * @param duration  duration to run monitor, in milliseconds
-     * @return  unique id of registered monitor, -1 on failure (typically because metric is not supported on this system)
-     */
-    public static int registerPeriodic(int metric, long period, long duration) {
-        if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.registerPeriodic - metric:" + metric + " period:" +
-                period + " duration:" + duration);
-        int monitorId = -1;
-        if (mCimonInterface == null) {
-            if (DebugLog.INFO) Log.i(TAG, "PhysicianInterface.registerPeriodic - register: service inactive");
-        }
-        else {
-            try {
-                if (!adminObserver.getStatus(metric)) {
-                    monitorId = mCimonInterface.registerPeriodic(
-                            metric, period, duration, false, null);	//mMessenger
-                    adminObserver.setActive(metric, monitorId);
-//                    monitorReports.append(monitorId,
-//                            new MonitorReport(this, metric, monitorId, backgroundHandler, adminObserver,
-//                                    true, true, false, false, false));
-                }
-            } catch (RemoteException e) {
-                if (DebugLog.INFO) Log.i(TAG, "PhysicianInterface.registerPeriodic - register failed");
-                e.printStackTrace();
-            }
-        }
-        return monitorId;
-    }
-
-    /**
-     * Unregister periodic update monitor which was registered through administration activity.
-     * This method is called by the onCheckedChanged listener for the Enable button
-     * of the administration rows when the state is changed to disable.
-     *
-     * @param metric    integer representing metric (per {@link Metrics}) to unregister
-     */
-    public void unregisterPeriodic(int metric) {
-        if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.OnClickListener - unregister periodic");
-        if (mCimonInterface != null) {
-            try {
-                int monitorId = adminObserver.getMonitor(metric);
-                if (monitorId >= 0) {
-                    mCimonInterface.unregisterPeriodic(metric, monitorId);
-                    adminObserver.setInactive(metric, monitorId);
-                }
-            } catch (RemoteException e) {
-                if (DebugLog.INFO) Log.i(TAG, "PhysicianInterface.unregisterPeriodic - unregister failed");
-                e.printStackTrace();
-            }
         }
     }
 
@@ -272,12 +171,15 @@ public class PhysicianInterface extends Activity {
                 monitorManager(true);
                 message.setText("Running...");
                 message.setVisibility(View.VISIBLE);
+                startPhysicianService();
             }
             else {
                 btn.setText("Monitor");
                 enableCheckbox(true);
                 monitorManager(false);
                 message.setVisibility(View.GONE);
+                Intent intent = new Intent(PhysicianInterface.this, PhysicianService.class);
+                stopService(intent);
             }
         }
     };
@@ -287,8 +189,6 @@ public class PhysicianInterface extends Activity {
      * @param register register multiple monitors or not
      */
     private void monitorManager(boolean register) {
-        int monitorId;
-        runningMonitorIds = new HashSet<>();
         runningMetrics = new HashSet<>();
         for (ActivityItem ai : allItems) {
             if (ai.getSelected()) {
@@ -296,23 +196,21 @@ public class PhysicianInterface extends Activity {
                     if (DebugLog.DEBUG) {
                         Log.d(TAG, "PhysicianInterface.monitorManager - metric: " + i);
                     }
-                    if (register) {
-                        monitorId = PhysicianInterface.this.registerPeriodic(i, ai.getPeriod(), DURATION);
-                        if (DebugLog.DEBUG) {
-                            Log.d(TAG, "PhysicianInterface.monitorManager - monitorId: " + monitorId);
-                        }
-                        runningMonitorIds.add(Integer.toString(monitorId));
-                        runningMetrics.add(Integer.toString(i));
-                    }
-                    else {
-                        PhysicianInterface.this.unregisterPeriodic(i);
-                    }
+                    runningMetrics.add(Integer.toString(i) + "|" + ai.getPeriod() + "|" + DURATION);
                 }
             }
         }
-
         // set or clear the SharedPreference accordingly
         setPreference(register);
+    }
+
+    /**
+     * Start PhysicianService
+     */
+    private void startPhysicianService() {
+        Intent intent = new Intent(MyApplication.getAppContext(), PhysicianService.class);
+        intent.putStringArrayListExtra(PACKAGE_NAME + "." + RUNNING_METRICS, new ArrayList<>(runningMetrics));
+        startService(intent);
     }
 
     /**
@@ -333,6 +231,10 @@ public class PhysicianInterface extends Activity {
         }
     }
 
+    /**
+     * Test if there is any ActivityCategory is checked
+     * @return true if checked
+     */
     private static boolean isChecked() {
         for (ActivityCategory ac : categories) {
             if (ac.isChecked()) {
@@ -342,6 +244,10 @@ public class PhysicianInterface extends Activity {
         return false;
     }
 
+    /**
+     * Test if none of ActivityCategories is checked
+     * @return true if none is checked
+     */
     private static boolean nonChecked() {
         for (ActivityCategory ac : categories) {
             if (ac.isChecked()) {
@@ -351,9 +257,10 @@ public class PhysicianInterface extends Activity {
         return true;
     }
 
-
+    /**
+     * Load ActivityCategory list
+     */
     private void loadCategoryList() {
-
         gps = new ActivityItem("GPS", Metrics.LOCATION_CATEGORY, 3);
         accelerometer = new ActivityItem("Acceler" +
                 "ometer", Metrics.ACCELEROMETER, 4);
@@ -425,8 +332,10 @@ public class PhysicianInterface extends Activity {
     }
 
 
+    /**
+     * ActivityCategory class for displaying activity categories
+     */
     private static class ActivityCategory {
-
         private String title;
         private boolean checked;
         private List<ActivityItem> items;
@@ -478,7 +387,9 @@ public class PhysicianInterface extends Activity {
 
     }
 
-
+    /**
+     * ActivityItem class for each individual activity
+     */
     private static class ActivityItem {
 
         private String title;
@@ -569,7 +480,9 @@ public class PhysicianInterface extends Activity {
         }
     }
 
-
+    /**
+     * Class for holding CheckBox and TextView within each item of ListView
+     */
     private static class ActivityHolder {
         private CheckBox checkBox;
         private TextView textView;
@@ -588,7 +501,9 @@ public class PhysicianInterface extends Activity {
         }
     }
 
-
+    /**
+     * Activity ArrayAdapter for ListView
+     */
     private class ActivityArrayAdapter extends ArrayAdapter<ActivityCategory> {
 
         private LayoutInflater inflater;
@@ -636,10 +551,9 @@ public class PhysicianInterface extends Activity {
                     }
 
                     if (ac.isChecked() && ac.getItems().contains(bluetooth)) {
-                        enableBluetooth();
-                    }
-                    else if (ac.getItems().contains(bluetooth)) {
-                        disableBluetooth();
+                        /* Enable Bluetooth explicitly */
+                        // enableBluetooth();
+                        mBluetoothAdapter.enable();
                     }
 
                     if (isChecked()) {
@@ -674,22 +588,15 @@ public class PhysicianInterface extends Activity {
         }
     }
 
-
+    /**
+     * Enable Bluetooth explicitly
+     */
     public void enableBluetooth() {
         if (!mBluetoothAdapter.isEnabled()) {
             Log.i(TAG, "PhysicianInterface.enableBluetooth - is enabled");
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
         }
-
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(BluetoothService.bluetoothReceiver, filter);
-        Log.i(TAG, "PhysicianInterface.enableBluetooth - registerReceiver");
-    }
-
-    public void disableBluetooth() {
-        unregisterReceiver(BluetoothService.bluetoothReceiver);
-        Log.i(TAG, "PhysicianInterface.enableBluetooth - unregisterReceiver");
     }
 
     @Override

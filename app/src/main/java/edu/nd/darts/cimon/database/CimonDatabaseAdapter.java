@@ -211,6 +211,9 @@ public final class CimonDatabaseAdapter {
                 } else if (entry.isString()) {
                     contentValues.put(DataTable.COLUMN_VALUE, (String) entry.value);
                 }
+                else if (entry.isDouble()) {
+                    contentValues.put(DataTable.COLUMN_VALUE, (Double) entry.value);
+                }
                 if (database.insert(DataTable.TABLE_DATA, null, contentValues) >= 0) {
                     rowsInserted++;
                 }

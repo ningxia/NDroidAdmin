@@ -211,6 +211,7 @@ public class PhysicianInterface extends Activity {
         Intent intent = new Intent(MyApplication.getAppContext(), PhysicianService.class);
         intent.putStringArrayListExtra(PACKAGE_NAME + "." + RUNNING_METRICS, new ArrayList<>(runningMetrics));
         startService(intent);
+        if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.startPhysicianService - started");
     }
 
     /**

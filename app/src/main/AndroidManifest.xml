@@ -19,6 +19,8 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -41,6 +43,16 @@
                 <action android:name="edu.nd.darts.cimon.NDroidService" />
             </intent-filter>
         </service>
+
+        <service
+            android:name=".PhysicianService"
+            android:enabled="true"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="edu.nd.darts.cimon.PhysicianService" />
+            </intent-filter>
+        </service>
+
         <service android:name="edu.nd.darts.cimon.UploadingService">
             <intent-filter>
                 <action android:name="edu.nd.darts.cimon.NDroidService" />
@@ -57,19 +69,25 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".PhysicianReceiver"
+            android:enabled="true"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
+            </intent-filter>
+        </receiver>
+
         <provider
             android:name=".contentprovider.CimonContentProvider"
             android:authorities="edu.nd.darts.cimon.contentprovider"></provider>
 
         <activity
             android:name=".CimonListView"
-            android:label="@string/app_name" />
-        <!--
-             <activity android:name="edu.nd.darts.cimon.NDroidSystem" android:label="@string/app_name" 
-			/> <activity android:name="edu.nd.darts.cimon.NDroidSensor" android:label="@string/app_name" 
-			/> <activity android:name="edu.nd.darts.cimon.NDroidUser" android:label="@string/app_name" 
-			/>
-        -->
+            android:label="@string/app_name">
+        </activity>
+
         <activity
             android:name=".LabelingInterface"
             android:label="@string/title_activity_ll">
@@ -79,14 +97,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".TechnitianInterface"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_technitian_interface"></activity>
+            android:label="@string/title_activity_technitian_interface" >
+        </activity>
+
         <activity
             android:name=".PhysicianInterface"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_physician_interface"></activity>
+            android:label="@string/title_activity_physician_interface" >
+        </activity>
+
     </application>
 
 </manifest>

@@ -33,7 +33,7 @@ public class PhysicianService extends Service {
 
     BluetoothAdapter mBluetoothAdapter;
 
-    private static final String PHYSICIAN_METRICS = "physician_metrics";
+    private static final String PHYSICIAN_PREFS = "physician_prefs";
     private static final String RUNNING_METRICS = "running_metrics";
     private static final String RUNNING_MONITOR_IDS = "running_monitor_ids";
     private static SharedPreferences settings;
@@ -70,7 +70,7 @@ public class PhysicianService extends Service {
         if (!thread.isAlive()) {
             thread.start();
         }
-        settings = getSharedPreferences(PHYSICIAN_METRICS, MODE_PRIVATE);
+        settings = getSharedPreferences(PHYSICIAN_PREFS, MODE_PRIVATE);
         editor = settings.edit();
         runningMonitorIds = new HashSet<>();
     }

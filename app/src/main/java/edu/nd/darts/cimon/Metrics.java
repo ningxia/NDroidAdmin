@@ -602,27 +602,40 @@ public final class Metrics {
 	 * Units: messages
 	 */
 	public static final int INCOMINGMMS = 181;
-	
-	public static final int MAX_METRIC = 185;
-//	public static final int CATEGORY_SIZE = 10;
 
     /** Category for Bluetooth related metrics */
-    public static final int BLUETOOTH_CATEGORY = 190;
-
+    public static final int BLUETOOTH_CATEGORY = 185;
     /**
      * Bluetooth device ID
      * Type: String <br>
      */
-    public static final int BLUETOOTH_DEVICE = 190;
+    public static final int BLUETOOTH_DEVICE = 185;
 
     /** Category for Wifi related metrics */
-    public static final int WIFI_CATEGORY = 195;
-
+    public static final int WIFI_CATEGORY = 190;
     /**
      * Wifi network
      * Type: String <br>
      */
-    public static final int WIFI_NETWORK = 195;
+    public static final int WIFI_NETWORK = 190;
+
+    /** Category for SMS Information related metrics. */
+    public static final int SMS_INFO_CATEGORY = 195;
+    /**
+     * SMS message sent time and receiver.
+     * Type: String <br>
+     * Units: messages
+     */
+    public static final int SMSSENT = 196;
+    /**
+     * SMS message received time and sender.
+     * Type: String <br>
+     * Units: messages
+     */
+    public static final int SMSRECEIVED = 197;
+	
+	public static final int MAX_METRIC = 200;
+//	public static final int CATEGORY_SIZE = 10;
 
     public static final int[] SYSTEM_METRICS = {MEMORY_CATEGORY,
 												CPULOAD_CATEGORY,
@@ -653,6 +666,7 @@ public final class Metrics {
 											  MMS_CATEGORY,
                                               BLUETOOTH_CATEGORY,
                                               WIFI_CATEGORY
+//                                              SMS_INFO_CATEGORY
 	};
 
 	/**

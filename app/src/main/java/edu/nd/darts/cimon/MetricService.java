@@ -736,6 +736,9 @@ public abstract class MetricService<T extends Comparable<T>> implements Observab
             case Metrics.WIFI_CATEGORY:
                 if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch Wifi activity service");
                 return WifiService.getInstance();
+            case Metrics.SMS_INFO_CATEGORY:
+                if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch SMS information service");
+                return SMSInfoService.getInstance();
 			default:
 				if (DebugLog.INFO) Log.i(TAG, "MetricService.getService - unrecognized metric");
 				return null;

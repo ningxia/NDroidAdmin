@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -49,16 +50,18 @@ public class PhysicianInterface extends Activity {
     private static Set<ActivityItem> allItems;
     private ArrayAdapter<ActivityCategory> listAdapter;
     private ActivityCategory location, mobility, activity, communication, wellbeing, social, everything;
-    private ActivityItem gps, accelerometer, gyroscope, bluetooth, wifi;
+    private ActivityItem gps, accelerometer, gyroscope, bluetooth, wifi, sms;
     private static Button btnMonitor;
     private static TextView message;
 
     public static final long PERIOD = 1000;
     public static final long DURATION = 0;                  // continuous
 
-    public static final String PHYSICIAN_METRICS = "physician_metrics";
+    private static final String SHARED_PREFS = "CimonSharedPrefs";
+    private static final String PREF_VERSION = "version";
+    private static final String PHYSICIAN_PREFS = "physician_prefs";
     private static final String CHECKED_CATEGORIES = "checked_categories";
-    public static final String RUNNING_METRICS = "running_metrics";
+    private static final String RUNNING_METRICS = "running_metrics";
     private static SharedPreferences settings;
     private static Set<String> checkedCategories;
     /**
@@ -77,6 +80,12 @@ public class PhysicianInterface extends Activity {
 
         listView = (ListView) findViewById(R.id.physician_listView);
 
+        /**
+         * Insert existing metric categories into
+         * @see edu.nd.darts.cimon.database.MetricInfoTable
+         */
+        loadMetricInfoTable();
+
         // load category list
         loadCategoryList();
 
@@ -90,12 +99,52 @@ public class PhysicianInterface extends Activity {
         // make sure that the NDroidService is running
         startService(new Intent(this, NDroidService.class));
 
-        settings = getSharedPreferences(PHYSICIAN_METRICS, MODE_PRIVATE);
+        settings = getSharedPreferences(PHYSICIAN_PREFS, MODE_PRIVATE);
         if (ifPreference()) {
             resumeStatus();
         }
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    }
+
+    private void loadMetricInfoTable() {
+        SharedPreferences appPrefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
+        int storedVersion = appPrefs.getInt(PREF_VERSION, -1);
+        int appVersion = -1;
+        try {
+            appVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        if (DebugLog.DEBUG) Log.d(TAG, "NDroidAdmin.onCreate - appVersion:" + appVersion +
+                " storedVersion:" + storedVersion);
+        if (appVersion > storedVersion) {
+            new Thread(new Runnable() {
+
+                public void run() {
+                    List<MetricService<?>> serviceList;
+                    serviceList = MetricService.getServices(Metrics.TYPE_SYSTEM);
+                    for (MetricService<?> mService : serviceList) {
+                        mService.insertDatabaseEntries();
+                    }
+                    serviceList.clear();
+                    serviceList = MetricService.getServices(Metrics.TYPE_SENSOR);
+                    for (MetricService<?> mService : serviceList) {
+                        mService.insertDatabaseEntries();
+                    }
+                    serviceList.clear();
+                    serviceList = MetricService.getServices(Metrics.TYPE_USER);
+                    for (MetricService<?> mService : serviceList) {
+                        mService.insertDatabaseEntries();
+                    }
+                    serviceList.clear();
+                }
+            }).start();
+            SharedPreferences.Editor editor = appPrefs.edit();
+            editor.putInt(PREF_VERSION, appVersion);
+            editor.commit();
+        }
     }
 
     /**
@@ -268,6 +317,7 @@ public class PhysicianInterface extends Activity {
         gyroscope = new ActivityItem("Gyroscope", Metrics.GYROSCOPE, 4);
         bluetooth = new ActivityItem("Bluetooth", Metrics.BLUETOOTH_CATEGORY, 1, 60000);     // with 1 minute period
         wifi = new ActivityItem("Wifi", Metrics.WIFI_CATEGORY, 1);
+        sms = new ActivityItem("SMS", Metrics.SMS_INFO_CATEGORY, 2);
 
         location = new ActivityCategory(
                 "Location",
@@ -294,6 +344,7 @@ public class PhysicianInterface extends Activity {
                 "Communication",
                 new ArrayList<>(Arrays.asList(
                         bluetooth, wifi
+//                        wifi, sms
                 ))
         );
 
@@ -318,6 +369,7 @@ public class PhysicianInterface extends Activity {
 
         bluetooth.addCategory(communication);
         wifi.addCategory(communication);
+//        sms.addCategory(communication);
 
         categories = new ArrayList<>(Arrays.asList(
                 location, mobility, activity, communication, everything

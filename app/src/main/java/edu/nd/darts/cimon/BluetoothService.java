@@ -67,7 +67,7 @@ public class BluetoothService extends MetricService<String> {
     void insertDatabaseEntries() {
         Context context = MyApplication.getAppContext();
         CimonDatabaseAdapter database = CimonDatabaseAdapter.getInstance(context);
-        database.insertOrReplaceMetricInfo(groupId, title, mBluetoothAdapter.getName(), SUPPORTED, 0, 0, String.valueOf(Integer.MAX_VALUE), "1 device", Metrics.TYPE_USER);
+        database.insertOrReplaceMetricInfo(groupId, title, mBluetoothAdapter.getName(), NOTSUPPORTED, 0, 0, String.valueOf(Integer.MAX_VALUE), "1 device", Metrics.TYPE_USER);
         database.insertOrReplaceMetrics(groupId + 0, groupId, metrics[0], "", 1000);
     }
 

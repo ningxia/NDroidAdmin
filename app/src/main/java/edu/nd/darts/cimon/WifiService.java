@@ -69,9 +69,10 @@ public class WifiService extends MetricService<String> {
 
     @Override
     void insertDatabaseEntries() {
+        if (DebugLog.DEBUG) Log.d(TAG, "WifiService.insertDatabaseEntries - insert entries");
         Context context = MyApplication.getAppContext();
         CimonDatabaseAdapter database = CimonDatabaseAdapter.getInstance(context);
-        database.insertOrReplaceMetricInfo(groupId, title, "WIFI", SUPPORTED, 0, 0, String.valueOf(Integer.MAX_VALUE), "1 network", Metrics.TYPE_USER);
+        database.insertOrReplaceMetricInfo(groupId, title, "WIFI", NOTSUPPORTED, 0, 0, String.valueOf(Integer.MAX_VALUE), "1 network", Metrics.TYPE_USER);
         database.insertOrReplaceMetrics(groupId + 0, groupId, metrics[0], "", 1000);
     }
 

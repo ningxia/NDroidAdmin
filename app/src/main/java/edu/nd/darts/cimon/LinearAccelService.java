@@ -117,10 +117,16 @@ public final class LinearAccelService extends MetricService<Float> implements
 				mAccelerometer.getResolution() + " " + context.getString(R.string.units_ms2), 
 				Metrics.TYPE_SENSOR);
 		// insert information for metrics in group into database
-		for (int i = 0; i < ACCEL_METRICS; i++) {
-			database.insertOrReplaceMetrics(groupId + i, groupId, metrics[i], 
-					context.getString(R.string.units_ms2), mAccelerometer.getMaximumRange());
-		}
+//		for (int i = 0; i < ACCEL_METRICS; i++) {
+//			database.insertOrReplaceMetrics(groupId + i, groupId, metrics[i],
+//					context.getString(R.string.units_ms2), mAccelerometer.getMaximumRange());
+//		}
+        for (int i = 0; i < ACCEL_METRICS - 1; i++) {
+            database.insertOrReplaceMetrics(groupId + i, groupId, metrics[i],
+                    context.getString(R.string.units_ms2), 2.0f);
+        }
+        database.insertOrReplaceMetrics(groupId + ACCEL_METRICS - 1, groupId, metrics[ACCEL_METRICS - 1],
+                context.getString(R.string.units_ms2), 3.5f);
 	}
 
 	@Override

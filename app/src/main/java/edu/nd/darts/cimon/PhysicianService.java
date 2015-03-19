@@ -88,7 +88,7 @@ public class PhysicianService extends Service {
         for (String rm : runningMetrics) {
             tokens = rm.split("\\|");
             try {
-                int monitorId = mCimonInterface.registerPeriodic(Integer.parseInt(tokens[0]), Long.parseLong(tokens[1]), Long.parseLong(tokens[2]), false, null);
+                int monitorId = mCimonInterface.registerPeriodic(Integer.parseInt(tokens[0]), Long.parseLong(tokens[1]), Long.parseLong(tokens[2]), true, null);
                 runningMonitorIds.add(tokens[0] + "|" + Integer.toString(monitorId));
                 if (Metrics.BLUETOOTH_DEVICE == Integer.parseInt(tokens[0])) {
                     registerBluetooth();

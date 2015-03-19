@@ -449,7 +449,7 @@ public class PhysicianInterface extends Activity {
         private int groupId;
         private int members;
         private boolean selected;
-        private long period = PERIOD;
+        private long period;
         private List<ActivityCategory> categories = new ArrayList<>();
 
         public ActivityItem(String title, int groupId, int members) {

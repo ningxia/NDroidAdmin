@@ -27,11 +27,9 @@ import edu.nd.darts.cimon.database.MetricInfoTable;
  * Upadloing Service For Data
  *
  * @author Xiao(Sean) Bo
- *
  */
-public class UploadingService  extends Service {
-    private static final String[] uploadTables = {DataTable.TABLE_DATA,
-            MetricInfoTable.TABLE_METRICINFO, LabelingHistory.TABLE_NAME};
+public class UploadingService extends Service {
+    private static final String[] uploadTables = {MetricInfoTable.TABLE_METRICINFO, LabelingHistory.TABLE_NAME, DataTable.TABLE_DATA};
     private static final int period = 10000;
 
     @Override
@@ -62,7 +60,6 @@ public class UploadingService  extends Service {
      * One iteration of upload.
      *
      * @author Xiao(Sean) Bo
-     *
      */
     private void runUpload() {
         Calendar timeConverter = Calendar.getInstance();
@@ -91,10 +88,8 @@ public class UploadingService  extends Service {
     /**
      * Update from certain table.
      *
-     * @author Xiao(Sean) Bo
-     *
      * @param tableName table to update
-     *
+     * @author Xiao(Sean) Bo
      */
     private void uploadFromTable(String tableName) throws JSONException,
             MalformedURLException {
@@ -138,12 +133,10 @@ public class UploadingService  extends Service {
     /**
      * Upload batch data to server.
      *
-     * @author Xiao(Sean) Bo
-     *
-     * @param records Array of JSON
+     * @param records   Array of JSON
      * @param tableName table to update
-     * @param rowIDs Corresponding row IDs of JSON
-     *
+     * @param rowIDs    Corresponding row IDs of JSON
+     * @author Xiao(Sean) Bo
      */
 
     private void batchUpload(JSONArray records, String tableName,
@@ -151,26 +144,25 @@ public class UploadingService  extends Service {
             JSONException {
         DataCommunicator comm = new DataCommunicator();
         JSONObject mainPackage = new JSONObject();
-        mainPackage.put("type", "Test");
         mainPackage.put("records", records);
         mainPackage.put("table", tableName);
         String deviceID = getDeviceID();
         mainPackage.put("device_id", deviceID);
         String callBack = comm.postData(mainPackage.toString().getBytes());
+        this.sendDebuginfo(callBack);
         if (callBack.equals("Success")
-                && (tableName.equals("data") || tableName
-                .equals("labelling_history")))
+                && (tableName.equals(DataTable.TABLE_DATA) || tableName
+                .equals(LabelingHistory.TABLE_NAME))) {
             garbageCollection(rowIDs, tableName);
+        }
     }
 
     /**
      * Upload batch data to server.
      *
-     * @author Xiao(Sean) Bo
-     *
      * @param tableName table to update
-     * @param rowIDs Corresponding row IDs to delete
-     *
+     * @param rowIDs    Corresponding row IDs to delete
+     * @author Xiao(Sean) Bo
      */
 
     private static void garbageCollection(ArrayList<Integer> rowIDs,
@@ -187,8 +179,6 @@ public class UploadingService  extends Service {
      * Get device ID.
      *
      * @author Xiao(Sean) Bo
-     *
-     *
      */
 
     private String getDeviceID() {
@@ -200,7 +190,7 @@ public class UploadingService  extends Service {
             JSONException {
         DataCommunicator comm = new DataCommunicator();
         JSONObject debugInfo = new JSONObject();
-        debugInfo.put("type", "Test");
+        debugInfo.put("table", "Test");
         debugInfo.put("info", msg);
         comm.postData(debugInfo.toString().getBytes());
     }

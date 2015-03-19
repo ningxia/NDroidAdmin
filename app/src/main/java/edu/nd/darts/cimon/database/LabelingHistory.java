@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
  *
  */
 public class LabelingHistory {
-    public static final String TABLE_NAME = "labelling_history";
+    public static final String TABLE_NAME = "labeling_history";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_START = "start_time";
     public static final String COLUMN_END = "end_time";

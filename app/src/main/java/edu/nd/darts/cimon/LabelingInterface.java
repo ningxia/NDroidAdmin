@@ -217,7 +217,9 @@ public class LabelingInterface extends Activity {
                     timeIntervalSpinner
                             .setVisibility(timeIntervalSpinner.INVISIBLE);
                     LoginButton.setEnabled(true);
-                    labelDB.insertData(work, startTime, endTime);
+                    if (!curWork.equals("Select work")){
+                        labelDB.insertData(work, startTime, endTime);
+                    }
                     workSpinner.setSelection(0);
                 }
             }

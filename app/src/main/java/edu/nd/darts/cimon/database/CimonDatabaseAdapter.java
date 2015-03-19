@@ -49,6 +49,8 @@ public final class CimonDatabaseAdapter {
     public static SQLiteDatabase database;
     private static CimonDatabaseHelper dbHelper;
     private static Context context;
+    //private static final String PATH = "/data/data/edu.nd.darts.cimon/databases/labellingdb";
+
 //	private String[] allColumns = { MySQLiteHelper.COLUMN_ID,
 //			MySQLiteHelper.COLUMN_COMMENT };
 
@@ -169,7 +171,8 @@ public final class CimonDatabaseAdapter {
         ContentValues values = new ContentValues();
         values.put(DataTable.COLUMN_METRIC_ID, metric);
         values.put(DataTable.COLUMN_MONITOR_ID, monitor);
-        values.put(DataTable.COLUMN_TIMESTAMP, this.upTimeToRealTime(timestamp));
+        //values.put(DataTable.COLUMN_TIMESTAMP, this.upTimeToRealTime(timestamp));
+        values.put(DataTable.COLUMN_TIMESTAMP, timestamp);
         values.put(DataTable.COLUMN_VALUE, value);
 
         long rowid = database.insert(DataTable.TABLE_DATA, null, values);

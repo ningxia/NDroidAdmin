@@ -217,7 +217,7 @@ public final class CimonDatabaseAdapter {
                 if (database.insert(DataTable.TABLE_DATA, null, contentValues) >= 0) {
                     rowsInserted++;
                 }
-//                if (DebugLog.DEBUG) Log.d(TAG, "insertBatchData: " + metric + " t: " + this.upTimeToRealTime(entry.timestamp) + " - v: " + entry.value);
+                if (DebugLog.DEBUG) Log.d(TAG, "insertBatchData: " + metric + " t: " + this.upTimeToRealTime(entry.timestamp) + " - v: " + entry.value);
             }
             // Transaction is successful and all the records have been inserted
             database.setTransactionSuccessful();

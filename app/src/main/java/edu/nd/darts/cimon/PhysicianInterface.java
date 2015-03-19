@@ -49,8 +49,8 @@ public class PhysicianInterface extends Activity {
     private static List<ActivityCategory> categories;
     private static Set<ActivityItem> allItems;
     private ArrayAdapter<ActivityCategory> listAdapter;
-    private ActivityCategory location, mobility, activity, communication, wellbeing, social, everything;
-    private ActivityItem gps, accelerometer, gyroscope, bluetooth, wifi, sms;
+    private ActivityCategory mobility, activity, social, wellbeing , everything;
+    private ActivityItem gps, accelerometer, gyroscope, bluetooth, wifi, magnetometer, proximity, sms;
     private static Button btnMonitor;
     private static TextView message;
 
@@ -311,75 +311,90 @@ public class PhysicianInterface extends Activity {
      * Load ActivityCategory list
      */
     private void loadCategoryList() {
+        accelerometer = new ActivityItem("Accelerometer", Metrics.ACCELEROMETER, 4);
         gps = new ActivityItem("GPS", Metrics.LOCATION_CATEGORY, 3);
-        accelerometer = new ActivityItem("Acceler" +
-                "ometer", Metrics.ACCELEROMETER, 4);
-        gyroscope = new ActivityItem("Gyroscope", Metrics.GYROSCOPE, 4);
-        bluetooth = new ActivityItem("Bluetooth", Metrics.BLUETOOTH_CATEGORY, 1, 60000);     // with 1 minute period
         wifi = new ActivityItem("Wifi", Metrics.WIFI_CATEGORY, 1);
-        sms = new ActivityItem("SMS", Metrics.SMS_INFO_CATEGORY, 2);
+        bluetooth = new ActivityItem("Bluetooth", Metrics.BLUETOOTH_CATEGORY, 1, 60000);     // with 1 minute period
+        gyroscope = new ActivityItem("Gyroscope", Metrics.GYROSCOPE, 4);
+        magnetometer = new ActivityItem("Magnetometer", Metrics.MAGNETOMETER, 4);
+        proximity = new ActivityItem("Proximity", Metrics.PROXIMITY, 1);
 
-        location = new ActivityCategory(
-                "Location",
-                new ArrayList<>(Arrays.asList(
-                        gps
-                ))
-        );
-
+        // Table II: Sensor Priority (High or Medium)
         mobility = new ActivityCategory(
                 "Mobility",
                 new ArrayList<>(Arrays.asList(
-                        gps, accelerometer, gyroscope
+                        accelerometer, gps, gyroscope, magnetometer
                 ))
         );
 
         activity = new ActivityCategory(
                 "Activity",
                 new ArrayList<>(Arrays.asList(
-                        accelerometer, gyroscope
+                        accelerometer, gps, wifi, bluetooth, gyroscope, magnetometer, proximity
                 ))
         );
 
-        communication = new ActivityCategory(
-                "Communication",
+        social = new ActivityCategory(
+                "Social Interaction",
                 new ArrayList<>(Arrays.asList(
-                        bluetooth, wifi
-//                        wifi, sms
+                        accelerometer, gps, wifi, bluetooth, gyroscope, proximity
+                ))
+        );
+
+        wellbeing = new ActivityCategory(
+                "Wellbeing",
+                new ArrayList<>(Arrays.asList(
+                    accelerometer, gps, wifi, bluetooth, gyroscope, magnetometer, proximity
                 ))
         );
 
         everything = new ActivityCategory(
                 "Everything",
                 new ArrayList<>(Arrays.asList(
-                        gps, accelerometer, gyroscope
+                        accelerometer, gps, wifi, bluetooth, gyroscope, magnetometer, proximity
                 ))
         );
 
-        gps.addCategory(location);
-        gps.addCategory(mobility);
-        gps.addCategory(everything);
-
         accelerometer.addCategory(mobility);
         accelerometer.addCategory(activity);
+        accelerometer.addCategory(wellbeing);
+        accelerometer.addCategory(social);
         accelerometer.addCategory(everything);
 
+        gps.addCategory(mobility);
+        gps.addCategory(social);
+        gps.addCategory(wellbeing);
+        gps.addCategory(activity);
+        gps.addCategory(everything);
+
+        wifi.addCategory(social);
+        wifi.addCategory(activity);
+
+        bluetooth.addCategory(social);
+        bluetooth.addCategory(activity);
+        bluetooth.addCategory(wellbeing);
+
+        gyroscope.addCategory(social);
         gyroscope.addCategory(mobility);
         gyroscope.addCategory(activity);
         gyroscope.addCategory(everything);
 
-        bluetooth.addCategory(communication);
-        wifi.addCategory(communication);
-//        sms.addCategory(communication);
+        magnetometer.addCategory(mobility);
+        magnetometer.addCategory(activity);
+
+        proximity.addCategory(activity);
+        proximity.addCategory(social);
+        proximity.addCategory(wellbeing);
 
         categories = new ArrayList<>(Arrays.asList(
-                location, mobility, activity, communication, everything
+                mobility, activity, social, wellbeing, everything
         ));
 
         allItems = new LinkedHashSet<>();
-        allItems.addAll(location.getItems());
         allItems.addAll(mobility.getItems());
         allItems.addAll(activity.getItems());
-        allItems.addAll(communication.getItems());
+        allItems.addAll(social.getItems());
+        allItems.addAll(wellbeing.getItems());
         allItems.addAll(everything.getItems());
 
     }

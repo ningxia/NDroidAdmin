@@ -98,7 +98,7 @@ public final class CimonDatabaseAdapter {
     public synchronized long insertOrReplaceMetricInfo(int id, String title,
                                                        String description, int supported, float power, int mininterval,
                                                        String maxrange, String resolution, int type) {
-        if (DebugLog.DEBUG)
+//        if (DebugLog.DEBUG)
             Log.d(TAG, "CimonDatabaseAdapter.insertOrReplaceMetricInfo - insert into MetricInfo table: metric-" + title);
         ContentValues values = new ContentValues();
         values.put(MetricInfoTable.COLUMN_ID, id);
@@ -196,7 +196,7 @@ public final class CimonDatabaseAdapter {
      */
     public synchronized long insertBatchData(int metric, int monitor,
                                              ArrayList<DataEntry> data) {
-        if (DebugLog.DEBUG)
+//        if (DebugLog.DEBUG)
             Log.d(TAG, "CimonDatabaseAdapter.insertBatchData - insert into Data table: " +
                     "metric-" + metric);
         long rowsInserted = 0;
@@ -209,13 +209,24 @@ public final class CimonDatabaseAdapter {
             for (DataEntry entry : data) {
                 ContentValues contentValues = new ContentValues(values);
                 contentValues.put(DataTable.COLUMN_TIMESTAMP, this.upTimeToRealTime(entry.timestamp));
-                if (entry.isFloat()) {
-                    contentValues.put(DataTable.COLUMN_VALUE, (Float) entry.value);
-                } else if (entry.isString()) {
-                    contentValues.put(DataTable.COLUMN_VALUE, (String) entry.value);
+
+                if (entry.isByte()) {
+                    contentValues.put(DataTable.COLUMN_VALUE, (Byte) entry.value);
                 }
                 else if (entry.isDouble()) {
                     contentValues.put(DataTable.COLUMN_VALUE, (Double) entry.value);
+                }
+                else if (entry.isFloat()) {
+                    contentValues.put(DataTable.COLUMN_VALUE, (Float) entry.value);
+                }
+                else if (entry.isInteger()) {
+                    contentValues.put(DataTable.COLUMN_VALUE, (Integer) entry.value);
+                }
+                else if (entry.isLong()) {
+                    contentValues.put(DataTable.COLUMN_VALUE, (Long) entry.value);
+                }
+                else if (entry.isString()) {
+                    contentValues.put(DataTable.COLUMN_VALUE, (String) entry.value);
                 }
                 if (database.insert(DataTable.TABLE_DATA, null, contentValues) >= 0) {
                     rowsInserted++;

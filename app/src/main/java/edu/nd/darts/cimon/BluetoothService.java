@@ -78,6 +78,7 @@ public class BluetoothService extends MetricService<String> {
 
         if (mBluetoothAdapter.isDiscovering()) {
             mBluetoothAdapter.cancelDiscovery();
+            active = false;
         }
         mBluetoothAdapter.startDiscovery();
         fetchValues();
@@ -90,7 +91,7 @@ public class BluetoothService extends MetricService<String> {
             if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 devices.add(device);
-                Log.d(TAG, "BluetoothService.BluetoothReceiver - received device: " + device.getName() + "+" + device.getAddress());
+                if (DebugLog.DEBUG) Log.d(TAG, "BluetoothService.BluetoothReceiver - received device: " + device.getName() + "+" + device.getAddress());
             }
         }
     };
@@ -113,7 +114,7 @@ public class BluetoothService extends MetricService<String> {
             sb.append(devices.get(i).getAddress())
                     .append(devices.size() - 1 == i ? "" : "|");
         }
-        Log.d(TAG, "BluetoothService.fetchValues: " + sb.toString());
+        if (DebugLog.DEBUG) Log.d(TAG, "BluetoothService.fetchValues: " + sb.toString());
         // only record Bluetooth device address metric
         values[BLUETOOTH_DEVICE] = sb.toString();
         devices.clear();
@@ -128,10 +129,14 @@ public class BluetoothService extends MetricService<String> {
         }
 
         if ((metric < groupId) || (metric >= (groupId + values.length))) {
-            if (DebugLog.DEBUG) Log.i(TAG, "BluetoothService.getMetricValue - metric value" + metric + ", not valid for group" + groupId);
+            if (DebugLog.DEBUG) Log.d(TAG, "BluetoothService.getMetricValue - metric value" + metric + ", not valid for group" + groupId);
             return null;
         }
         return values[metric - groupId];
     }
 
+    @Override
+    protected void updateObserver() {
+        adminObserver.setValue(Metrics.BLUETOOTH_DEVICE, devices.size());
+    }
 }

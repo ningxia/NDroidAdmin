@@ -505,7 +505,7 @@ public abstract class MetricService<T extends Comparable<T>> implements Observab
 					}
 					else {
 						pendingUpdate = true;
-						observerHandler.postAtTime(executeUpdates, 
+						observerHandler.postAtTime(executeUpdates,
 								(prevUpdate + adminObserver.getMinInterval()));
 					}
 				}

@@ -138,7 +138,7 @@ public class NDroidAdmin extends TabActivity {
         tabHost.addTab(spec);
 
 //        tabHost.setCurrentTab(0);
-        tabHost.setCurrentTab(Metrics.TYPE_SENSOR);
+        tabHost.setCurrentTab(Metrics.TYPE_SYSTEM);
 
         SharedPreferences appPrefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
         int storedVersion = appPrefs.getInt(PREF_VERSION, -1);

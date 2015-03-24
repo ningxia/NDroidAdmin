@@ -33,6 +33,7 @@ public class WifiService extends MetricService<String> {
     private static final WifiService INSTANCE = new WifiService();
 
     private WifiManager mWifiManager;
+    private static List<ScanResult> scanResultList;
 
     private WifiService() {
         if (DebugLog.DEBUG) Log.d(TAG, "WifiService - constructor");
@@ -84,7 +85,7 @@ public class WifiService extends MetricService<String> {
             lastUpdate = curTime;
         }
         if ((metric < groupId) || (metric >= (groupId + values.length))) {
-            if (DebugLog.DEBUG) Log.i(TAG, "WifiService.getMetricValue - metric value" + metric + ", not valid for group" + groupId);
+            if (DebugLog.DEBUG) Log.d(TAG, "WifiService.getMetricValue - metric value" + metric + ", not valid for group" + groupId);
             return null;
         }
         return values[metric - groupId];
@@ -95,25 +96,24 @@ public class WifiService extends MetricService<String> {
         if (mWifiManager == null) {
             return;
         }
-
         mWifiManager.startScan();
-        List<ScanResult> scanResultList = new ArrayList<>(mWifiManager.getScanResults());
+        scanResultList = new ArrayList<>(mWifiManager.getScanResults());
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < scanResultList.size(); i ++) {
-//            if (i < scanResultList.size() - 1) {
-//                sb.append(scanResultList.get(i).SSID).append("+").append(scanResultList.get(i).BSSID).append("|");
-//            }
-//            else {
-//                sb.append(scanResultList.get(i).SSID).append("+").append(scanResultList.get(i).BSSID);
-//            }
             sb.append(scanResultList.get(i).SSID)
                     .append("+")
                     .append(scanResultList.get(i).BSSID)
                     .append(scanResultList.size() - 1 == i ? "" : "|");
         }
-        Log.d(TAG, "WifiService.fetchValues: " + sb.toString());
+        if (DebugLog.DEBUG) Log.d(TAG, "WifiService.fetchValues: " + sb.toString());
         // format: SSID+BSSID|SSID+BSSID|...
         values[WIFI_NETWORK] = sb.toString();
+        scanResultList.clear();
+    }
+
+    @Override
+    protected void updateObserver() {
+        adminObserver.setValue(Metrics.WIFI_NETWORK, scanResultList.size());
     }
 }

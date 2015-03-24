@@ -663,9 +663,9 @@ public final class Metrics {
 	public static final int[] USER_METRICS = {SCREEN_ON,
 											  TELEPHONY,
 										      SMS_CATEGORY,
-											  MMS_CATEGORY,
-                                              BLUETOOTH_CATEGORY,
-                                              WIFI_CATEGORY
+											  MMS_CATEGORY
+//                                              BLUETOOTH_CATEGORY,
+//                                              WIFI_CATEGORY
 //                                              SMS_INFO_CATEGORY
 	};
 

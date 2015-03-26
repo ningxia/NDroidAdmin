@@ -90,7 +90,7 @@
 
         <activity
             android:name=".LabelingInterface"
-            android:label="@string/title_activity_ll">
+            android:label="CIMON Activity Tracker">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

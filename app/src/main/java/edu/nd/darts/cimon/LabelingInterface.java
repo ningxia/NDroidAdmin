@@ -46,7 +46,7 @@ import edu.nd.darts.cimon.database.MetricInfoTable;
 public class LabelingInterface extends Activity {
     Spinner workSpinner, timeIntervalSpinner;
     List<String> kineticStates = new ArrayList<String>();
-    List<String> timeArray = Arrays.asList("Select time", "10 min", "30 min",
+    List<String> timeArray = Arrays.asList("Select time", "1 min", "10 min", "30 min",
             "60 min", "120 min", "180 min");
     Button saveButton, LoginButton, cancelButton, newItemButton,
             saveNewItemButton, discardNewItemButton,
@@ -141,51 +141,65 @@ public class LabelingInterface extends Activity {
                 workSpinner.setSelection(position);
                 work = (String) workSpinner.getSelectedItem();
                 if (!work.equals("Select work")) {
-                    new AlertDialog.Builder(LabelingInterface.this)
-                            .setMessage("Options for " + work)
-                            .setPositiveButton("Select",
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(
-                                                DialogInterface dialog,
-                                                int which) {
-                                            LoginButton.setEnabled(false);
-                                            tv.setVisibility(tv.VISIBLE);
-                                            timeIntervalSpinner
-                                                    .setVisibility(timeIntervalSpinner.VISIBLE);
+//                    new AlertDialog.Builder(LabelingInterface.this)
+//                            .setMessage("Options for " + work)
+//                            .setPositiveButton("Select",
+//                                    new DialogInterface.OnClickListener() {
+//                                        public void onClick(
+//                                                DialogInterface dialog,
+//                                                int which) {
+//                                            LoginButton.setEnabled(false);
+//                                            tv.setVisibility(tv.VISIBLE);
+//                                            timeIntervalSpinner
+//                                                    .setVisibility(timeIntervalSpinner.VISIBLE);
+//
+//                                            newItemButton.setEnabled(false);
+//                                            startTime = SystemClock
+//                                                    .elapsedRealtime();
+//                                            saveButton.setText("Stop");
+//                                            saveButton.setEnabled(true);
+//                                            cancelButton.setEnabled(true);
+//                                            Toast.makeText(getBaseContext(),
+//                                                    work + "...Selected",
+//                                                    Toast.LENGTH_SHORT).show();
+//                                        }
+//                                    })
+//                            .setNegativeButton("Delete",
+//                                    new DialogInterface.OnClickListener() {
+//                                        public void onClick(
+//                                                DialogInterface dialog,
+//                                                int which) {
+//                                            for (int i = 0; i < kineticStates
+//                                                    .size(); i++) {
+//                                                String state = kineticStates
+//                                                        .get(i);
+//                                                if (isInitialStates(state))
+//                                                    continue;
+//                                                if (kineticStates.get(i)
+//                                                        .equals(work)) {
+//                                                    kineticStates.remove(i);
+//                                                    statesDB.deleteRow(work);
+//                                                }
+//                                            }
+//                                            visualizeStates();
+//                                        }
+//
+//                                    })
+//                            .setIcon(android.R.drawable.ic_dialog_alert).show();
+                    LoginButton.setEnabled(false);
+                    tv.setVisibility(tv.VISIBLE);
+                    timeIntervalSpinner
+                            .setVisibility(timeIntervalSpinner.VISIBLE);
 
-                                            newItemButton.setEnabled(false);
-                                            startTime = SystemClock
-                                                    .elapsedRealtime();
-                                            saveButton.setText("Stop");
-                                            saveButton.setEnabled(true);
-                                            cancelButton.setEnabled(true);
-                                            Toast.makeText(getBaseContext(),
-                                                    work + "...Selected",
-                                                    Toast.LENGTH_SHORT).show();
-                                        }
-                                    })
-                            .setNegativeButton("Delete",
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(
-                                                DialogInterface dialog,
-                                                int which) {
-                                            for (int i = 0; i < kineticStates
-                                                    .size(); i++) {
-                                                String state = kineticStates
-                                                        .get(i);
-                                                if (isInitialStates(state))
-                                                    continue;
-                                                if (kineticStates.get(i)
-                                                        .equals(work)) {
-                                                    kineticStates.remove(i);
-                                                    statesDB.deleteRow(work);
-                                                }
-                                            }
-                                            visualizeStates();
-                                        }
-
-                                    })
-                            .setIcon(android.R.drawable.ic_dialog_alert).show();
+                    newItemButton.setEnabled(false);
+                    startTime = SystemClock
+                            .elapsedRealtime();
+                    saveButton.setText("Stop");
+                    saveButton.setEnabled(true);
+                    cancelButton.setEnabled(true);
+                    Toast.makeText(getBaseContext(),
+                            work + "...Selected",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
 

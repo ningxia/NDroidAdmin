@@ -58,7 +58,7 @@
     <string name="title_activity_ll">LL</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_technitian_interface">TechnitianInterface</string>
+    <string name="title_activity_technician_interface">Admin</string>
     <string name="title_activity_physician_interface">PhysicianInterface</string>
 
 </resources>

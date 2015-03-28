@@ -99,9 +99,9 @@
         </activity>
 
         <activity
-            android:name=".TechnitianInterface"
+            android:name=".TechnicianInterface"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_technitian_interface" >
+            android:label="@string/title_activity_technician_interface" >
         </activity>
 
         <activity

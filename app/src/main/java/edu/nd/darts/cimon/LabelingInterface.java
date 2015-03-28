@@ -7,9 +7,7 @@ import java.util.List;
 import android.annotation.SuppressLint;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -363,11 +361,11 @@ public class LabelingInterface extends Activity {
                         if (selectedButton.getText().equals("Technician")) {
                             if (PinCode.getText().toString().equals("tabc")) {
                                 popupWindow.dismiss();
-                                Intent intent = new Intent(LabelingInterface.this, TechnitianInterface.class);
+                                Intent intent = new Intent(LabelingInterface.this, TechnicianInterface.class);
                                 startActivity(intent);
                             } else {
                                 PinCode.setText("");
-                                Toast.makeText(getApplicationContext(), "Wrong Pin Code! Please Try Again!!!", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), "Wrong Pin Code! Please Try Again!!!", Toast.LENGTH_SHORT).show();
                             }
                         }
                         //for Physician Interface
@@ -378,7 +376,7 @@ public class LabelingInterface extends Activity {
                                 startActivity(intent);
                             } else {
                                 PinCode.setText("");
-                                Toast.makeText(getApplicationContext(), "Wrong Pin Code! Please Try Again!!!", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), "Wrong Pin Code! Please Try Again!!!", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }

@@ -1363,8 +1363,8 @@ containing a value of this type.
         public static final int beginning=0x7f0a0013;
         public static final int blank=0x7f0a00ae;
         public static final int box=0x7f0a009e;
-        public static final int btn_physician=0x7f0a0091;
-        public static final int btn_technician=0x7f0a0090;
+        public static final int btn_physician=0x7f0a0090;
+        public static final int btn_technician=0x7f0a0091;
         public static final int button1=0x7f0a0049;
         public static final int button2=0x7f0a004b;
         public static final int button3=0x7f0a004c;
@@ -1552,7 +1552,7 @@ containing a value of this type.
         public static final int activity_ll=0x7f030017;
         public static final int activity_physician_interface=0x7f030018;
         public static final int activity_rucimon=0x7f030019;
-        public static final int activity_technitian_interface=0x7f03001a;
+        public static final int activity_technician_interface=0x7f03001a;
         public static final int administrator=0x7f03001b;
         public static final int cimon_expanded=0x7f03001c;
         public static final int cimon_group=0x7f03001d;
@@ -1561,7 +1561,7 @@ containing a value of this type.
         public static final int disabled_group=0x7f030020;
         public static final int fragment_ll=0x7f030021;
         public static final int fragment_physician_interface=0x7f030022;
-        public static final int fragment_technitian_interface=0x7f030023;
+        public static final int fragment_technician_interface=0x7f030023;
         public static final int frequency_item=0x7f030024;
         public static final int main=0x7f030025;
         public static final int physician_item=0x7f030026;
@@ -1623,7 +1623,7 @@ containing a value of this type.
         public static final int ticker_text=0x7f0c0023;
         public static final int title_activity_ll=0x7f0c0024;
         public static final int title_activity_physician_interface=0x7f0c0025;
-        public static final int title_activity_technitian_interface=0x7f0c0026;
+        public static final int title_activity_technician_interface=0x7f0c0026;
         public static final int units_byte=0x7f0c0027;
         public static final int units_bytes=0x7f0c0028;
         public static final int units_celcius=0x7f0c0029;

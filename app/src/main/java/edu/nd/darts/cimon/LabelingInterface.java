@@ -463,6 +463,7 @@ public class LabelingInterface extends Activity {
         // TODO Auto-generated method stub
         newItemButton.setEnabled(true);
         saveButton.setText("Start");
+        LoginButton.setEnabled(true);
         cancelButton.setEnabled(false);
     }
 

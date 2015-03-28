@@ -3,12 +3,14 @@ package edu.nd.darts.cimon;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,7 +55,7 @@ public class LabelingInterface extends Activity {
     EditText et, et2, PinCode;
     private RadioGroup radioButtonGroup;
     private RadioButton radioButton;
-    TextView tv, loginText, pinText;
+    TextView tv, loginText, pinText, statusText;
     String work = "", loginCode = "";
     long startTime, endTime;
     private LabelingHistory labelDB;
@@ -63,6 +65,10 @@ public class LabelingInterface extends Activity {
     private static String[] initialStates = {"Sitting", "Sit to Stand",
             "Stand", "Standing to Sit", "Walking", "Stairs Up", "Stairs Down",
             "Whelling", "Lying"};
+
+    private static final String PHYSICIAN_PREFS = "physician_prefs";
+    private static final String RUNNING_MONITOR_IDS = "running_monitor_ids";
+    private static Set<String> runningMonitorIds;
 
     @SuppressLint("NewApi")
     @SuppressWarnings("unchecked")
@@ -84,6 +90,8 @@ public class LabelingInterface extends Activity {
         timeIntervalSpinner = (Spinner) findViewById(R.id.spinner2);
         et = (EditText) findViewById(R.id.editText1);
         tv = (TextView) findViewById(R.id.textView10);
+        statusText = (TextView) findViewById(R.id.statusTextView);
+        showStatus();
 
         this.initializeTimeSpinner();
 
@@ -398,6 +406,20 @@ public class LabelingInterface extends Activity {
     }
 
     /**
+     * Display monitors' running status
+     */
+    private void showStatus() {
+        SharedPreferences physicianPrefs = getSharedPreferences(PHYSICIAN_PREFS, Context.MODE_PRIVATE);
+        runningMonitorIds = physicianPrefs.getStringSet(RUNNING_MONITOR_IDS, null);
+        if (runningMonitorIds != null) {
+            statusText.setVisibility(View.VISIBLE);
+        }
+        else {
+            statusText.setVisibility(View.GONE);
+        }
+    }
+
+    /**
      * .    * Add all tasks to kineticStates and visualize it
      */
     private void addWorkList() {
@@ -493,5 +515,11 @@ public class LabelingInterface extends Activity {
                 return true;
         }
         return false;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showStatus();
     }
 }

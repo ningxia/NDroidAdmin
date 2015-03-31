@@ -28,9 +28,11 @@ public class PhysicianReceiver extends BroadcastReceiver {
         Intent i = new Intent(context, PhysicianService.class);
         if (ACTION_START.equals(intent.getAction())) {
             runningMetrics = physicianPrefs.getStringSet(RUNNING_METRICS, null);
-            i.putStringArrayListExtra(EXTRA_NAME, new ArrayList<>(runningMetrics));
-            context.startService(i);
-            if (DebugLog.DEBUG) Log.d(TAG, "+ start PhysicianService +");
+            if (runningMetrics != null) {
+                i.putStringArrayListExtra(EXTRA_NAME, new ArrayList<>(runningMetrics));
+                context.startService(i);
+                if (DebugLog.DEBUG) Log.d(TAG, "+ start PhysicianService +");
+            }
         }
         else if (ACTION_SHUTDOWN.equals(intent.getAction())) {
             context.stopService(i);

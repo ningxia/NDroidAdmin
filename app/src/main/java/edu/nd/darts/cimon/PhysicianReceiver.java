@@ -26,17 +26,17 @@ public class PhysicianReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         SharedPreferences physicianPrefs = context.getSharedPreferences(PHYSICIAN_PREFS, Context.MODE_PRIVATE);
         Intent i = new Intent(context, PhysicianService.class);
-        if (ACTION_START.equals(intent.getAction())) {
-            runningMetrics = physicianPrefs.getStringSet(RUNNING_METRICS, null);
-            if (runningMetrics != null) {
-                i.putStringArrayListExtra(EXTRA_NAME, new ArrayList<>(runningMetrics));
+        runningMetrics = physicianPrefs.getStringSet(RUNNING_METRICS, null);
+        if (runningMetrics != null) {
+            i.putStringArrayListExtra(EXTRA_NAME, new ArrayList<>(runningMetrics));
+            if (ACTION_START.equals(intent.getAction())) {
                 context.startService(i);
                 if (DebugLog.DEBUG) Log.d(TAG, "+ start PhysicianService +");
             }
-        }
-        else if (ACTION_SHUTDOWN.equals(intent.getAction())) {
-            context.stopService(i);
-            if (DebugLog.DEBUG) Log.d(TAG, "+ stop PhysicianService +");
+            else if (ACTION_SHUTDOWN.equals(intent.getAction())) {
+                context.stopService(i);
+                if (DebugLog.DEBUG) Log.d(TAG, "+ stop PhysicianService +");
+            }
         }
     }
 }

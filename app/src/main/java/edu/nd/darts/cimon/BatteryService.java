@@ -72,6 +72,7 @@ public final class BatteryService extends MetricService<Integer> {
 	private Float voltage;
 	private ValueNode<Float> temperatureNode;
 	private ValueNode<Float> voltageNode;
+    private static Intent batteryStatus = null;
 	
 	private BatteryService() {
 		if (DebugLog.DEBUG) Log.d(TAG, "BatteryService - constructor");
@@ -105,7 +106,7 @@ public final class BatteryService extends MetricService<Integer> {
 	 * @return    technology description of battery
 	 */
 	private String getTechnology() {
-		Intent batteryStatus = MyApplication.getAppContext().registerReceiver(null, ifilter);
+		batteryStatus = MyApplication.getAppContext().registerReceiver(null, ifilter);
 		String technology = batteryStatus.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY);
 		if (technology == null)
 			return " ";
@@ -142,6 +143,7 @@ public final class BatteryService extends MetricService<Integer> {
 		MyApplication.getAppContext().registerReceiver(batteryReceiver, ifilter, null, 
 				metricHandler);
 //		getBatteryData(MyApplication.getAppContext(), batteryStatus);
+        updateMetric = null;
 	}
 	
 	/**
@@ -194,10 +196,14 @@ public final class BatteryService extends MetricService<Integer> {
 					nextUpdate = updateTime;
 			}
 		}
-		// schedule next update not needed for battery, event driven listener
 		if (nextUpdate < 0) {
 			context.unregisterReceiver(batteryReceiver);
 		}
+        else {
+            if (updateMetric == null) {
+                scheduleNextUpdate(nextUpdate);
+            }
+        }
 		updateObservable();
 	}
 

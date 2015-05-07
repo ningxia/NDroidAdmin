@@ -77,7 +77,6 @@ public class UploadingService extends Service {
                 Log.d(TAG, "Uploading thread:" + Integer.toString(count) + "\n Time window:"
                         + Integer.toString(startHour) + "~" + Integer.toString(endHour));
                 if (count < 1) {
-                    count++;
                     runUpload();
                 }
                 handler.postDelayed(this, period);
@@ -98,8 +97,10 @@ public class UploadingService extends Service {
         timeConverter.set(Calendar.HOUR_OF_DAY, endHour);
         long endTime = timeConverter.getTimeInMillis();
         long currentTime = System.currentTimeMillis();
+        Log.d(TAG, "curTime:" + Long.toString(currentTime));
         if (currentTime >= startTime && currentTime <= endTime
                 && CimonDatabaseAdapter.database != null) {
+            count++;
             new Thread(new Runnable() {
                 public void run() {
                     try {
@@ -109,7 +110,7 @@ public class UploadingService extends Service {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                    } finally {
+                    }finally {
                         count--;
                     }
                 }

@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,6 +31,8 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 import edu.nd.darts.cimon.database.DataTable;
 import edu.nd.darts.cimon.database.LabelingDB;
@@ -48,6 +51,7 @@ public class LabelingInterface extends Activity {
     List<String> kineticStates = new ArrayList<String>();
     List<String> timeArray = Arrays.asList("Select time", "1 min", "10 min", "30 min",
             "60 min", "120 min", "180 min");
+    private String TAG = "CimonLabelingInterface";
     Button saveButton, LoginButton, cancelButton, newItemButton,
             saveNewItemButton, discardNewItemButton,
             loginButton;
@@ -58,22 +62,25 @@ public class LabelingInterface extends Activity {
     TextView tv, loginText, pinText, statusText;
     String work = "", loginCode = "";
     long startTime, endTime;
-    private LabelingHistory labelDB;
+    private static LabelingHistory labelDB;
     private LabelingDB statesDB;
     private static final String[] uploadTables = {DataTable.TABLE_DATA,
             MetricInfoTable.TABLE_METRICINFO, LabelingHistory.TABLE_NAME};
     private static String[] initialStates = {"Sitting", "Sit to Stand",
             "Stand", "Standing to Sit", "Walking", "Stairs Up", "Stairs Down",
-            "Whelling", "Lying"};
+            "Biking", "Lying", "Outside", "Class", "Test", "Meeting", "Eating", "Sleeping", "Exercising", "Entertainment"};
 
     private static final String PHYSICIAN_PREFS = "physician_prefs";
     private static final String RUNNING_MONITOR_IDS = "running_monitor_ids";
     private static Set<String> runningMonitorIds;
+    private boolean labelingStart;
 
     @SuppressLint("NewApi")
     @SuppressWarnings("unchecked")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (DebugLog.DEBUG)
+            Log.d(TAG, "Initializing Labeling Interface");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ll);
 
@@ -100,6 +107,7 @@ public class LabelingInterface extends Activity {
         startService(new Intent(this, UploadingService.class));
 
         addWorkList();
+        this.labelingStart = false;
 
         timeIntervalSpinner
                 .setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -116,11 +124,9 @@ public class LabelingInterface extends Activity {
                                 selectedItem + " selected", Toast.LENGTH_SHORT)
                                 .show();
                         Handler handler = new Handler();
-                        final int preCount = labelDB.getData().getCount();
                         final Runnable worker = new Runnable() {
                             public void run() {
-                                int count = labelDB.getData().getCount();
-                                if (count == preCount) {
+                                if (labelingStart) {
                                     Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                                     Toast.makeText(getApplicationContext(),
                                             "Please finish labeling",
@@ -129,7 +135,8 @@ public class LabelingInterface extends Activity {
                                 }
                             }
                         };
-                        handler.postDelayed(worker, 5000);
+                        handler.postDelayed(worker, selectedTime);
+                        Toast.makeText(getApplicationContext(), Integer.toString(selectedTime) + " " + Boolean.toString(labelingStart), Toast.LENGTH_SHORT).show();
                         initializeTimeSpinner();
                     }
 
@@ -147,65 +154,67 @@ public class LabelingInterface extends Activity {
                 workSpinner.setSelection(position);
                 work = (String) workSpinner.getSelectedItem();
                 if (!work.equals("Select work")) {
-//                    new AlertDialog.Builder(LabelingInterface.this)
-//                            .setMessage("Options for " + work)
-//                            .setPositiveButton("Select",
-//                                    new DialogInterface.OnClickListener() {
-//                                        public void onClick(
-//                                                DialogInterface dialog,
-//                                                int which) {
-//                                            LoginButton.setEnabled(false);
-//                                            tv.setVisibility(tv.VISIBLE);
-//                                            timeIntervalSpinner
-//                                                    .setVisibility(timeIntervalSpinner.VISIBLE);
-//
-//                                            newItemButton.setEnabled(false);
-//                                            startTime = SystemClock
-//                                                    .elapsedRealtime();
-//                                            saveButton.setText("Stop");
-//                                            saveButton.setEnabled(true);
-//                                            cancelButton.setEnabled(true);
-//                                            Toast.makeText(getBaseContext(),
-//                                                    work + "...Selected",
-//                                                    Toast.LENGTH_SHORT).show();
-//                                        }
-//                                    })
-//                            .setNegativeButton("Delete",
-//                                    new DialogInterface.OnClickListener() {
-//                                        public void onClick(
-//                                                DialogInterface dialog,
-//                                                int which) {
-//                                            for (int i = 0; i < kineticStates
-//                                                    .size(); i++) {
-//                                                String state = kineticStates
-//                                                        .get(i);
-//                                                if (isInitialStates(state))
-//                                                    continue;
-//                                                if (kineticStates.get(i)
-//                                                        .equals(work)) {
-//                                                    kineticStates.remove(i);
-//                                                    statesDB.deleteRow(work);
-//                                                }
-//                                            }
-//                                            visualizeStates();
-//                                        }
-//
-//                                    })
-//                            .setIcon(android.R.drawable.ic_dialog_alert).show();
-                    LoginButton.setEnabled(false);
-                    tv.setVisibility(tv.VISIBLE);
-                    timeIntervalSpinner
-                            .setVisibility(timeIntervalSpinner.VISIBLE);
+                    if (!isInitialStates(work) && saveButton.getText().equals("Start")) {
+                        new AlertDialog.Builder(LabelingInterface.this)
+                                .setMessage("Options for " + work)
+                                .setPositiveButton("Select",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(
+                                                    DialogInterface dialog,
+                                                    int which) {
+                                                LoginButton.setEnabled(false);
+                                                tv.setVisibility(tv.VISIBLE);
+                                                timeIntervalSpinner
+                                                        .setVisibility(timeIntervalSpinner.VISIBLE);
 
-                    newItemButton.setEnabled(false);
-                    startTime = SystemClock
-                            .elapsedRealtime();
-                    saveButton.setText("Stop");
-                    saveButton.setEnabled(true);
-                    cancelButton.setEnabled(true);
-                    Toast.makeText(getBaseContext(),
-                            work + "...Selected",
-                            Toast.LENGTH_SHORT).show();
+                                                newItemButton.setEnabled(false);
+                                                startTime = System.currentTimeMillis();
+                                                saveButton.setText("Stop");
+                                                saveButton.setEnabled(true);
+                                                cancelButton.setEnabled(true);
+                                                labelingStart = true;
+                                                Toast.makeText(getBaseContext(),
+                                                        work + "...Selected",
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+                                        })
+                                .setNegativeButton("Delete",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(
+                                                    DialogInterface dialog,
+                                                    int which) {
+                                                for (int i = 0; i < kineticStates
+                                                        .size(); i++) {
+                                                    String state = kineticStates
+                                                            .get(i);
+                                                    if (isInitialStates(state))
+                                                        continue;
+                                                    if (kineticStates.get(i)
+                                                            .equals(work)) {
+                                                        kineticStates.remove(i);
+                                                        statesDB.deleteRow(work);
+                                                    }
+                                                }
+                                                visualizeStates();
+                                            }
+                                        })
+                                .setIcon(android.R.drawable.ic_dialog_alert).show();
+                    } else {
+                        LoginButton.setEnabled(false);
+                        tv.setVisibility(tv.VISIBLE);
+                        timeIntervalSpinner
+                                .setVisibility(timeIntervalSpinner.VISIBLE);
+
+                        newItemButton.setEnabled(false);
+                        startTime = System.currentTimeMillis();
+                        saveButton.setText("Stop");
+                        saveButton.setEnabled(true);
+                        cancelButton.setEnabled(true);
+                        labelingStart = true;
+                        Toast.makeText(getBaseContext(),
+                                work + "...Selected",
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
@@ -237,7 +246,8 @@ public class LabelingInterface extends Activity {
                     timeIntervalSpinner
                             .setVisibility(timeIntervalSpinner.INVISIBLE);
                     LoginButton.setEnabled(true);
-                    if (!curWork.equals("Select work")){
+                    if (!curWork.equals("Select work")) {
+                        labelingStart = false;
                         labelDB.insertData(work, startTime, endTime);
                     }
                     workSpinner.setSelection(0);
@@ -413,14 +423,13 @@ public class LabelingInterface extends Activity {
         runningMonitorIds = physicianPrefs.getStringSet(RUNNING_MONITOR_IDS, null);
         if (runningMonitorIds != null) {
             statusText.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             statusText.setVisibility(View.GONE);
         }
     }
 
     /**
-     * .    * Add all tasks to kineticStates and visualize it
+     * Add all tasks to kineticStates and visualize it
      */
     private void addWorkList() {
         // TODO Auto-generated method stub
@@ -506,7 +515,6 @@ public class LabelingInterface extends Activity {
      * Convert time in time spinner
      *
      * @param state:kinetic states
-     *
      * @return boolean value based on input state
      */
     private boolean isInitialStates(String state) {

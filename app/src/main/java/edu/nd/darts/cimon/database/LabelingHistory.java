@@ -28,14 +28,9 @@ public class LabelingHistory {
         this.open();
     }
 
-    public void open() {
+    public static void open() {
         db = SQLiteDatabase.openOrCreateDatabase(PATH, null);
         db.execSQL(DATABASE_CREATE);
-    }
-
-    public Cursor getData() {
-        Cursor cursor = db.rawQuery("select * from " + TABLE_NAME, null);
-        return cursor;
     }
 
     public void insertData(String state, Long startTime, Long endTime) {
@@ -44,10 +39,6 @@ public class LabelingHistory {
         values.put(COLUMN_START, startTime);
         values.put(COLUMN_END, endTime);
         db.insert(TABLE_NAME, null, values);
-    }
-
-    public void deleteAllData() {
-        db.execSQL(this.DATABASE_DROP);
     }
 
     public void close() {

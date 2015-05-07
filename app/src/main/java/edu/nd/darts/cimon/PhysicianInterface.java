@@ -66,6 +66,8 @@ public class PhysicianInterface extends Activity {
     private static final String RUNNING_METRICS = "running_metrics";
     private static SharedPreferences settings;
     private static Set<String> checkedCategories;
+
+    public static Intent sensorService;
     /**
      * Metrics {@link edu.nd.darts.cimon.Metrics}
      */
@@ -99,7 +101,10 @@ public class PhysicianInterface extends Activity {
         message = (TextView) findViewById(R.id.physician_message);
 
         // make sure that the NDroidService is running
-        startService(new Intent(this, NDroidService.class));
+//        sensorService = new Intent(this, NDroidService.class);
+//        startService(sensorService);
+        this.startSensors();
+        //startService(new Intent(this, NDroidService.class));
 
         settings = getSharedPreferences(PHYSICIAN_PREFS, MODE_PRIVATE);
         if (ifPreference()) {
@@ -725,6 +730,15 @@ public class PhysicianInterface extends Activity {
                 enableBluetooth();
             }
         }
+    }
+
+    public void startSensors(){
+        sensorService = new Intent(this, NDroidService.class);
+        startService(sensorService);
+    }
+
+    public void stopSensors(){
+        stopService(this.sensorService);
     }
 
 }

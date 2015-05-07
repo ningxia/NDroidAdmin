@@ -171,8 +171,8 @@ public final class CimonDatabaseAdapter {
         ContentValues values = new ContentValues();
         values.put(DataTable.COLUMN_METRIC_ID, metric);
         values.put(DataTable.COLUMN_MONITOR_ID, monitor);
-        //values.put(DataTable.COLUMN_TIMESTAMP, this.upTimeToRealTime(timestamp));
-        values.put(DataTable.COLUMN_TIMESTAMP, timestamp);
+        values.put(DataTable.COLUMN_TIMESTAMP, this.upTimeToRealTime(timestamp));
+        //values.put(DataTable.COLUMN_TIMESTAMP, timestamp);
         values.put(DataTable.COLUMN_VALUE, value);
 
         long rowid = database.insert(DataTable.TABLE_DATA, null, values);

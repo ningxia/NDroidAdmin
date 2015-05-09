@@ -124,6 +124,7 @@ public class UploadingService extends Service {
      *
      * @param tableName table to update
      * @author Xiao(Sean) Bo
+     *
      */
     private void uploadFromTable(String tableName) {
         Cursor cursor = this.getCursor(tableName);

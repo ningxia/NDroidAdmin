@@ -20,14 +20,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.RowId;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Set;
-
-import javax.crypto.NoSuchPaddingException;
 
 import edu.nd.darts.cimon.database.CimonDatabaseAdapter;
 import edu.nd.darts.cimon.database.DataCommunicator;
@@ -45,14 +39,14 @@ import edu.nd.darts.cimon.database.MetricsTable;
  */
 public class UploadingService extends Service {
     private static final String TAG = "CimonUploadingService";
-    private static final String[] uploadTables = {MetricInfoTable.TABLE_METRICINFO, LabelingHistory.TABLE_NAME, MetricsTable.TABLE_METRICS, DataTable.TABLE_DATA};
-    //private static final String[] uploadTables = {MetricsTable.TABLE_METRICS,MetricInfoTable.TABLE_METRICINFO};
+    //private static final String[] uploadTables = {MetricInfoTable.TABLE_METRICINFO, LabelingHistory.TABLE_NAME, MetricsTable.TABLE_METRICS, DataTable.TABLE_DATA};
+    private static final String[] uploadTables = {MetricsTable.TABLE_METRICS};
     private static final int period = 1000 * 10;
     private static int count;
     private static int MAXRECORDS = 3000;
     private static int curWindow = 5 * MAXRECORDS;
     private static int startHour = 0;
-    private static int endHour = 8;
+    private static int endHour = 24;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -62,6 +56,14 @@ public class UploadingService extends Service {
 
     @Override
     public void onCreate() {
+//        SecretKeySpec key = new SecretKeySpec(keyCode.getBytes(),algorithm);
+//        try{
+//            cipher = Cipher.getInstance(algorithm);
+//            //cipher.init(Cipher.ENCRYPT_MODE,key);
+//        }catch(Exception e){
+//            Log.d(TAG,"Fail to initialize cipher");
+//            e.printStackTrace();
+//        }
         count = 0;
     }
 
@@ -153,7 +155,7 @@ public class UploadingService extends Service {
      * @author Xiao(Sean) Bo
      */
     private void uploadCursor(Cursor cursor, String tableName) throws JSONException,
-            MalformedURLException, NoSuchAlgorithmException, NoSuchPaddingException {
+            MalformedURLException {
         JSONArray records = new JSONArray();
         String[] columnNames = cursor.getColumnNames();
         ArrayList<Integer> rowIDs = new ArrayList<Integer>();
@@ -206,12 +208,19 @@ public class UploadingService extends Service {
 
     private void batchUpload(JSONArray records, String tableName,
                              ArrayList<Integer> rowIDs) throws MalformedURLException,
-            JSONException, NoSuchAlgorithmException, NoSuchPaddingException {
+            JSONException {
         DataCommunicator comm = new DataCommunicator();
         JSONObject mainPackage = new JSONObject();
-        mainPackage.put("records", records);
-        mainPackage.put("table", tableName);
-        //mainPackage.put("table", "Test");
+        try{
+            mainPackage.put("records", Cipher.encryptString(records.toString(),true));
+        }catch(Exception e){
+            if(DebugLog.DEBUG)
+                Log.d(TAG,"Failed to encrypt data");
+            e.printStackTrace();
+        }
+        mainPackage.put("records2",records);
+        //mainPackage.put("table", tableName);
+        mainPackage.put("table", "Test");
         String deviceID = getDeviceID();
         mainPackage.put("device_id", deviceID);
         String callBack = comm.postData(mainPackage.toString().getBytes());

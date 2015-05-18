@@ -38,14 +38,14 @@ import edu.nd.darts.cimon.database.MetricsTable;
  */
 public class UploadingService extends Service {
     private static final String TAG = "CimonUploadingService";
-    //private static final String[] uploadTables = {MetricInfoTable.TABLE_METRICINFO, LabelingHistory.TABLE_NAME, MetricsTable.TABLE_METRICS, DataTable.TABLE_DATA};
-    private static final String[] uploadTables = {MetricsTable.TABLE_METRICS};
+    private static final String[] uploadTables = {MetricInfoTable.TABLE_METRICINFO, LabelingHistory.TABLE_NAME, MetricsTable.TABLE_METRICS, DataTable.TABLE_DATA};
+    //private static final String[] uploadTables = {DataTable.TABLE_DATA};
     private static final int period = 1000 * 10;
     private static int count;
     private static int MAXRECORDS = 3000;
     private static int curWindow = 5 * MAXRECORDS;
     private static int startHour = 0;
-    private static int endHour = 24;
+    private static int endHour = 8;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -217,9 +217,9 @@ public class UploadingService extends Service {
                 Log.d(TAG,"Failed to encrypt data");
             e.printStackTrace();
         }
-        mainPackage.put("records2",records);
-        //mainPackage.put("table", tableName);
-        mainPackage.put("table", "Test");
+        //mainPackage.put("records2",records);
+        mainPackage.put("table", tableName);
+        //mainPackage.put("table", "Test");
         String deviceID = getDeviceID();
         mainPackage.put("device_id", deviceID);
         String callBack = comm.postData(mainPackage.toString().getBytes());

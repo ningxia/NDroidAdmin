@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -59,7 +60,7 @@ public class LabelingInterface extends Activity {
     EditText et, et2, PinCode;
     private RadioGroup radioButtonGroup;
     private RadioButton radioButton;
-    TextView tv, loginText, pinText, statusText;
+    TextView tv, loginText, pinText, statusText, tv1;
     String work = "", loginCode = "";
     long startTime, endTime;
     private static LabelingHistory labelDB;
@@ -97,6 +98,7 @@ public class LabelingInterface extends Activity {
         timeIntervalSpinner = (Spinner) findViewById(R.id.spinner2);
         et = (EditText) findViewById(R.id.editText1);
         tv = (TextView) findViewById(R.id.textView10);
+        tv1 = (TextView) findViewById(R.id.textView1);
         statusText = (TextView) findViewById(R.id.statusTextView);
         showStatus();
 
@@ -349,7 +351,8 @@ public class LabelingInterface extends Activity {
                 final PopupWindow popupWindow = new PopupWindow(
                         popupView,
                         LayoutParams.WRAP_CONTENT,
-                        LayoutParams.WRAP_CONTENT);
+                        LayoutParams.WRAP_CONTENT,
+                        true);
 
                 Button btnDismiss = (Button) popupView.findViewById(R.id.dismiss);
                 Button GoTecPysButton = (Button) popupView.findViewById(R.id.GoTecPys);
@@ -366,7 +369,7 @@ public class LabelingInterface extends Activity {
                 });
 
                 popupWindow.setFocusable(true);
-                popupWindow.showAsDropDown(LoginButton, 1000, 800);
+                popupWindow.showAsDropDown(findViewById(R.id.textAnchor), Gravity.CENTER, 0, 0);
 
                 GoTecPysButton.setOnClickListener(new Button.OnClickListener() {
 

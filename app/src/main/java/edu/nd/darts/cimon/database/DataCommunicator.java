@@ -20,6 +20,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
+ *
  * Communication facility for uploading to server
  *
  * @author Xiao(Sean) Bo

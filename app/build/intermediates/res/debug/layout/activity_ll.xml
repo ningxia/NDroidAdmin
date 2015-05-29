@@ -9,6 +9,14 @@
     tools:ignore="MergeRootFrame">
 
     <TextView
+        android:id="@+id/textAnchor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="text anchor"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="invisible" />
+
+    <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -18,7 +18,9 @@
 
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Login as    "
+                android:text="Login as"
+                android:paddingLeft="5dp"
+                android:paddingRight="10dp"
                 android:textColor="#000000"/>
 
             <RadioGroup

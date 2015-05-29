@@ -38,14 +38,14 @@ import edu.nd.darts.cimon.database.MetricsTable;
  */
 public class UploadingService extends Service {
     private static final String TAG = "CimonUploadingService";
-    private static final String[] uploadTables = {MetricInfoTable.TABLE_METRICINFO, LabelingHistory.TABLE_NAME, MetricsTable.TABLE_METRICS, DataTable.TABLE_DATA};
-    //private static final String[] uploadTables = {DataTable.TABLE_DATA};
+    //private static final String[] uploadTables = {MetricInfoTable.TABLE_METRICINFO, LabelingHistory.TABLE_NAME, MetricsTable.TABLE_METRICS, DataTable.TABLE_DATA};
+    private static final String[] uploadTables = {LabelingHistory.TABLE_NAME};
     private static final int period = 1000 * 10;
     private static int count;
     private static int MAXRECORDS = 3000;
     private static int curWindow = 5 * MAXRECORDS;
     private static int startHour = 0;
-    private static int endHour = 8;
+    private static int endHour = 24;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

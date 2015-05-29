@@ -22,6 +22,7 @@ public class PhysicianReceiver extends BroadcastReceiver {
     private static final String EXTRA_NAME = "edu.nd.darts.cimon" + "." + RUNNING_METRICS;
     private static Set<String> runningMetrics;
     private static Intent uploadingService;
+    private static Intent labelingReminderService;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -42,12 +43,17 @@ public class PhysicianReceiver extends BroadcastReceiver {
         if (uploadingService == null){
             uploadingService = new Intent(context,UploadingService.class);
         }
+        if (labelingReminderService == null){
+            labelingReminderService = new Intent(context,LabelingReminderService.class);
+        }
         if(ACTION_START.equals(intent.getAction())){
             context.startService(uploadingService);
+            context.startService(labelingReminderService);
             if (DebugLog.DEBUG) Log.d(TAG,"+ start Uploading Service");
         }
         if(ACTION_SHUTDOWN.equals(intent.getAction())){
             context.stopService(uploadingService);
+            context.stopService(labelingReminderService);
             if (DebugLog.DEBUG) Log.d(TAG,"+ stop Uploading Service");
         }
     }

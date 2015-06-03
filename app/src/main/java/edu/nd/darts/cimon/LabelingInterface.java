@@ -90,7 +90,7 @@ public class LabelingInterface extends Activity {
         saveNewItemButton = (Button) findViewById(R.id.saveItemButton);
         discardNewItemButton = (Button) findViewById(R.id.discardItemButton);
         LoginButton = (Button) findViewById(R.id.button7);
-        MemoryButton = (Button) findViewById(R.id.button8);
+//        MemoryButton = (Button) findViewById(R.id.button8);
         CimonButton = (Button) findViewById(R.id.button9);
 
         cancelButton = (Button) findViewById(R.id.button2);

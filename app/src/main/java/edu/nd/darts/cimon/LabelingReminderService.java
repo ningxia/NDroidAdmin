@@ -25,7 +25,7 @@ import edu.nd.darts.cimon.database.LabelingHistory;
 public class LabelingReminderService extends Service {
 
     private static final String TAG = "CimonReminderService";
-    private static final int period = 1000 * 10;
+    private static final int period = 1000 * 3600;
     private static int startHour = 14;
     private static int endHour = 22;
     private static int dailyTarget = 5;

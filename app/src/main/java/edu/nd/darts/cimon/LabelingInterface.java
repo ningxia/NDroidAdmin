@@ -68,8 +68,8 @@ public class LabelingInterface extends Activity {
     private static final String[] uploadTables = {DataTable.TABLE_DATA,
             MetricInfoTable.TABLE_METRICINFO, LabelingHistory.TABLE_NAME};
     private static String[] initialStates = {"Sitting", "Sit to Stand",
-            "Stand", "Standing to Sit", "Walking", "Stairs Up", "Stairs Down",
-            "Biking", "Lying", "Outside", "Class", "Test", "Meeting", "Eating", "Sleeping", "Exercising", "Entertainment"};
+            "Standing", "Stand to Sit", "Walking", "Stairs Up", "Stairs Down",
+            "Wheeling", "Lying"};
 
     private static final String PHYSICIAN_PREFS = "physician_prefs";
     private static final String RUNNING_MONITOR_IDS = "running_monitor_ids";
@@ -156,7 +156,7 @@ public class LabelingInterface extends Activity {
                                        int position, long id) {
                 workSpinner.setSelection(position);
                 work = (String) workSpinner.getSelectedItem();
-                if (!work.equals("Select work")) {
+                if (!work.equals("Select Activity")) {
                     if (!isInitialStates(work) && saveButton.getText().equals("Start")) {
                         new AlertDialog.Builder(LabelingInterface.this)
                                 .setMessage("Options for " + work)
@@ -231,7 +231,7 @@ public class LabelingInterface extends Activity {
             @Override
             public void onClick(View v) {
                 String curWork = (String) workSpinner.getSelectedItem();
-                if (saveButton.getText().equals("Start") && !curWork.equals("Select work")) {
+                if (saveButton.getText().equals("Start") && !curWork.equals("Select Activity")) {
                     startTime = System.currentTimeMillis();
                     saveButton.setText("Stop");
                     saveButton.setEnabled(true);
@@ -249,7 +249,7 @@ public class LabelingInterface extends Activity {
                     timeIntervalSpinner
                             .setVisibility(timeIntervalSpinner.INVISIBLE);
                     LoginButton.setEnabled(true);
-                    if (!curWork.equals("Select work")) {
+                    if (!curWork.equals("Select Activity")) {
                         labelingStart = false;
                         labelDB.insertData(work, startTime, endTime);
                     }
@@ -445,7 +445,7 @@ public class LabelingInterface extends Activity {
             for (String state : DBStates) {
                 this.kineticStates.add(state);
             }
-            this.kineticStates.add(0, "Select work");
+            this.kineticStates.add(0, "Select Activity");
         }
         visualizeStates();
     }

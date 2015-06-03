@@ -221,7 +221,7 @@ public class PhysicianInterface extends Activity {
         public void onClick(View v) {
             Button btn = (Button) v;
 
-            if (btn.getText().toString().equalsIgnoreCase("Monitor")) {
+            if (btn.getText().toString().equalsIgnoreCase("Track")) {
                 btn.setText("Stop");
                 enableCheckbox(false);
                 monitorManager(true);
@@ -230,7 +230,7 @@ public class PhysicianInterface extends Activity {
                 startPhysicianService();
             }
             else {
-                btn.setText("Monitor");
+                btn.setText("Track");
                 enableCheckbox(true);
                 monitorManager(false);
                 message.setVisibility(View.GONE);

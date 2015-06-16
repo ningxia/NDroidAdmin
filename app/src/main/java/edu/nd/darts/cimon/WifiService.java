@@ -38,7 +38,7 @@ public class WifiService extends MetricService<String> {
     private WifiService() {
         if (DebugLog.DEBUG) Log.d(TAG, "WifiService - constructor");
         if (INSTANCE != null) {
-            throw new IllegalStateException("BluetoothService already instantiated");
+            throw new IllegalStateException("WifiService already instantiated");
         }
         groupId = Metrics.WIFI_CATEGORY;
         metricsCount = WIFI_METRICS;
@@ -73,7 +73,7 @@ public class WifiService extends MetricService<String> {
         if (DebugLog.DEBUG) Log.d(TAG, "WifiService.insertDatabaseEntries - insert entries");
         Context context = MyApplication.getAppContext();
         CimonDatabaseAdapter database = CimonDatabaseAdapter.getInstance(context);
-        database.insertOrReplaceMetricInfo(groupId, title, "WIFI", NOTSUPPORTED, 0, 0, String.valueOf(Integer.MAX_VALUE), "1 network", Metrics.TYPE_USER);
+        database.insertOrReplaceMetricInfo(groupId, title, "WIFI", SUPPORTED, 0, 0, String.valueOf(Integer.MAX_VALUE), "1 network", Metrics.TYPE_USER);
         database.insertOrReplaceMetrics(groupId + 0, groupId, metrics[0], "", 1000);
     }
 
@@ -114,6 +114,6 @@ public class WifiService extends MetricService<String> {
 
     @Override
     protected void updateObserver() {
-        adminObserver.setValue(Metrics.WIFI_NETWORK, scanResultList.size());
+        adminObserver.setValue(Metrics.WIFI_NETWORK, values[WIFI_NETWORK].split("\\|").length);
     }
 }

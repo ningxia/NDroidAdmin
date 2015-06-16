@@ -626,15 +626,64 @@ public final class Metrics {
      * Type: String <br>
      * Units: messages
      */
-    public static final int SMSSENT = 196;
+    public static final int SMSSENT = 195;
     /**
      * SMS message received time and sender.
      * Type: String <br>
      * Units: messages
      */
-    public static final int SMSRECEIVED = 197;
+    public static final int SMSRECEIVED = 196;
+
+	/** Category for SMS Information related metrics. */
+	public static final int MMS_INFO_CATEGORY = 200;
+	/**
+	 * SMS message sent time and receiver.
+	 * Type: String <br>
+	 * Units: messages
+	 */
+	public static final int MMSSENT = 200;
+	/**
+	 * SMS message received time and sender.
+	 * Type: String <br>
+	 * Units: messages
+	 */
+	public static final int MMSRECEIVED = 201;
+
+    /** Category for Phone Call Information related metrics. */
+	public static final int PHONE_CALL_CATEGORY = 205;
+
+    /**
+     * Outgoing Phone Calls time and phone number.
+     * Type: String <br>
+     * Units: calls
+     */
+    public static final int PHONE_CALL_OUTGOING = 205;
+
+    /**
+     * Incoming Phone Calls time and phone number.
+     * Type: String <br>
+     * Units: calls
+     */
+    public static final int PHONE_CALL_INCOMING = 206;
+
+    /**
+     * Missed Phone Calls time and phone number.
+     * Type: String <br>
+     * Units: calls
+     */
+    public static final int PHONE_CALL_MISSED = 207;
+
+    /** Category for Call State related metrics */
+    public static final int CALLSTATE_CATEGORY = 210;
+
+    /**
+     * Ringer mode.
+     * Type: String <br>
+     * Units: none
+     */
+    public static final int CALLSTATE = 210;
 	
-	public static final int MAX_METRIC = 200;
+	public static final int MAX_METRIC = 215;
 //	public static final int CATEGORY_SIZE = 10;
 
     public static final int[] SYSTEM_METRICS = {MEMORY_CATEGORY,
@@ -663,10 +712,10 @@ public final class Metrics {
 	public static final int[] USER_METRICS = {SCREEN_ON,
 											  TELEPHONY,
 										      SMS_CATEGORY,
-											  MMS_CATEGORY
-//                                              BLUETOOTH_CATEGORY,
-//                                              WIFI_CATEGORY
-//                                              SMS_INFO_CATEGORY
+											  MMS_CATEGORY,
+                                              BLUETOOTH_CATEGORY,
+                                              WIFI_CATEGORY,
+                                              CALLSTATE
 	};
 
 	/**

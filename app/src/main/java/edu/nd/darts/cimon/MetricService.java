@@ -733,12 +733,25 @@ public abstract class MetricService<T extends Comparable<T>> implements Observab
             case Metrics.BLUETOOTH_DEVICE:
                 if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch Bluetooth activity service");
                 return BluetoothService.getInstance();
-            case Metrics.WIFI_CATEGORY:
+            case Metrics.WIFI_NETWORK:
                 if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch Wifi activity service");
                 return WifiService.getInstance();
-//            case Metrics.SMS_INFO_CATEGORY:
-//                if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch SMS information service");
-//                return SMSInfoService.getInstance();
+            case Metrics.SMSSENT:
+            case Metrics.SMSRECEIVED:
+                if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch SMS information service");
+                return SMSInfoService.getInstance();
+            case Metrics.MMSSENT:
+            case Metrics.MMSRECEIVED:
+                if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch MMS information service");
+                return MMSInfoService.getInstance();
+            case Metrics.PHONE_CALL_OUTGOING:
+            case Metrics.PHONE_CALL_INCOMING:
+            case Metrics.PHONE_CALL_MISSED:
+                if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch Phone call service");
+                return PhoneCallService.getInstance();
+            case Metrics.CALLSTATE:
+                if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetech Call state service");
+                return CallStateService.getInstance();
 			default:
 				if (DebugLog.INFO) Log.i(TAG, "MetricService.getService - unrecognized metric");
 				return null;

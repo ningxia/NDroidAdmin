@@ -60,7 +60,7 @@ public class CallStateService extends MetricService<String> {
     @Override
     void insertDatabaseEntries() {
         CimonDatabaseAdapter database = CimonDatabaseAdapter.getInstance(context);
-        database.insertOrReplaceMetricInfo(groupId, title, "Ringer mode", NOTSUPPORTED, 0, 0, String.valueOf(Integer.MAX_VALUE), "1", Metrics.TYPE_USER);
+        database.insertOrReplaceMetricInfo(groupId, title, "Ringer mode", SUPPORTED, 0, 0, String.valueOf(Integer.MAX_VALUE), "1", Metrics.TYPE_USER);
         database.insertOrReplaceMetrics(groupId + 0, groupId, metrics[0], "", 1000);
 
     }

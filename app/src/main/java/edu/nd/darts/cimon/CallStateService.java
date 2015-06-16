@@ -20,12 +20,12 @@ import edu.nd.darts.cimon.database.CimonDatabaseAdapter;
  */
 public class CallStateService extends MetricService<String> {
     private static final String TAG = "NDroid";
-    private static final int CALLSTATE_METRICS = 3;
+    private static final int CALLSTATE_METRICS = 1;
     private static final long FIVE_MINUTES = 300000;
 
     private static final String title = "Call state activity";
     private static final String[] metrics = {"Ringer Mode"};
-    private static final int CALLSTATE = Metrics.CALLSTATE_CATEGORY - Metrics.CALLSTATE;
+    private static final int CALLSTATE = Metrics.CALLSTATE - Metrics.CALLSTATE_CATEGORY;
     private static final CallStateService INSTANCE = new CallStateService();
     private static final IntentFilter filter = new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION);
     private Context context;
@@ -39,7 +39,7 @@ public class CallStateService extends MetricService<String> {
         groupId = Metrics.CALLSTATE_CATEGORY;
         metricsCount = CALLSTATE_METRICS;
 
-        Context context = MyApplication.getAppContext();
+        context = MyApplication.getAppContext();
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
         values = new String[CALLSTATE_METRICS];
@@ -59,7 +59,6 @@ public class CallStateService extends MetricService<String> {
 
     @Override
     void insertDatabaseEntries() {
-        context = MyApplication.getAppContext();
         CimonDatabaseAdapter database = CimonDatabaseAdapter.getInstance(context);
         database.insertOrReplaceMetricInfo(groupId, title, "Ringer mode", NOTSUPPORTED, 0, 0, String.valueOf(Integer.MAX_VALUE), "1", Metrics.TYPE_USER);
         database.insertOrReplaceMetrics(groupId + 0, groupId, metrics[0], "", 1000);

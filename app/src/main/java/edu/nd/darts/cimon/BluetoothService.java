@@ -5,9 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.SystemClock;
-import android.provider.BaseColumns;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -67,7 +65,7 @@ public class BluetoothService extends MetricService<String> {
     void insertDatabaseEntries() {
         Context context = MyApplication.getAppContext();
         CimonDatabaseAdapter database = CimonDatabaseAdapter.getInstance(context);
-        database.insertOrReplaceMetricInfo(groupId, title, mBluetoothAdapter.getName(), NOTSUPPORTED, 0, 0, String.valueOf(Integer.MAX_VALUE), "1 device", Metrics.TYPE_USER);
+        database.insertOrReplaceMetricInfo(groupId, title, mBluetoothAdapter.getName(), SUPPORTED, 0, 0, String.valueOf(Integer.MAX_VALUE), "1 device", Metrics.TYPE_USER);
         database.insertOrReplaceMetrics(groupId + 0, groupId, metrics[0], "", 1000);
     }
 
@@ -101,6 +99,7 @@ public class BluetoothService extends MetricService<String> {
         lastUpdate = SystemClock.uptimeMillis();
         long nextUpdate = updateValueNodes();
         scheduleNextUpdate(nextUpdate);
+        updateObservable();
     }
 
     private void fetchValues() {
@@ -137,6 +136,6 @@ public class BluetoothService extends MetricService<String> {
 
     @Override
     protected void updateObserver() {
-        adminObserver.setValue(Metrics.BLUETOOTH_DEVICE, devices.size());
+        adminObserver.setValue(Metrics.BLUETOOTH_DEVICE, values[BLUETOOTH_DEVICE].split("\\|").length);
     }
 }

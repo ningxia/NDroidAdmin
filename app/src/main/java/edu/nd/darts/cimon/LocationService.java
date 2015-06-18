@@ -51,7 +51,7 @@ public final class LocationService extends MetricService<Double> implements
 	
 	private static final String TAG = "NDroid";
 	private static final float ONE_SECOND = 1000;
-	private static final int LOCATION_METRICS = 3;
+	private static final int LOCATION_METRICS = 4;
 	private static final int ALL_METRICS = 4;
 	private static final long FIVE_MINUTES = 300000;
 	
@@ -138,6 +138,8 @@ public final class LocationService extends MetricService<Double> implements
 				"Longitude", context.getString(R.string.units_degrees), 180);
 		database.insertOrReplaceMetrics(Metrics.LOCATION_ACCURACY, groupId, 
 				"Accuracy", context.getString(R.string.units_meters), 500);
+        database.insertOrReplaceMetrics(Metrics.LOCATION_SPEED, groupId,
+                "Speed", "m/s", 500);
 //		database.insertOrReplaceMetrics(Metrics.LOCATION_COORDINATE, groupId, 
 //				"Coordinate", "", 10);
 	}
@@ -308,6 +310,7 @@ public final class LocationService extends MetricService<Double> implements
 		values[0] = coordinate.getLatitude();
 		values[1] = coordinate.getLongitude();
 		values[2] = (double) coordinate.getAccuracy();
+        values[3] = (double) coordinate.getSpeed();
 		
 		performUpdates();
 	}
@@ -370,6 +373,7 @@ public final class LocationService extends MetricService<Double> implements
 			values[0] = coordinate.getLatitude();
 			values[1] = coordinate.getLongitude();
 			values[2] = (double) coordinate.getAccuracy();
+            values[3] = (double) coordinate.getSpeed();
 			lastUpdate = curTime;
 		}
 		switch (metric) {
@@ -379,6 +383,8 @@ public final class LocationService extends MetricService<Double> implements
 				return values[1];
 			case Metrics.LOCATION_ACCURACY:
 				return values[2];
+            case Metrics.LOCATION_SPEED:
+                return values[3];
 			case Metrics.LOCATION_COORDINATE:
 				return coordinate;
 		}

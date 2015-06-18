@@ -358,12 +358,6 @@ public final class Metrics {
 	/** Category for location coordinate metrics. */
 	public static final int LOCATION_CATEGORY = 100;
 	/** 
-	 * Coordinate of current location. <br>
-	 * Type: android.location.Location <br>
-	 * Units: coordinate
-	 */
-	public static final int LOCATION_COORDINATE = 103;
-	/** 
 	 * Latitude of current location coordinate. <br>
 	 * Type: Double <br>
 	 * Units: degrees
@@ -381,6 +375,19 @@ public final class Metrics {
 	 * Units: meters
 	 */
 	public static final int LOCATION_ACCURACY = 102;
+    /**
+     * Speed of current location coordinate reading. <br>
+     * Type: Double <br>
+     * Units: m/s
+     */
+    public static final int LOCATION_SPEED = 103;
+    /**
+     * Coordinate of current location. <br>
+     * Type: android.location.Location <br>
+     * Units: coordinate
+     */
+    public static final int LOCATION_COORDINATE = 104;
+
 	/** Category for accelerometer metrics. */
 	public static final int ACCELEROMETER = 105;
 	/** 

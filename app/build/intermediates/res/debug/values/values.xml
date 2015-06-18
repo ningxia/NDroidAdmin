@@ -215,7 +215,7 @@
     <string name="tenmillis">0.01</string>
     <string name="ticker_text">CIMON service active</string>
     <string name="title_activity_ll">LL</string>
-    <string name="title_activity_physician_interface">PhysicianInterface</string>
+    <string name="title_activity_physician_interface">Physician Interface</string>
     <string name="title_activity_technician_interface">Admin</string>
     <string name="units_byte">byte</string>
     <string name="units_bytes">bytes</string>

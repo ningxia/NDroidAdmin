@@ -23,6 +23,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="18" />
@@ -51,6 +52,11 @@
             </intent-filter>
         </service>
         <service android:name="edu.nd.darts.cimon.UploadingService" >
+            <intent-filter>
+                <action android:name="edu.nd.darts.cimon.NDroidService" />
+            </intent-filter>
+        </service>
+        <service android:name="edu.nd.darts.cimon.LabelingReminderService" >
             <intent-filter>
                 <action android:name="edu.nd.darts.cimon.NDroidService" />
             </intent-filter>

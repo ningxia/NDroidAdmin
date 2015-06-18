@@ -666,6 +666,7 @@ public abstract class MetricService<T extends Comparable<T>> implements Observab
 			case Metrics.LOCATION_LATITUDE:
 			case Metrics.LOCATION_LONGITUDE:
 			case Metrics.LOCATION_ACCURACY:
+            case Metrics.LOCATION_SPEED:
 			case Metrics.LOCATION_COORDINATE:
 				if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch location service");
 				return LocationService.getInstance();
@@ -750,7 +751,7 @@ public abstract class MetricService<T extends Comparable<T>> implements Observab
                 if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch Phone call service");
                 return PhoneCallService.getInstance();
             case Metrics.CALLSTATE:
-                if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetech Call state service");
+                if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch Call state service");
                 return CallStateService.getInstance();
 			default:
 				if (DebugLog.INFO) Log.i(TAG, "MetricService.getService - unrecognized metric");

@@ -88,132 +88,140 @@ uses-permission#android.permission.VIBRATE
 ADDED from AndroidManifest.xml:25:5
 	android:name
 		ADDED from AndroidManifest.xml:25:22
-uses-permission#android.permission.READ_EXTERNAL_STORAGE
-ADDED from AndroidManifest.xml:27:5
-	android:maxSdkVersion
-		ADDED from AndroidManifest.xml:29:9
+uses-permission#com.android.browser.permission.READ_HISTORY_BOOKMARKS
+ADDED from AndroidManifest.xml:26:5
 	android:name
-		ADDED from AndroidManifest.xml:28:9
+		ADDED from AndroidManifest.xml:26:22
+uses-permission#android.permission.READ_EXTERNAL_STORAGE
+ADDED from AndroidManifest.xml:28:5
+	android:maxSdkVersion
+		ADDED from AndroidManifest.xml:30:9
+	android:name
+		ADDED from AndroidManifest.xml:29:9
 application
-ADDED from AndroidManifest.xml:31:5
+ADDED from AndroidManifest.xml:32:5
 MERGED from com.android.support:support-v4:21.0.3:16:5
 MERGED from com.android.support:appcompat-v7:21.0.3:16:5
 MERGED from com.android.support:support-v4:21.0.3:16:5
 	android:label
-		ADDED from AndroidManifest.xml:34:9
+		ADDED from AndroidManifest.xml:35:9
 	android:icon
+		ADDED from AndroidManifest.xml:34:9
+	android:name
 		ADDED from AndroidManifest.xml:33:9
-	android:name
-		ADDED from AndroidManifest.xml:32:9
 activity#edu.nd.darts.cimon.NDroidAdmin
-ADDED from AndroidManifest.xml:35:9
+ADDED from AndroidManifest.xml:36:9
 	android:label
-		ADDED from AndroidManifest.xml:38:13
-	android:configChanges
-		ADDED from AndroidManifest.xml:37:13
-	android:name
-		ADDED from AndroidManifest.xml:36:13
-	android:launchMode
 		ADDED from AndroidManifest.xml:39:13
+	android:configChanges
+		ADDED from AndroidManifest.xml:38:13
+	android:name
+		ADDED from AndroidManifest.xml:37:13
+	android:launchMode
+		ADDED from AndroidManifest.xml:40:13
 service#edu.nd.darts.cimon.NDroidService
-ADDED from AndroidManifest.xml:41:9
+ADDED from AndroidManifest.xml:42:9
 	android:name
-		ADDED from AndroidManifest.xml:41:18
+		ADDED from AndroidManifest.xml:42:18
 intent-filter#edu.nd.darts.cimon.NDroidService
-ADDED from AndroidManifest.xml:42:13
+ADDED from AndroidManifest.xml:43:13
 action#edu.nd.darts.cimon.NDroidService
-ADDED from AndroidManifest.xml:43:17
+ADDED from AndroidManifest.xml:44:17
 	android:name
-		ADDED from AndroidManifest.xml:43:25
+		ADDED from AndroidManifest.xml:44:25
 service#edu.nd.darts.cimon.PhysicianService
-ADDED from AndroidManifest.xml:47:9
+ADDED from AndroidManifest.xml:48:9
 	android:exported
+		ADDED from AndroidManifest.xml:51:13
+	android:enabled
 		ADDED from AndroidManifest.xml:50:13
-	android:enabled
+	android:name
 		ADDED from AndroidManifest.xml:49:13
-	android:name
-		ADDED from AndroidManifest.xml:48:13
 intent-filter#edu.nd.darts.cimon.PhysicianService
-ADDED from AndroidManifest.xml:51:13
+ADDED from AndroidManifest.xml:52:13
 action#edu.nd.darts.cimon.PhysicianService
-ADDED from AndroidManifest.xml:52:17
+ADDED from AndroidManifest.xml:53:17
 	android:name
-		ADDED from AndroidManifest.xml:52:25
+		ADDED from AndroidManifest.xml:53:25
 service#edu.nd.darts.cimon.UploadingService
-ADDED from AndroidManifest.xml:56:9
+ADDED from AndroidManifest.xml:57:9
 	android:name
-		ADDED from AndroidManifest.xml:56:18
+		ADDED from AndroidManifest.xml:57:18
+service#edu.nd.darts.cimon.LabelingReminderService
+ADDED from AndroidManifest.xml:63:9
+	android:name
+		ADDED from AndroidManifest.xml:63:18
 receiver#edu.nd.darts.cimon.AutoStartReceiver
-ADDED from AndroidManifest.xml:62:9
+ADDED from AndroidManifest.xml:69:9
 	android:enabled
-		ADDED from AndroidManifest.xml:64:13
+		ADDED from AndroidManifest.xml:71:13
 	android:name
-		ADDED from AndroidManifest.xml:63:13
+		ADDED from AndroidManifest.xml:70:13
 intent-filter#android.intent.action.BOOT_COMPLETED+android.intent.category.HOME
-ADDED from AndroidManifest.xml:65:13
+ADDED from AndroidManifest.xml:72:13
 action#android.intent.action.BOOT_COMPLETED
-ADDED from AndroidManifest.xml:66:17
+ADDED from AndroidManifest.xml:73:17
 	android:name
-		ADDED from AndroidManifest.xml:66:25
+		ADDED from AndroidManifest.xml:73:25
 category#android.intent.category.HOME
-ADDED from AndroidManifest.xml:68:17
+ADDED from AndroidManifest.xml:75:17
 	android:name
-		ADDED from AndroidManifest.xml:68:27
+		ADDED from AndroidManifest.xml:75:27
 receiver#edu.nd.darts.cimon.PhysicianReceiver
-ADDED from AndroidManifest.xml:72:9
+ADDED from AndroidManifest.xml:79:9
 	android:exported
-		ADDED from AndroidManifest.xml:75:13
+		ADDED from AndroidManifest.xml:82:13
 	android:enabled
-		ADDED from AndroidManifest.xml:74:13
+		ADDED from AndroidManifest.xml:81:13
 	android:name
-		ADDED from AndroidManifest.xml:73:13
+		ADDED from AndroidManifest.xml:80:13
 intent-filter#android.intent.action.ACTION_SHUTDOWN+android.intent.action.BOOT_COMPLETED
-ADDED from AndroidManifest.xml:76:13
+ADDED from AndroidManifest.xml:83:13
 action#android.intent.action.ACTION_SHUTDOWN
-ADDED from AndroidManifest.xml:78:17
+ADDED from AndroidManifest.xml:85:17
 	android:name
-		ADDED from AndroidManifest.xml:78:25
+		ADDED from AndroidManifest.xml:85:25
 provider#edu.nd.darts.cimon.contentprovider.CimonContentProvider
-ADDED from AndroidManifest.xml:82:9
+ADDED from AndroidManifest.xml:89:9
 	android:authorities
-		ADDED from AndroidManifest.xml:84:13
+		ADDED from AndroidManifest.xml:91:13
 	android:name
-		ADDED from AndroidManifest.xml:83:13
+		ADDED from AndroidManifest.xml:90:13
 activity#edu.nd.darts.cimon.CimonListView
-ADDED from AndroidManifest.xml:86:9
+ADDED from AndroidManifest.xml:93:9
 	android:label
-		ADDED from AndroidManifest.xml:88:13
+		ADDED from AndroidManifest.xml:95:13
 	android:name
-		ADDED from AndroidManifest.xml:87:13
+		ADDED from AndroidManifest.xml:94:13
 activity#edu.nd.darts.cimon.LabelingInterface
-ADDED from AndroidManifest.xml:91:9
+ADDED from AndroidManifest.xml:98:9
 	android:label
-		ADDED from AndroidManifest.xml:93:13
+		ADDED from AndroidManifest.xml:100:13
 	android:name
-		ADDED from AndroidManifest.xml:92:13
+		ADDED from AndroidManifest.xml:99:13
 intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
-ADDED from AndroidManifest.xml:94:13
+ADDED from AndroidManifest.xml:101:13
 action#android.intent.action.MAIN
-ADDED from AndroidManifest.xml:95:17
+ADDED from AndroidManifest.xml:102:17
 	android:name
-		ADDED from AndroidManifest.xml:95:25
+		ADDED from AndroidManifest.xml:102:25
 category#android.intent.category.LAUNCHER
-ADDED from AndroidManifest.xml:97:17
+ADDED from AndroidManifest.xml:104:17
 	android:name
-		ADDED from AndroidManifest.xml:97:27
+		ADDED from AndroidManifest.xml:104:27
 activity#edu.nd.darts.cimon.TechnicianInterface
-ADDED from AndroidManifest.xml:101:9
+ADDED from AndroidManifest.xml:108:9
 	android:label
-		ADDED from AndroidManifest.xml:104:13
+		ADDED from AndroidManifest.xml:111:13
 	android:configChanges
-		ADDED from AndroidManifest.xml:103:13
-	android:name
-		ADDED from AndroidManifest.xml:102:13
-activity#edu.nd.darts.cimon.PhysicianInterface
-ADDED from AndroidManifest.xml:107:9
-	android:label
 		ADDED from AndroidManifest.xml:110:13
-	android:configChanges
-		ADDED from AndroidManifest.xml:109:13
 	android:name
-		ADDED from AndroidManifest.xml:108:13
+		ADDED from AndroidManifest.xml:109:13
+activity#edu.nd.darts.cimon.PhysicianInterface
+ADDED from AndroidManifest.xml:114:9
+	android:label
+		ADDED from AndroidManifest.xml:117:13
+	android:configChanges
+		ADDED from AndroidManifest.xml:116:13
+	android:name
+		ADDED from AndroidManifest.xml:115:13

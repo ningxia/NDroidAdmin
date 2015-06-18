@@ -16,14 +16,14 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:visibility="invisible" />
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|top"
-        android:text="What are you doing?---Choose an activity\n"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#000000" />
+    <!--<TextView-->
+        <!--android:id="@+id/textView1"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="center|top"-->
+        <!--android:text="What are you doing?-&#45;&#45;Choose an activity\n"-->
+        <!--android:textAppearance="?android:attr/textAppearanceMedium"-->
+        <!--android:textColor="#000000" />-->
 
     <TextView
         android:id="@+id/statusTextView"
@@ -184,13 +184,13 @@
             android:layout_weight="1"
             android:text="Login" />
 
-        <Button
-            android:id="@+id/button8"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Memory" />
+        <!--<Button-->
+            <!--android:id="@+id/button8"-->
+            <!--style="?android:attr/buttonStyleSmall"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:text="Memory" />-->
 
         <Button
             android:id="@+id/button9"
@@ -210,7 +210,9 @@
             android:id="@+id/contactInfoTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="If you experience technical issues,\n please contact us at xxx-xx-xxxx."
+            android:gravity="center"
+            android:text="If you experience technical issues, please contact us via ndmobilecomplab@gmail.com."
             android:textAppearance="?android:attr/textAppearanceSmall" />
         </LinearLayout>
-</LinearLayout><!-- From: file:/Users/ningxia/Development/Android/ndroidadmin/app/src/main/res/layout/activity_ll.xml -->
+</LinearLayout>
+<!-- From: file:/Users/ningxia/Development/Android/ndroidadmin/app/src/main/res/layout/activity_ll.xml -->

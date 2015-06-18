@@ -12,45 +12,8 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="As a Researcher, Monitor some of the activities or everything!"
+        android:text="Select activities to be tracked:"
         android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <!--<CheckBox-->
-        <!--android:id="@+id/checkBox1"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="Location"-->
-        <!--/>-->
-
-    <!--<CheckBox-->
-        <!--android:id="@+id/checkBox2"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="Mobility" />-->
-
-    <!--<CheckBox-->
-        <!--android:id="@+id/checkBox3"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="Activity" />-->
-    <!---->
-    <!--<CheckBox-->
-        <!--android:id="@+id/checkBox4"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="Wellbeing" />-->
-    <!---->
-    <!--<CheckBox-->
-        <!--android:id="@+id/checkBox5"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="Social Interaction" />-->
-
-    <!--<CheckBox-->
-        <!--android:id="@+id/checkBox6"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="Everything" />-->
 
     <ListView
         android:id="@+id/physician_listView"
@@ -64,8 +27,7 @@
         android:layout_height="wrap_content"
         android:enabled="false"
         android:layout_gravity="center"
-        android:text="Monitor" />
-        <!--android:onClick="clickMonitorBtn" />-->
+        android:text="Track" />
 
     <TextView
         android:layout_width="wrap_content"

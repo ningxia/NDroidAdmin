@@ -52,7 +52,7 @@ public class PhysicianInterface extends Activity {
     private ActivityCategory mobility, activity, social, wellbeing , everything;
     private ActivityItem memory, cpuLoad, cpuUtil, battery, netBytes, netPackets, connectStatus, instructionCount, sdcard;
     private ActivityItem gps, accelerometer, magnetometer, gyroscope, linearAcceleration, orientation, proximity, pressure, lightSeneor, humidity, temperature;
-    private ActivityItem screenState, phoneActivity, sms, mms, bluetooth, wifi;
+    private ActivityItem screenState, phoneActivity, sms, mms, bluetooth, wifi, smsInfo, mmsInfo, phoneCall, callState, browsingHistory;
     private static Button btnMonitor;
     private static TextView message;
 
@@ -347,6 +347,10 @@ public class PhysicianInterface extends Activity {
         mms = new ActivityItem("MMS", Metrics.MMS_CATEGORY, 2, 5000);
         bluetooth = new ActivityItem("Bluetooth", Metrics.BLUETOOTH_CATEGORY, 1, 60000);
         wifi = new ActivityItem("Wifi", Metrics.WIFI_CATEGORY, 1, 60000);
+//        smsInfo = new ActivityItem("SMS Info", Metrics.SMS_INFO_CATEGORY, 2, 5000);
+//        mmsInfo = new ActivityItem("MMS Info", Metrics.MMS_INFO_CATEGORY, 2, 5000);
+//        phoneCall = new ActivityItem("Phone Call", Metrics.PHONE_CALL_CATEGORY, 3, 5000);
+        callState = new ActivityItem("Call State", Metrics.CALLSTATE_CATEGORY, 1, 1000);
 
         // Table II: Sensor Priority (High or Medium)
         mobility = new ActivityCategory(
@@ -394,7 +398,7 @@ public class PhysicianInterface extends Activity {
                 new ArrayList<>(Arrays.asList(
                         memory, cpuLoad, cpuUtil, battery, netBytes, netPackets, connectStatus, instructionCount, sdcard,
                         gps, accelerometer, magnetometer, gyroscope, linearAcceleration, orientation, proximity, pressure, lightSeneor, /*humidity, temperature,*/
-                        screenState, phoneActivity, sms, mms, bluetooth, wifi
+                        screenState, phoneActivity, sms, mms, bluetooth, wifi, callState
                 ))
         );
         for (ActivityItem ai : everything.getItems()) {

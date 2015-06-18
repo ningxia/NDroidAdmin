@@ -689,8 +689,32 @@ public final class Metrics {
      * Units: none
      */
     public static final int CALLSTATE = 210;
+
+    /** Category for Browser History related metrics. */
+    public static final int BROWSER_HISTORY_CATEGORY = 215;
+    /**
+     * Browser history.
+     * Type: String <br>
+     * Units: records
+     */
+    public static final int BROWSING_HISTORY = 215;
+
+    /** Category for Cell Location related metrics. */
+    public static final int CELLLOCATION = 220;
+    /**
+     * GSM Cell ID.
+     * Type: Integer <br>
+     * Units: none
+     */
+    public static final int CELL_CID = 220;
+    /**
+     * GSM Cell Location Area Code.
+     * Type: Integer <br>
+     * Units: none
+     */
+    public static final int CELL_LAC = 221;
 	
-	public static final int MAX_METRIC = 215;
+	public static final int MAX_METRIC = 230;
 //	public static final int CATEGORY_SIZE = 10;
 
     public static final int[] SYSTEM_METRICS = {MEMORY_CATEGORY,
@@ -723,6 +747,7 @@ public final class Metrics {
                                               BLUETOOTH_CATEGORY,
                                               WIFI_CATEGORY,
                                               CALLSTATE
+//                                              BROWSER_HISTORY_CATEGORY
 	};
 
 	/**

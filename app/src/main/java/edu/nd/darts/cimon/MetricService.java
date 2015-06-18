@@ -753,6 +753,9 @@ public abstract class MetricService<T extends Comparable<T>> implements Observab
             case Metrics.CALLSTATE:
                 if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch Call state service");
                 return CallStateService.getInstance();
+            case Metrics.BROWSING_HISTORY:
+                if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch Browser history service");
+                return BrowserHistoryService.getInstance();
 			default:
 				if (DebugLog.INFO) Log.i(TAG, "MetricService.getService - unrecognized metric");
 				return null;

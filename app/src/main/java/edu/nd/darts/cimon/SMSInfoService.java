@@ -214,4 +214,15 @@ public final class SMSInfoService extends MetricService<String> {
         adminObserver.setValue(Metrics.SMSSENT, values[SMS_SENT] == "" ? 0 : values[SMS_SENT].split("\\|").length);
         adminObserver.setValue(Metrics.SMSRECEIVED, values[SMS_RECEIVED] == "" ? 0 : values[SMS_RECEIVED].split("\\|").length);
     }
+
+    @Override
+    protected void performUpdates() {
+        if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.performUpdates - updating values");
+        long nextUpdate = updateValueNodes();
+        if (nextUpdate < 0) {
+            smsResolver.unregisterContentObserver(smsObserver);
+            prevSMSID  = -1;
+        }
+        updateObservable();
+    }
 }

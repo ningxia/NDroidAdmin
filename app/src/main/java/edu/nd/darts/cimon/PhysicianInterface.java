@@ -52,8 +52,9 @@ public class PhysicianInterface extends Activity {
     private ActivityCategory mobility, activity, social, wellbeing , everything;
     private ActivityItem memory, cpuLoad, cpuUtil, battery, netBytes, netPackets, connectStatus, instructionCount, sdcard;
     private ActivityItem gps, accelerometer, magnetometer, gyroscope, linearAcceleration, orientation, proximity, pressure, lightSeneor, humidity, temperature;
-    private ActivityItem screenState, phoneActivity, sms, mms, bluetooth, wifi, smsInfo, mmsInfo, phoneCall, callState, browsingHistory;
+    private ActivityItem screenState, phoneActivity, sms, mms, bluetooth, wifi, smsInfo, mmsInfo, phoneCall, callState, browserHistory;
     private static Button btnMonitor;
+    private static Button btnUpload;
     private static TextView message;
 
     public static final long PERIOD = 1000;
@@ -75,6 +76,8 @@ public class PhysicianInterface extends Activity {
 
     private BluetoothAdapter mBluetoothAdapter;
     private static final int REQUEST_ENABLE_BT = 1;
+
+    private static UploadingService us;
 
 
     @Override
@@ -98,6 +101,10 @@ public class PhysicianInterface extends Activity {
 
         btnMonitor = (Button) findViewById(R.id.physician_monitor_btn);
         btnMonitor.setOnClickListener(btnMonitorHandler);
+
+        btnUpload = (Button) findViewById(R.id.physician_upload_btn);
+        btnUpload.setOnClickListener(btnUploadHandler);
+
         message = (TextView) findViewById(R.id.physician_message);
 
         // make sure that the NDroidService is running
@@ -112,6 +119,8 @@ public class PhysicianInterface extends Activity {
         }
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        us = new UploadingService();
     }
 
     private void loadMetricInfoTable() {
@@ -241,6 +250,24 @@ public class PhysicianInterface extends Activity {
     };
 
     /**
+     * Upload button OnClickListener
+     */
+    View.OnClickListener btnUploadHandler = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            Button btn = (Button) v;
+            if (us.getCount() > 0) {
+                Toast.makeText(getApplicationContext(), "CIMON uploading is running, please try it again later.", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "CIMON is uploading data...", Toast.LENGTH_SHORT).show();
+                us.uploadForPhysician();
+            }
+        }
+    };
+
+    /**
      * Manage multiple monitors registering
      * @param register register multiple monitors or not
      */
@@ -351,6 +378,7 @@ public class PhysicianInterface extends Activity {
 //        mmsInfo = new ActivityItem("MMS Info", Metrics.MMS_INFO_CATEGORY, 2, 5000);
 //        phoneCall = new ActivityItem("Phone Call", Metrics.PHONE_CALL_CATEGORY, 3, 5000);
         callState = new ActivityItem("Call State", Metrics.CALLSTATE_CATEGORY, 1, 1000);
+//        browserHistory = new ActivityItem("Browser History", Metrics.BROWSER_HISTORY_CATEGORY, 1, 1000);
 
         // Table II: Sensor Priority (High or Medium)
         mobility = new ActivityCategory(

@@ -46,6 +46,7 @@ public class UploadingService extends Service {
     private static int curWindow = 5 * MAXRECORDS;
     private static int startHour = 0;
     private static int endHour = 8;
+    private static Context context;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -63,6 +64,7 @@ public class UploadingService extends Service {
 //            Log.d(TAG,"Fail to initialize cipher");
 //            e.printStackTrace();
 //        }
+        context = MyApplication.getAppContext();
         count = 0;
     }
 
@@ -120,6 +122,35 @@ public class UploadingService extends Service {
         }
     }
 
+
+    /**
+     * Get count
+     * @return
+     */
+    public static int getCount() {
+        return count;
+    }
+
+    /**
+     * Upload for Physician Interface
+     */
+    public void uploadForPhysician() {
+        count++;
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    for (String table : uploadTables) {
+                        Log.d(TAG, "UploadForPhysicianInterface: " + table);
+                        uploadFromTable(table);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }finally {
+                    count--;
+                }
+            }
+        }).start();
+    }
 
     /**
      * Update from certain table.
@@ -260,7 +291,7 @@ public class UploadingService extends Service {
      */
 
     private String getDeviceID() {
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getDeviceId();
     }
 

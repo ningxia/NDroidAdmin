@@ -29,6 +29,15 @@
         android:layout_gravity="center"
         android:text="Track" />
 
+    <Button
+        android:id="@+id/physician_upload_btn"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:enabled="true"
+        android:layout_gravity="center"
+        android:text="Upload"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -52,7 +52,7 @@ public class PhysicianInterface extends Activity {
     private ActivityCategory mobility, activity, social, wellbeing , everything;
     private ActivityItem memory, cpuLoad, cpuUtil, battery, netBytes, netPackets, connectStatus, instructionCount, sdcard;
     private ActivityItem gps, accelerometer, magnetometer, gyroscope, linearAcceleration, orientation, proximity, pressure, lightSeneor, humidity, temperature;
-    private ActivityItem screenState, phoneActivity, sms, mms, bluetooth, wifi, smsInfo, mmsInfo, phoneCall, callState, browserHistory, application;
+    private ActivityItem screenState, phoneActivity, sms, mms, bluetooth, wifi, smsInfo, mmsInfo, phoneCall, callState, browserHistory, cellLocation, application;
     private static Button btnMonitor;
     private static Button btnUpload;
     private static TextView message;
@@ -379,6 +379,7 @@ public class PhysicianInterface extends Activity {
 //        phoneCall = new ActivityItem("Phone Call", Metrics.PHONE_CALL_CATEGORY, 3, 5000);
         callState = new ActivityItem("Call State", Metrics.CALLSTATE_CATEGORY, 1, 1000);
         browserHistory = new ActivityItem("Browser History", Metrics.BROWSER_HISTORY_CATEGORY, 1, 1000);
+        cellLocation = new ActivityItem("Cell Location", Metrics.CELL_LOCATION_CATEGORY, 2, 1000);
         application = new ActivityItem("Application", Metrics.APPLICATION_CATEGORY, 1, 1000);
 
         // Table II: Sensor Priority (High or Medium)
@@ -427,7 +428,7 @@ public class PhysicianInterface extends Activity {
                 new ArrayList<>(Arrays.asList(
                         memory, cpuLoad, cpuUtil, battery, netBytes, netPackets, connectStatus, instructionCount, sdcard,
                         gps, accelerometer, magnetometer, gyroscope, linearAcceleration, orientation, proximity, pressure, lightSeneor, /*humidity, temperature,*/
-                        screenState, phoneActivity, sms, mms, bluetooth, wifi, callState, browserHistory, application
+                        screenState, phoneActivity, sms, mms, bluetooth, wifi, callState, browserHistory, cellLocation, application
                 ))
         );
         for (ActivityItem ai : everything.getItems()) {

@@ -700,7 +700,7 @@ public final class Metrics {
     public static final int BROWSING_HISTORY = 215;
 
     /** Category for Cell Location related metrics. */
-    public static final int CELLLOCATION = 220;
+    public static final int CELL_LOCATION_CATEGORY = 220;
     /**
      * GSM Cell ID.
      * Type: Integer <br>
@@ -723,7 +723,7 @@ public final class Metrics {
      * Unites: none
      */
     public static final int APPLICATION = 225;
-	
+
 	public static final int MAX_METRIC = 230;
 //	public static final int CATEGORY_SIZE = 10;
 
@@ -756,9 +756,10 @@ public final class Metrics {
 											  MMS_CATEGORY,
                                               BLUETOOTH_CATEGORY,
                                               WIFI_CATEGORY,
-                                              CALLSTATE
-//                                              BROWSER_HISTORY_CATEGORY,
-//                                              APPLICATION_CATEGORY
+                                              CALLSTATE,
+                                              BROWSER_HISTORY_CATEGORY,
+                                              APPLICATION_CATEGORY,
+                                              CELL_LOCATION_CATEGORY
 	};
 
 	/**

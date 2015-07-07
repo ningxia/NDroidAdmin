@@ -22,6 +22,7 @@ package edu.nd.darts.cimon;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.os.Debug;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Messenger;
@@ -759,6 +760,10 @@ public abstract class MetricService<T extends Comparable<T>> implements Observab
             case Metrics.APPLICATION:
                 if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch Application service");
                 return ApplicationService.getInstance();
+            case Metrics.CELL_CID:
+            case Metrics.CELL_LAC:
+                if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch Cell Location service");
+                return CellLocationService.getInstance();
 			default:
 				if (DebugLog.INFO) Log.i(TAG, "MetricService.getService - unrecognized metric");
 				return null;

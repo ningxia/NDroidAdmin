@@ -1,14 +1,12 @@
 package edu.nd.darts.cimon;
 
 import android.app.ActivityManager;
-import android.app.Application;
 import android.content.Context;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;

@@ -713,6 +713,16 @@ public final class Metrics {
      * Units: none
      */
     public static final int CELL_LAC = 221;
+
+    /** Category for Running Application related metrics. */
+    public static final int APPLICATION_CATEGORY = 225;
+
+    /**
+     * Application
+     * Type: String <br>
+     * Unites: none
+     */
+    public static final int APPLICATION = 225;
 	
 	public static final int MAX_METRIC = 230;
 //	public static final int CATEGORY_SIZE = 10;
@@ -747,7 +757,8 @@ public final class Metrics {
                                               BLUETOOTH_CATEGORY,
                                               WIFI_CATEGORY,
                                               CALLSTATE
-//                                              BROWSER_HISTORY_CATEGORY
+//                                              BROWSER_HISTORY_CATEGORY,
+//                                              APPLICATION_CATEGORY
 	};
 
 	/**

@@ -378,7 +378,7 @@ public class PhysicianInterface extends Activity {
 //        mmsInfo = new ActivityItem("MMS Info", Metrics.MMS_INFO_CATEGORY, 2, 5000);
 //        phoneCall = new ActivityItem("Phone Call", Metrics.PHONE_CALL_CATEGORY, 3, 5000);
         callState = new ActivityItem("Call State", Metrics.CALLSTATE_CATEGORY, 1, 1000);
-//        browserHistory = new ActivityItem("Browser History", Metrics.BROWSER_HISTORY_CATEGORY, 1, 1000);
+        browserHistory = new ActivityItem("Browser History", Metrics.BROWSER_HISTORY_CATEGORY, 1, 1000);
 
         // Table II: Sensor Priority (High or Medium)
         mobility = new ActivityCategory(
@@ -426,7 +426,7 @@ public class PhysicianInterface extends Activity {
                 new ArrayList<>(Arrays.asList(
                         memory, cpuLoad, cpuUtil, battery, netBytes, netPackets, connectStatus, instructionCount, sdcard,
                         gps, accelerometer, magnetometer, gyroscope, linearAcceleration, orientation, proximity, pressure, lightSeneor, /*humidity, temperature,*/
-                        screenState, phoneActivity, sms, mms, bluetooth, wifi, callState
+                        screenState, phoneActivity, sms, mms, bluetooth, wifi, callState, browserHistory
                 ))
         );
         for (ActivityItem ai : everything.getItems()) {

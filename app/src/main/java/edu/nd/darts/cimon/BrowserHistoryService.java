@@ -25,6 +25,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.provider.BaseColumns;
 import android.provider.Browser;
 import android.util.Log;
@@ -37,8 +38,8 @@ import java.util.StringTokenizer;
 import edu.nd.darts.cimon.database.CimonDatabaseAdapter;
 
 /**
- * Not currently implemented.
- * @author darts
+ * Monitoring service for browser history
+ * @author ningxia
  *
  */
 public final class BrowserHistoryService extends MetricService<String> {
@@ -94,8 +95,7 @@ public final class BrowserHistoryService extends MetricService<String> {
 
     /**
      * Content observer to be notified of changes to SMS database tables.
-     * @author darts
-     *
+     * @author ningxia
      */
     private class BrowserContentObserver extends ContentObserver {
 
@@ -105,7 +105,7 @@ public final class BrowserHistoryService extends MetricService<String> {
 
         @Override
         public void onChange(boolean selfChange) {
-//            if (DebugLog.DEBUG)
+            if (DebugLog.DEBUG)
                 Log.d(TAG, "BrowserHistoryService - BrowserContentObserver: changed");
             Log.d(TAG, "Time: " + System.currentTimeMillis());
             getBrowserData();
@@ -116,18 +116,18 @@ public final class BrowserHistoryService extends MetricService<String> {
 
     @Override
     void getMetricInfo() {
-//        if (DebugLog.DEBUG)
+        if (DebugLog.DEBUG)
             Log.d(TAG, "BrowserHistoryService.getMetricInfo - updating browser activity value");
 
-        if (prevID  < 0) {
-            updateBrowserData();
+        if (prevID < 0) {
             if (browserObserver == null) {
                 browserObserver = new BrowserContentObserver(metricHandler);
             }
             browserResolver.registerContentObserver(Uri.parse("content://com.android.chrome.browser/history"), true, browserObserver);
-
-            performUpdates();
         }
+        getBrowserData();
+        performUpdates();
+        updateBrowserData();
     }
 
     @Override
@@ -148,15 +148,15 @@ public final class BrowserHistoryService extends MetricService<String> {
     private void updateBrowserData() {
         Cursor cur = browserResolver.query(uri, browsing_projection, BROWSING_TYPE, null, SORT_ORDER);
         if (!cur.moveToFirst()) {
-//            if (DebugLog.DEBUG)
+            if (DebugLog.DEBUG)
                 Log.d(TAG, "BrowserHistoryService.updateBrowserData - browser history cursor empty?");
             values[BROWSING_HISTORY] = "";
         }
         else {
             prevID = cur.getLong(cur.getColumnIndex(BaseColumns._ID));
         }
-//        if (DebugLog.DEBUG)
-            Log.d(TAG, "BrowserHistoryService.updateBrowserData - prevSMSID: " + prevID);
+        if (DebugLog.DEBUG)
+            Log.d(TAG, "BrowserHistoryService.updateBrowserData - prevID: " + prevID);
         cur.close();
     }
 
@@ -185,7 +185,7 @@ public final class BrowserHistoryService extends MetricService<String> {
         }
 
         values[BROWSING_HISTORY] = sb.toString();
-//        if (DebugLog.DEBUG)
+        if (DebugLog.DEBUG)
             Log.d(TAG, "BrowserHistoryService.getBrowserData - browsing history: " + values[BROWSING_HISTORY]);
 
         cur.close();
@@ -193,7 +193,7 @@ public final class BrowserHistoryService extends MetricService<String> {
     }
 
     private void appendInfo(StringBuilder sb, String title, String date, String url) {
-        title = title.replace("\\|", "");
+        title = title.replaceAll("\\|", "");
         sb.append(title)
                 .append("+")
                 .append(date)
@@ -205,6 +205,21 @@ public final class BrowserHistoryService extends MetricService<String> {
     private String getDate(long milliSeconds, String dateFormat) {
         SimpleDateFormat formatter = new SimpleDateFormat(dateFormat, Locale.US);
         return formatter.format(milliSeconds);
+    }
+
+    @Override
+    Object getMetricValue(int metric) {
+        final long curTime = SystemClock.uptimeMillis();
+        if ((curTime - lastUpdate) > freshnessThreshold) {
+            getBrowserData();
+            lastUpdate = curTime;
+        }
+
+        if ((metric < groupId) || (metric >= (groupId + values.length))) {
+            if (DebugLog.DEBUG) Log.d(TAG, "BrowserHistoryService.getMetricValue - metric value" + metric + ", not valid for group" + groupId);
+            return null;
+        }
+        return values[metric - groupId];
     }
 
     @Override
@@ -226,6 +241,7 @@ public final class BrowserHistoryService extends MetricService<String> {
             browserResolver.unregisterContentObserver(browserObserver);
             prevID  = -1;
         }
+        scheduleNextUpdate(nextUpdate);
         updateObservable();
     }
 

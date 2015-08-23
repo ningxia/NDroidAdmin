@@ -158,7 +158,9 @@ public class PhysicianService extends Service {
      */
     public void registerBluetooth() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        mBluetoothAdapter.enable();
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+            mBluetoothAdapter.enable();
+        }
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(BluetoothService.bluetoothReceiver, filter);
         if (DebugLog.DEBUG) Log.d(TAG, "PhysicianService.registerBluetooth - registerReceiver");

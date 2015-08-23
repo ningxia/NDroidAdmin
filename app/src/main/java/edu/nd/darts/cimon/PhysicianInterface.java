@@ -49,10 +49,11 @@ public class PhysicianInterface extends Activity {
     private static List<ActivityCategory> categories;
     private static Set<ActivityItem> allItems;
     private ArrayAdapter<ActivityCategory> listAdapter;
-    private ActivityCategory mobility, activity, social, wellbeing , everything;
+    private ActivityCategory mobility, activity, social, wellbeing , everything, testing;
     private ActivityItem memory, cpuLoad, cpuUtil, battery, netBytes, netPackets, connectStatus, instructionCount, sdcard;
     private ActivityItem gps, accelerometer, magnetometer, gyroscope, linearAcceleration, orientation, proximity, pressure, lightSeneor, humidity, temperature;
     private ActivityItem screenState, phoneActivity, sms, mms, bluetooth, wifi, smsInfo, mmsInfo, phoneCall, callState, browserHistory, cellLocation, application;
+    private ActivityItem accelerometer_test, gyroscope_test, pressure_test, bluetooth_test;
     private static Button btnMonitor;
     private static Button btnUpload;
     private static TextView message;
@@ -382,6 +383,11 @@ public class PhysicianInterface extends Activity {
         cellLocation = new ActivityItem("Cell Location", Metrics.CELL_LOCATION_CATEGORY, 2, 1000);
         application = new ActivityItem("Application", Metrics.APPLICATION_CATEGORY, 1, 1000);
 
+        accelerometer_test = new ActivityItem("Accelerometer", Metrics.ACCELEROMETER, 4, 1);
+        gyroscope_test = new ActivityItem("Gyroscope", Metrics.GYROSCOPE, 4, 1);
+        pressure_test = new ActivityItem("Barometer", Metrics.ATMOSPHERIC_PRESSURE, 1, 1);
+        bluetooth_test = new ActivityItem("Bluetooth", Metrics.BLUETOOTH_CATEGORY, 1, 1000);
+
         // Table II: Sensor Priority (High or Medium)
         mobility = new ActivityCategory(
                 "Mobility",
@@ -435,8 +441,21 @@ public class PhysicianInterface extends Activity {
             ai.addCategory(everything);
         }
 
+        testing = new ActivityCategory(
+                "Testing",
+                new ArrayList<>(Arrays.asList(
+                        accelerometer_test,
+                        gyroscope_test,
+                        pressure_test,
+                        bluetooth_test
+                ))
+        );
+        for (ActivityItem ai : testing.getItems()) {
+            ai.addCategory(testing);
+        }
+
         categories = new ArrayList<>(Arrays.asList(
-                mobility, activity, social, wellbeing, everything
+                mobility, activity, social, wellbeing, everything, testing
         ));
         allItems = new LinkedHashSet<>();
         for (ActivityCategory ac : categories) {

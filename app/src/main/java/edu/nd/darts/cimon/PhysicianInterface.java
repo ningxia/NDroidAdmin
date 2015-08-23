@@ -441,21 +441,8 @@ public class PhysicianInterface extends Activity {
             ai.addCategory(everything);
         }
 
-        testing = new ActivityCategory(
-                "Testing",
-                new ArrayList<>(Arrays.asList(
-                        accelerometer_test,
-                        gyroscope_test,
-                        pressure_test,
-                        bluetooth_test
-                ))
-        );
-        for (ActivityItem ai : testing.getItems()) {
-            ai.addCategory(testing);
-        }
-
         categories = new ArrayList<>(Arrays.asList(
-                mobility, activity, social, wellbeing, everything, testing
+                mobility, activity, social, wellbeing, everything
         ));
         allItems = new LinkedHashSet<>();
         for (ActivityCategory ac : categories) {

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="edu.nd.darts.cimon"
     android:versionCode="20"
-    android:versionName="0.2.0">
+    android:versionName="0.1.0">
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -97,7 +97,7 @@
 
         <activity
             android:name=".LabelingInterface"
-            android:label="CIMON Activity Tracker">
+            android:label="NetHealth Activity Tracker">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

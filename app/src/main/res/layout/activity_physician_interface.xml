@@ -12,7 +12,7 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select activities to be tracked:"
+        android:text="Select categories to be tracked:"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ListView
@@ -29,14 +29,14 @@
         android:layout_gravity="center"
         android:text="Track" />
 
-    <Button
-        android:id="@+id/physician_upload_btn"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:enabled="true"
-        android:layout_gravity="center"
-        android:text="Upload"/>
+    <!--<Button-->
+        <!--android:id="@+id/physician_upload_btn"-->
+        <!--style="?android:attr/buttonStyleSmall"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:enabled="true"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:text="Upload"/>-->
 
     <TextView
         android:layout_width="wrap_content"

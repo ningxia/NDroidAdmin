@@ -56,7 +56,6 @@ public class LabelingInterface extends Activity {
     Button saveButton, LoginButton, cancelButton, newItemButton,
             saveNewItemButton, discardNewItemButton,
             loginButton;
-    Button MemoryButton, CimonButton;
     EditText et, et2, PinCode;
     private RadioGroup radioButtonGroup;
     private RadioButton radioButton;
@@ -90,9 +89,6 @@ public class LabelingInterface extends Activity {
         saveNewItemButton = (Button) findViewById(R.id.saveItemButton);
         discardNewItemButton = (Button) findViewById(R.id.discardItemButton);
         LoginButton = (Button) findViewById(R.id.button7);
-//        MemoryButton = (Button) findViewById(R.id.button8);
-        CimonButton = (Button) findViewById(R.id.button9);
-
         cancelButton = (Button) findViewById(R.id.button2);
         workSpinner = (Spinner) findViewById(R.id.spinner1);
         timeIntervalSpinner = (Spinner) findViewById(R.id.spinner2);
@@ -403,18 +399,6 @@ public class LabelingInterface extends Activity {
                         }
                     }
                 });
-            }
-        });
-
-        CimonButton.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LabelingInterface.this,
-                        NDroidAdmin.class);
-                intent.putExtra("State", work);
-                startActivity(intent); //
-
             }
         });
     }

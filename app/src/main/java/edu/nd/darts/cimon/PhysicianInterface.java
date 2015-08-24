@@ -49,11 +49,10 @@ public class PhysicianInterface extends Activity {
     private static List<ActivityCategory> categories;
     private static Set<ActivityItem> allItems;
     private ArrayAdapter<ActivityCategory> listAdapter;
-    private ActivityCategory mobility, activity, social, wellbeing , everything, testing;
+    private ActivityCategory mobility, activity, social, wellbeing , everything;
     private ActivityItem memory, cpuLoad, cpuUtil, battery, netBytes, netPackets, connectStatus, instructionCount, sdcard;
     private ActivityItem gps, accelerometer, magnetometer, gyroscope, linearAcceleration, orientation, proximity, pressure, lightSeneor, humidity, temperature;
     private ActivityItem screenState, phoneActivity, sms, mms, bluetooth, wifi, smsInfo, mmsInfo, phoneCall, callState, browserHistory, cellLocation, application;
-    private ActivityItem accelerometer_test, gyroscope_test, pressure_test, bluetooth_test;
     private static Button btnMonitor;
     private static Button btnUpload;
     private static TextView message;
@@ -103,8 +102,8 @@ public class PhysicianInterface extends Activity {
         btnMonitor = (Button) findViewById(R.id.physician_monitor_btn);
         btnMonitor.setOnClickListener(btnMonitorHandler);
 
-        btnUpload = (Button) findViewById(R.id.physician_upload_btn);
-        btnUpload.setOnClickListener(btnUploadHandler);
+//        btnUpload = (Button) findViewById(R.id.physician_upload_btn);
+//        btnUpload.setOnClickListener(btnUploadHandler);
 
         message = (TextView) findViewById(R.id.physician_message);
 
@@ -347,94 +346,79 @@ public class PhysicianInterface extends Activity {
      */
     private void loadCategoryList() {
         // System
-        memory = new ActivityItem("Memory", Metrics.MEMORY_CATEGORY, 11, 5000);
-        cpuLoad = new ActivityItem("CPU Load", Metrics.CPULOAD_CATEGORY ,3, 5000);
-        cpuUtil = new ActivityItem("CPU Utility", Metrics.PROCESSOR_CATEGORY, 9, 5000);
-        battery = new ActivityItem("Battery", Metrics.BATTERY_CATEGORY, 6, 5000);
-        netBytes = new ActivityItem("Network Bytes", Metrics.NETBYTES_CATEGORY, 4, 5000);
-        netPackets = new ActivityItem("Network Packets", Metrics.NETPACKETS_CATEGORY, 4, 5000);
-        connectStatus = new ActivityItem("Connectivity Status", Metrics.NETSTATUS_CATEGORY, 2, 5000);
-        instructionCount = new ActivityItem("Instruction Count", Metrics.INSTRUCTION_CNT, 1, 5000);
-        sdcard = new ActivityItem("SDCard Accesses", Metrics.SDCARD_CATEGORY, 4, 5000);
+        memory = new ActivityItem("Memory", Metrics.MEMORY_CATEGORY, 11, 60000);
+        cpuLoad = new ActivityItem("CPU Load", Metrics.CPULOAD_CATEGORY ,3, 60000);
+        battery = new ActivityItem("Battery", Metrics.BATTERY_CATEGORY, 6, 60000);
+        netBytes = new ActivityItem("Network Bytes", Metrics.NETBYTES_CATEGORY, 4, 60000);
+        netPackets = new ActivityItem("Network Packets", Metrics.NETPACKETS_CATEGORY, 4, 60000);
+        connectStatus = new ActivityItem("Connectivity Status", Metrics.NETSTATUS_CATEGORY, 2, 60000);
         // Sensors
-        gps = new ActivityItem("GPS", Metrics.LOCATION_CATEGORY, 3, 5000);
-        accelerometer = new ActivityItem("Accelerometer", Metrics.ACCELEROMETER, 4, 500);
-        magnetometer = new ActivityItem("Magnetometer", Metrics.MAGNETOMETER, 4, 500);
-        gyroscope = new ActivityItem("Gyroscope", Metrics.GYROSCOPE, 4, 500);
-        linearAcceleration = new ActivityItem("Linear Acceleration", Metrics.LINEAR_ACCEL, 4, 500);
-        orientation = new ActivityItem("Orientation", Metrics.ORIENTATION, 3, 500);
-        proximity = new ActivityItem("Proximity", Metrics.PROXIMITY, 1, 5000);
-        pressure = new ActivityItem("Pressure", Metrics.ATMOSPHERIC_PRESSURE, 1, 5000);
-        lightSeneor = new ActivityItem("Light", Metrics.LIGHT, 1, 5000);
-        humidity = new ActivityItem("Humidity", Metrics.HUMIDITY, 1, 5000);
-        temperature = new ActivityItem("Temperature", Metrics.TEMPERATURE, 1, 5000);
+        gps = new ActivityItem("GPS", Metrics.LOCATION_CATEGORY, 3, 165000);
+//        accelerometer = new ActivityItem("Accelerometer", Metrics.ACCELEROMETER, 4, 500);
+//        magnetometer = new ActivityItem("Magnetometer", Metrics.MAGNETOMETER, 4, 500);
+//        gyroscope = new ActivityItem("Gyroscope", Metrics.GYROSCOPE, 4, 500);
+//        linearAcceleration = new ActivityItem("Linear Acceleration", Metrics.LINEAR_ACCEL, 4, 500);
         // User Activity
         screenState = new ActivityItem("Screen State", Metrics.SCREEN_ON, 1, 300000);
-        phoneActivity = new ActivityItem("Phone Activity", Metrics.TELEPHONY, 4, 5000);
-        sms = new ActivityItem("SMS", Metrics.SMS_CATEGORY, 2, 5000);
-        mms = new ActivityItem("MMS", Metrics.MMS_CATEGORY, 2, 5000);
+        phoneActivity = new ActivityItem("Phone Activity", Metrics.TELEPHONY, 4, 60000);
+        sms = new ActivityItem("SMS", Metrics.SMS_CATEGORY, 2, 60000);
+        mms = new ActivityItem("MMS", Metrics.MMS_CATEGORY, 2, 60000);
         bluetooth = new ActivityItem("Bluetooth", Metrics.BLUETOOTH_CATEGORY, 1, 60000);
-        wifi = new ActivityItem("Wifi", Metrics.WIFI_CATEGORY, 1, 60000);
-//        smsInfo = new ActivityItem("SMS Info", Metrics.SMS_INFO_CATEGORY, 2, 5000);
-//        mmsInfo = new ActivityItem("MMS Info", Metrics.MMS_INFO_CATEGORY, 2, 5000);
-//        phoneCall = new ActivityItem("Phone Call", Metrics.PHONE_CALL_CATEGORY, 3, 5000);
-        callState = new ActivityItem("Call State", Metrics.CALLSTATE_CATEGORY, 1, 1000);
-        browserHistory = new ActivityItem("Browser History", Metrics.BROWSER_HISTORY_CATEGORY, 1, 1000);
-        cellLocation = new ActivityItem("Cell Location", Metrics.CELL_LOCATION_CATEGORY, 2, 1000);
-        application = new ActivityItem("Application", Metrics.APPLICATION_CATEGORY, 1, 1000);
+        wifi = new ActivityItem("Wifi", Metrics.WIFI_CATEGORY, 1, 120000);
+        smsInfo = new ActivityItem("SMS Info", Metrics.SMS_INFO_CATEGORY, 2, 60000);
+        mmsInfo = new ActivityItem("MMS Info", Metrics.MMS_INFO_CATEGORY, 2, 60000);
+        callState = new ActivityItem("Call State", Metrics.CALLSTATE_CATEGORY, 1, 60000);
+        browserHistory = new ActivityItem("Browser History", Metrics.BROWSER_HISTORY_CATEGORY, 1, 300000);
+        cellLocation = new ActivityItem("Cell Location", Metrics.CELL_LOCATION_CATEGORY, 2, 60000);
+        application = new ActivityItem("Application", Metrics.APPLICATION_CATEGORY, 1, 60000);
 
-        accelerometer_test = new ActivityItem("Accelerometer", Metrics.ACCELEROMETER, 4, 1);
-        gyroscope_test = new ActivityItem("Gyroscope", Metrics.GYROSCOPE, 4, 1);
-        pressure_test = new ActivityItem("Barometer", Metrics.ATMOSPHERIC_PRESSURE, 1, 1);
-        bluetooth_test = new ActivityItem("Bluetooth", Metrics.BLUETOOTH_CATEGORY, 1, 1000);
-
-        // Table II: Sensor Priority (High or Medium)
-        mobility = new ActivityCategory(
-                "Mobility",
-                new ArrayList<>(Arrays.asList(
-                        accelerometer, gps, gyroscope, magnetometer
-                ))
-        );
-        for (ActivityItem ai : mobility.getItems()) {
-            ai.addCategory(mobility);
-        }
-
-        activity = new ActivityCategory(
-                "Activity",
-                new ArrayList<>(Arrays.asList(
-                        accelerometer, gps, wifi, bluetooth, gyroscope, magnetometer, proximity
-                ))
-        );
-        for (ActivityItem ai : activity.getItems()) {
-            ai.addCategory(activity);
-        }
-
-        social = new ActivityCategory(
-                "Social Interaction",
-                new ArrayList<>(Arrays.asList(
-                        accelerometer, gps, wifi, bluetooth, gyroscope, proximity
-                ))
-        );
-        for (ActivityItem ai: social.getItems()) {
-            ai.addCategory(social);
-        }
-
-        wellbeing = new ActivityCategory(
-                "Wellbeing",
-                new ArrayList<>(Arrays.asList(
-                    accelerometer, gps, wifi, bluetooth, gyroscope, magnetometer, proximity
-                ))
-        );
-        for (ActivityItem ai : wellbeing.getItems()) {
-            ai.addCategory(wellbeing);
-        }
+//        // Table II: Sensor Priority (High or Medium)
+//        mobility = new ActivityCategory(
+//                "Mobility",
+//                new ArrayList<>(Arrays.asList(
+//                        accelerometer, gps, gyroscope, magnetometer
+//                ))
+//        );
+//        for (ActivityItem ai : mobility.getItems()) {
+//            ai.addCategory(mobility);
+//        }
+//
+//        activity = new ActivityCategory(
+//                "Activity",
+//                new ArrayList<>(Arrays.asList(
+//                        accelerometer, gps, wifi, bluetooth, gyroscope, magnetometer, proximity
+//                ))
+//        );
+//        for (ActivityItem ai : activity.getItems()) {
+//            ai.addCategory(activity);
+//        }
+//
+//        social = new ActivityCategory(
+//                "Social Interaction",
+//                new ArrayList<>(Arrays.asList(
+//                        accelerometer, gps, wifi, bluetooth, gyroscope, proximity
+//                ))
+//        );
+//        for (ActivityItem ai: social.getItems()) {
+//            ai.addCategory(social);
+//        }
+//
+//        wellbeing = new ActivityCategory(
+//                "Well being",
+//                new ArrayList<>(Arrays.asList(
+//                    accelerometer, gps, wifi, bluetooth, gyroscope, magnetometer, proximity
+//                ))
+//        );
+//        for (ActivityItem ai : wellbeing.getItems()) {
+//            ai.addCategory(wellbeing);
+//        }
 
         everything = new ActivityCategory(
-                "Everything",
+                "NetHealth",
                 new ArrayList<>(Arrays.asList(
-                        memory, cpuLoad, cpuUtil, battery, netBytes, netPackets, connectStatus, instructionCount, sdcard,
-                        gps, accelerometer, magnetometer, gyroscope, linearAcceleration, orientation, proximity, pressure, lightSeneor, /*humidity, temperature,*/
-                        screenState, phoneActivity, sms, mms, bluetooth, wifi, callState, browserHistory, cellLocation, application
+                    memory, cpuLoad, battery, netBytes, netPackets, connectStatus, gps,
+                    screenState, phoneActivity, bluetooth, wifi, application, browserHistory, callState,
+                    cellLocation, mmsInfo, smsInfo
                 ))
         );
         for (ActivityItem ai : everything.getItems()) {
@@ -442,7 +426,7 @@ public class PhysicianInterface extends Activity {
         }
 
         categories = new ArrayList<>(Arrays.asList(
-                mobility, activity, social, wellbeing, everything
+                everything
         ));
         allItems = new LinkedHashSet<>();
         for (ActivityCategory ac : categories) {

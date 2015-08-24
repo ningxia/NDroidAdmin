@@ -46,7 +46,7 @@ import android.util.SparseArray;
 public class ValueNode<T extends Comparable<T>> implements CurrentNode<T> {	//Number & //
 	
 	private static final String TAG = "NDroid";
-	private static final int BATCH_SIZE = 60;
+	private static final int BATCH_SIZE = 1;
 
 	private int metric;
 	private T key;

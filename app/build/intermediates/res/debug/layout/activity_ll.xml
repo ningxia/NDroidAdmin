@@ -192,13 +192,13 @@
             <!--android:layout_weight="1"-->
             <!--android:text="Memory" />-->
 
-        <Button
-            android:id="@+id/button9"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="CIMON" />
+        <!--<Button-->
+            <!--android:id="@+id/button9"-->
+            <!--style="?android:attr/buttonStyleSmall"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:text="CIMON" />-->
     </LinearLayout>
 
     <LinearLayout

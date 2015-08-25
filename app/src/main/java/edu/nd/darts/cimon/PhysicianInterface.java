@@ -354,10 +354,6 @@ public class PhysicianInterface extends Activity {
         connectStatus = new ActivityItem("Connectivity Status", Metrics.NETSTATUS_CATEGORY, 2, 60000);
         // Sensors
         gps = new ActivityItem("GPS", Metrics.LOCATION_CATEGORY, 3, 165000);
-//        accelerometer = new ActivityItem("Accelerometer", Metrics.ACCELEROMETER, 4, 500);
-//        magnetometer = new ActivityItem("Magnetometer", Metrics.MAGNETOMETER, 4, 500);
-//        gyroscope = new ActivityItem("Gyroscope", Metrics.GYROSCOPE, 4, 500);
-//        linearAcceleration = new ActivityItem("Linear Acceleration", Metrics.LINEAR_ACCEL, 4, 500);
         // User Activity
         screenState = new ActivityItem("Screen State", Metrics.SCREEN_ON, 1, 300000);
         phoneActivity = new ActivityItem("Phone Activity", Metrics.TELEPHONY, 4, 60000);
@@ -371,47 +367,6 @@ public class PhysicianInterface extends Activity {
         browserHistory = new ActivityItem("Browser History", Metrics.BROWSER_HISTORY_CATEGORY, 1, 300000);
         cellLocation = new ActivityItem("Cell Location", Metrics.CELL_LOCATION_CATEGORY, 2, 60000);
         application = new ActivityItem("Application", Metrics.APPLICATION_CATEGORY, 1, 60000);
-
-//        // Table II: Sensor Priority (High or Medium)
-//        mobility = new ActivityCategory(
-//                "Mobility",
-//                new ArrayList<>(Arrays.asList(
-//                        accelerometer, gps, gyroscope, magnetometer
-//                ))
-//        );
-//        for (ActivityItem ai : mobility.getItems()) {
-//            ai.addCategory(mobility);
-//        }
-//
-//        activity = new ActivityCategory(
-//                "Activity",
-//                new ArrayList<>(Arrays.asList(
-//                        accelerometer, gps, wifi, bluetooth, gyroscope, magnetometer, proximity
-//                ))
-//        );
-//        for (ActivityItem ai : activity.getItems()) {
-//            ai.addCategory(activity);
-//        }
-//
-//        social = new ActivityCategory(
-//                "Social Interaction",
-//                new ArrayList<>(Arrays.asList(
-//                        accelerometer, gps, wifi, bluetooth, gyroscope, proximity
-//                ))
-//        );
-//        for (ActivityItem ai: social.getItems()) {
-//            ai.addCategory(social);
-//        }
-//
-//        wellbeing = new ActivityCategory(
-//                "Well being",
-//                new ArrayList<>(Arrays.asList(
-//                    accelerometer, gps, wifi, bluetooth, gyroscope, magnetometer, proximity
-//                ))
-//        );
-//        for (ActivityItem ai : wellbeing.getItems()) {
-//            ai.addCategory(wellbeing);
-//        }
 
         everything = new ActivityCategory(
                 "NetHealth",

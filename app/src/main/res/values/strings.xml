@@ -2,7 +2,7 @@
 <resources>
 
     <string name="hello">Hello World, NDroidManager!</string>
-    <string name="app_name">NetHealth Monitor</string>
+    <string name="app_name">NetHealth Study</string>
     <string name="ticker_text">CIMON service active</string>
     <string name="notification_title">CIMON administrator</string>
     <string name="notification_message">CIMON monitoring service is active</string>

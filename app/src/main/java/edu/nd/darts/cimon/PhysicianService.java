@@ -161,8 +161,8 @@ public class PhysicianService extends Service {
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             mBluetoothAdapter.enable();
         }
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(BluetoothService.bluetoothReceiver, filter);
+//        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+//        registerReceiver(BluetoothService.bluetoothReceiver, filter);
         if (DebugLog.DEBUG) Log.d(TAG, "PhysicianService.registerBluetooth - registerReceiver");
     }
 
@@ -170,7 +170,7 @@ public class PhysicianService extends Service {
      * Unregister Bluetooth BroadcastReceiver
      */
     public void unregisterBluetooth() {
-        unregisterReceiver(BluetoothService.bluetoothReceiver);
+//        unregisterReceiver(BluetoothService.bluetoothReceiver);
         if (DebugLog.DEBUG) Log.i(TAG, "PhysicianService.unregisterBluetooth - unregisterReceiver");
     }
 

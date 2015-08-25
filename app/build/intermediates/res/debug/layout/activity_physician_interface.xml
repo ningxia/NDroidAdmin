@@ -12,7 +12,7 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select categories to be tracked:"
+        android:text="Select category and click TRACK:"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ListView

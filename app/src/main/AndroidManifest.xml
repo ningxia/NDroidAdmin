@@ -5,7 +5,7 @@
     android:versionName="0.1.0">
 
     <uses-sdk
-        android:minSdkVersion="14"
+        android:minSdkVersion="18"
         android:targetSdkVersion="21"></uses-sdk>
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -24,7 +24,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
-    
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="18" />
@@ -97,7 +98,7 @@
 
         <activity
             android:name=".LabelingInterface"
-            android:label="NetHealth Activity Tracker">
+            android:label="NetHealth Study Tracker">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

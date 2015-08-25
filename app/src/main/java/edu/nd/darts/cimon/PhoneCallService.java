@@ -81,11 +81,11 @@ public final class PhoneCallService extends MetricService<String> {
         telephonyManager = (TelephonyManager) MyApplication.getAppContext(
         ).getSystemService(Context.TELEPHONY_SERVICE);
         values = new String[PHONE_METRICS];
-        valueNodes = new SparseArray<>();
+        valueNodes = new SparseArray();
         freshnessThreshold = THIRTY_SECONDS;
         adminObserver = UserObserver.getInstance();
         adminObserver.registerObservable(this, groupId);
-        schedules = new SparseArray<>();
+        schedules = new SparseArray();
         init();
     }
 

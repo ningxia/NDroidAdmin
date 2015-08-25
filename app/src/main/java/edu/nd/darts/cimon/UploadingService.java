@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
@@ -80,6 +82,7 @@ public class UploadingService extends Service {
             public void run() {
                 Log.d(TAG, "Uploading thread:" + Integer.toString(count) + "\n Time window:"
                         + Integer.toString(startHour) + "~" + Integer.toString(endHour));
+                //Log.d(TAG,"Wifi connected:" + Boolean.toString(isWifiConnected()));
                 if (count < 1) {
                     runUpload();
                 }
@@ -254,6 +257,7 @@ public class UploadingService extends Service {
         String deviceID = getDeviceID();
         mainPackage.put("device_id", deviceID);
         String callBack = comm.postData(mainPackage.toString().getBytes());
+        Log.d(TAG,"Callback: " + callBack);
         if (callBack.equals("Success")
                 && (tableName.equals(DataTable.TABLE_DATA) || tableName
                 .equals(LabelingHistory.TABLE_NAME))) {

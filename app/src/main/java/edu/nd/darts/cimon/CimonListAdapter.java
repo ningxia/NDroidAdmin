@@ -114,9 +114,9 @@ public class CimonListAdapter extends BaseExpandableListAdapter {
 		
 		inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mGroupCursorHelper = new MyCursorHelper(null);
-		mChildrenCursorHelpers = new SparseArray<>();
-		groupViews = new SparseArray<>();
-		childViews = new SparseArray<>();
+		mChildrenCursorHelpers = new SparseArray();
+		groupViews = new SparseArray();
+		childViews = new SparseArray();
 		expandedViews = new SparseBooleanArray();
 	}
 

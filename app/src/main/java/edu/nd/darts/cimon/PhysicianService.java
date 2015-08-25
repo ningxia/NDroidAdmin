@@ -51,7 +51,7 @@ public class PhysicianService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (DebugLog.DEBUG) Log.d(TAG, "PhysicianService.onStartCommand  - started - serviceConnected: " + serviceConnected);
-        runningMetrics = new HashSet<>(intent.getStringArrayListExtra(PACKAGE_NAME + "." + RUNNING_METRICS));
+        runningMetrics = new HashSet(intent.getStringArrayListExtra(PACKAGE_NAME + "." + RUNNING_METRICS));
         if (!serviceConnected) {
             if (DebugLog.DEBUG) Log.d(TAG, "PhysicianService.onCreate - start binding Cimon");
             Intent i = new Intent(this, NDroidService.class);
@@ -72,7 +72,7 @@ public class PhysicianService extends Service {
         }
         settings = getSharedPreferences(PHYSICIAN_PREFS, MODE_PRIVATE);
         editor = settings.edit();
-        runningMonitorIds = new HashSet<>();
+        runningMonitorIds = new HashSet();
     }
 
     @Override

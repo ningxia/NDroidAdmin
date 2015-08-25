@@ -43,11 +43,11 @@ public class CallStateService extends MetricService<String> {
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
         values = new String[CALLSTATE_METRICS];
-        valueNodes = new SparseArray<>();
+        valueNodes = new SparseArray();
         freshnessThreshold = FIVE_MINUTES;
         adminObserver = UserObserver.getInstance();
         adminObserver.registerObservable(this, groupId);
-        schedules = new SparseArray<>();
+        schedules = new SparseArray();
         init();
     }
 

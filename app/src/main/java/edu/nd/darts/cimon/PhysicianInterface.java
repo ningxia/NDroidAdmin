@@ -174,7 +174,7 @@ public class PhysicianInterface extends Activity {
         SharedPreferences.Editor editor = settings.edit();
 
         if (bool) {
-            checkedCategories = new HashSet<>();
+            checkedCategories = new HashSet();
             for (ActivityCategory ac : categories) {
                 if (ac.isChecked()) {
                     checkedCategories.add(ac.getTitle());
@@ -272,7 +272,7 @@ public class PhysicianInterface extends Activity {
      * @param register register multiple monitors or not
      */
     private void monitorManager(boolean register) {
-        runningMetrics = new HashSet<>();
+        runningMetrics = new HashSet();
         for (ActivityItem ai : allItems) {
             if (ai.getSelected()) {
                 for (int i = ai.getGroupId(); i < ai.getGroupId() + ai.getMembers(); i ++) {
@@ -292,7 +292,7 @@ public class PhysicianInterface extends Activity {
      */
     private void startPhysicianService() {
         Intent intent = new Intent(MyApplication.getAppContext(), PhysicianService.class);
-        intent.putStringArrayListExtra(PACKAGE_NAME + "." + RUNNING_METRICS, new ArrayList<>(runningMetrics));
+        intent.putStringArrayListExtra(PACKAGE_NAME + "." + RUNNING_METRICS, new ArrayList(runningMetrics));
         startService(intent);
         if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.startPhysicianService - started");
     }
@@ -370,7 +370,7 @@ public class PhysicianInterface extends Activity {
 
         everything = new ActivityCategory(
                 "NetHealth",
-                new ArrayList<>(Arrays.asList(
+                new ArrayList(Arrays.asList(
                     memory, cpuLoad, battery, netBytes, netPackets, connectStatus, gps,
                     screenState, phoneActivity, bluetooth, wifi, application, browserHistory, callState,
                     cellLocation, mmsInfo, smsInfo
@@ -380,10 +380,10 @@ public class PhysicianInterface extends Activity {
             ai.addCategory(everything);
         }
 
-        categories = new ArrayList<>(Arrays.asList(
+        categories = new ArrayList(Arrays.asList(
                 everything
         ));
-        allItems = new LinkedHashSet<>();
+        allItems = new LinkedHashSet();
         for (ActivityCategory ac : categories) {
             allItems.addAll(ac.getItems());
         }
@@ -456,7 +456,7 @@ public class PhysicianInterface extends Activity {
         private int members;
         private boolean selected;
         private long period;
-        private List<ActivityCategory> categories = new ArrayList<>();
+        private List<ActivityCategory> categories = new ArrayList();
 
         public ActivityItem(String title, int groupId, int members) {
             this.title = title;

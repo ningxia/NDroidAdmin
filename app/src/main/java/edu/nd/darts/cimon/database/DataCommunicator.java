@@ -2,6 +2,10 @@ package edu.nd.darts.cimon.database;
 
 //import android.util.Log;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.InputStream;
@@ -19,6 +23,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import edu.nd.darts.cimon.MyApplication;
+
 /**
  * Communication facility for uploading to server
  *
@@ -27,7 +33,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class DataCommunicator {
     private URL url;
-    private String url_c = "http://129.74.152.106:8300/Update_Data/";
+    private String url_c = "http://129.74.246.85:8100/Update_Data/";
     //private String url_c = "http://10.11.132.136:8300/Update_Data/";
     private HttpURLConnection connection = null;
 
@@ -48,6 +54,21 @@ public class DataCommunicator {
         return s.hasNext() ? s.next() : "";
     }
 
+
+    /**
+     * Check if WIFI is connected.
+     *
+     * @author Xiao(Sean) Bo
+     *
+     */
+
+    private boolean isWifiConnected(){
+        Context context = MyApplication.getAppContext();
+        ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return mWifi.isConnected();
+    }
+
     /**
      * Post data to server
      *
@@ -58,6 +79,9 @@ public class DataCommunicator {
      */
     public String postData(byte[] data) {
         String callBack = null;
+        if(!isWifiConnected()){
+            return "Wifi Failed";
+        }
         try {
             connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);

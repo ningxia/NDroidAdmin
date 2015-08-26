@@ -121,6 +121,7 @@ public class PhysicianInterface extends Activity {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         us = new UploadingService();
+        startService(new Intent(this, UploadingService.class));
     }
 
     private void loadMetricInfoTable() {

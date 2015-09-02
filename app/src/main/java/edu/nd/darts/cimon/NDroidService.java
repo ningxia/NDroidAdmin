@@ -125,7 +125,7 @@ public class NDroidService extends Service {
 		// this will place an icon in the notification bar indicating it is active.
 		Notification notification = new Notification(R.drawable.cimon_logo_hdpi, getText(
 				R.string.ticker_text), System.currentTimeMillis());
-		Intent notificationIntent = new Intent(this, NDroidAdmin.class);
+        Intent notificationIntent = new Intent(this, PhysicianInterface.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, 
 				notificationIntent, 0);
 		notification.setLatestEventInfo(this, getText(R.string.notification_title), 

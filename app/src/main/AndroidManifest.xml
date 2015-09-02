@@ -97,7 +97,7 @@
         </activity>
 
         <activity
-            android:name=".LabelingInterface"
+            android:name=".PhysicianInterface"
             android:label="NetHealth Study Tracker">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -110,12 +110,6 @@
             android:name=".TechnicianInterface"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_technician_interface" >
-        </activity>
-
-        <activity
-            android:name=".PhysicianInterface"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_physician_interface" >
         </activity>
 
     </application>

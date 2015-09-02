@@ -154,11 +154,13 @@ public final class CpuService extends MetricService<Float> {
 					new FileInputStream(new File("/proc/cpuinfo"))), 128);
 			String line;
 			while ( (line = reader.readLine()) != null) {
-				if (line.startsWith("Processor")) {
+				if (line.startsWith("Processor") || line.startsWith("model name")) {
 					int index = line.indexOf(':');
 					if (index > 0) {
 						model = line.substring(index + 1).trim();
-						break;
+                        if (model.length() > 1) {
+                            break;
+                        }
 					}
 				}
 			}

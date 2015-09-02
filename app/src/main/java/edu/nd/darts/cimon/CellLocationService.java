@@ -3,7 +3,9 @@ package edu.nd.darts.cimon;
 import android.content.Context;
 import android.os.SystemClock;
 import android.telecom.TelecomManager;
+import android.telephony.CellLocation;
 import android.telephony.TelephonyManager;
+import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
 import android.util.Log;
 import android.util.SparseArray;
@@ -28,7 +30,6 @@ public class CellLocationService extends MetricService<Integer> {
     private static final CellLocationService INSTANCE = new CellLocationService();
 
     private TelephonyManager telephonyManager;
-    private GsmCellLocation cellLocation;
 
     private CellLocationService() {
         if (DebugLog.DEBUG) Log.d(TAG, "CellLocationService - constructor");
@@ -89,14 +90,22 @@ public class CellLocationService extends MetricService<Integer> {
     }
 
     private void fetchValues() {
-        cellLocation = (GsmCellLocation) telephonyManager.getCellLocation();
-        if (cellLocation == null) {
-            values[CELL_CID] = -1;
-            values[CELL_LAC] = -1;
-        }
-        else {
-            values[CELL_CID] = cellLocation.getCid() & 0xffff;
-            values[CELL_LAC] = cellLocation.getLac() & 0xffff;
+        switch (telephonyManager.getPhoneType()) {
+            case TelephonyManager.PHONE_TYPE_CDMA:
+                CdmaCellLocation cdmaCellLocation = (CdmaCellLocation) telephonyManager.getCellLocation();
+                values[CELL_CID] = cdmaCellLocation.getBaseStationId();
+                values[CELL_LAC] = cdmaCellLocation.getNetworkId();
+                if (DebugLog.DEBUG) Log.d(TAG, "CellLocationService.fetchValues: " + " CDMA " + values[CELL_CID] + " " + values[CELL_LAC]);
+                break;
+            case TelephonyManager.PHONE_TYPE_GSM:
+                GsmCellLocation gsmCellLocation = (GsmCellLocation) telephonyManager.getCellLocation();
+                values[CELL_CID] = gsmCellLocation.getCid() & 0xffff;
+                values[CELL_LAC] = gsmCellLocation.getLac() & 0xffff;
+                if (DebugLog.DEBUG) Log.d(TAG, "CellLocationService.fetchValues: " + " GSM "+ values[CELL_CID] + " " + values[CELL_LAC]);
+                break;
+            default:
+                values[CELL_CID] = -1;
+                values[CELL_LAC] = -1;
         }
     }
 }

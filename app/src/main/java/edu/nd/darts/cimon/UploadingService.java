@@ -255,6 +255,7 @@ public class UploadingService extends Service {
         mainPackage.put("table", tableName);
         //mainPackage.put("table", "Test");
         String deviceID = getDeviceID();
+        Log.d(TAG,"Device ID : " + deviceID);
         mainPackage.put("device_id", deviceID);
         String callBack = comm.postData(mainPackage.toString().getBytes());
         Log.d(TAG,"Callback: " + callBack);
@@ -293,10 +294,11 @@ public class UploadingService extends Service {
      *
      * @author Xiao(Sean) Bo
      */
-
-    private String getDeviceID() {
+    private String getDeviceID(){
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        return telephonyManager.getDeviceId();
+        String phoneNumber = telephonyManager.getLine1Number();
+        String IMEI = telephonyManager.getDeviceId();
+        return phoneNumber==null? IMEI : phoneNumber;
     }
 
     /**

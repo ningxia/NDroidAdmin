@@ -377,6 +377,7 @@ public class PhysicianInterface extends Activity {
                     cellLocation, mmsInfo, smsInfo
                 ))
         );
+
         for (ActivityItem ai : everything.getItems()) {
             ai.addCategory(everything);
         }

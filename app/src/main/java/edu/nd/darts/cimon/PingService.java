@@ -15,7 +15,7 @@ import edu.nd.darts.cimon.database.DataCommunicator;
 public class PingService extends Service {
 
     private static final String TAG = "CimonReminderService";
-    private static final int period = 1000 * 3600;
+    private static final int period = 1000 * 15;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -39,14 +39,15 @@ public class PingService extends Service {
             public void run() {
                 new Thread(new Runnable() {
                     public void run() {
-                        String packageType = "PING";
                         JSONObject mainPackage = new JSONObject();
                         try {
                             DataCommunicator comm = new DataCommunicator();
                             mainPackage.put("table", "Ping");
                             String deviceID = UploadingService.getDeviceID();
                             mainPackage.put("device_id", deviceID);
-                            comm.postData(mainPackage.toString().getBytes());
+                            String callBack = comm.postData(mainPackage.toString().getBytes());
+                            //if(DebugLog.DEBUG)
+                                Log.d(TAG,"Ping Callback:"+callBack);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

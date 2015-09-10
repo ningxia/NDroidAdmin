@@ -2,15 +2,15 @@ package edu.nd.darts.cimon;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
+import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.nd.darts.cimon.database.CimonDatabaseAdapter;
 
@@ -26,7 +26,6 @@ public class BluetoothService extends MetricService<String> {
     private static final String TAG = "NDroid";
     private static final int BLUETOOTH_METRICS = 1;
     private static final long FIVE_MINUTES = 300000;
-    private static final long BLE_SCAN_PERIOD = 10000;
 
     private static final String title = "Bluetooth activity";
     private static final String[] metrics = {"Discovered Bluetooth Devices"};
@@ -34,8 +33,7 @@ public class BluetoothService extends MetricService<String> {
     private static final BluetoothService INSTANCE = new BluetoothService();
 
     private static BluetoothAdapter mBluetoothAdapter;
-    private static HashMap<String, String> devices;
-    private Handler mHandler;
+    private static List<BluetoothDevice> devices;
 
     private BluetoothService() {
         if (DebugLog.DEBUG) Log.d(TAG, "BluetoothService - constructor");
@@ -46,7 +44,7 @@ public class BluetoothService extends MetricService<String> {
         metricsCount = BLUETOOTH_METRICS;
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        devices = new HashMap<>();
+        devices = new ArrayList<>();
 
         values = new String[BLUETOOTH_METRICS];
         valueNodes = new SparseArray<ValueNode<String>>();
@@ -77,40 +75,21 @@ public class BluetoothService extends MetricService<String> {
         updateMetric = null;
 
         if (mBluetoothAdapter.isDiscovering()) {
+            mBluetoothAdapter.cancelDiscovery();
             active = false;
         }
-        else {
-            mHandler = new Handler(Looper.getMainLooper());
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                }
-            }, BLE_SCAN_PERIOD);
-            mBluetoothAdapter.startLeScan(mLeScanCallback);
-        }
+        mBluetoothAdapter.startDiscovery();
         fetchValues();
         performUpdates();
     }
 
-//    public static BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
-//                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//                devices.add(device);
-//                if (DebugLog.DEBUG) Log.d(TAG, "BluetoothService.BluetoothReceiver - received device: " + device.getName() + "+" + device.getAddress());
-//            }
-//        }
-//    };
-
-    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
+    public static BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override
-        public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-            if (!devices.containsKey(device.getAddress())) {
-                devices.put(device.getAddress(), rssi + "+" + getUuid(scanRecord) + "+" + device.getAddress() + "+" + device.getName());
-                if (DebugLog.DEBUG)
-                    Log.d(TAG, "BluetoothService.LeScanCallback - received device: " + device.getName() + "+" + device.getAddress() + "+" + getUuid(scanRecord));
+        public void onReceive(Context context, Intent intent) {
+            if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                devices.add(device);
+                if (DebugLog.DEBUG) Log.d(TAG, "BluetoothService.BluetoothReceiver - received device: " + device.getName() + "+" + device.getAddress());
             }
         }
     };
@@ -128,62 +107,16 @@ public class BluetoothService extends MetricService<String> {
         if (mBluetoothAdapter == null) {
             return;
         }
-        if (devices.size() == 0) {
-            values[BLUETOOTH_DEVICE] = "";
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < devices.size(); i ++) {
+            sb.append(devices.get(i).getAddress())
+                    .append(devices.size() - 1 == i ? "" : "|");
         }
-        else {
-            StringBuilder sb = new StringBuilder();
-            for (Map.Entry<String, String> entry: devices.entrySet()) {
-                sb.append(entry.getValue()).append("|");
-            }
-            if (DebugLog.DEBUG)
-                Log.d(TAG, "BluetoothService.fetchValues: " + sb.substring(0, sb.length() - 1));
-            values[BLUETOOTH_DEVICE] = sb.substring(0, sb.length() - 1);
-            devices.clear();
-        }
-    }
-
-    static final char[] hexArray = "0123456789ABCDEF".toCharArray();
-    private static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
-    }
-
-    private static String getUuid(byte[] scanRecord) {
-        int startByte = 2;
-        boolean patternFound = false;
-        while (startByte <= 5) {
-            if (    ((int) scanRecord[startByte + 2] & 0xff) == 0x02 && //Identifies an iBeacon
-                    ((int) scanRecord[startByte + 3] & 0xff) == 0x15) { //Identifies correct data length
-                patternFound = true;
-                break;
-            }
-            startByte++;
-        }
-        //Convert to hex String
-        byte[] uuidBytes = new byte[16];
-        System.arraycopy(scanRecord, startByte+4, uuidBytes, 0, 16);
-        String hexString = bytesToHex(uuidBytes);
-
-        //Here is your UUID
-        String uuid =  hexString.substring(0,8) + "-" +
-                hexString.substring(8,12) + "-" +
-                hexString.substring(12,16) + "-" +
-                hexString.substring(16,20) + "-" +
-                hexString.substring(20,32);
-
-        //Here is your Major value
-        int major = (scanRecord[startByte+20] & 0xff) * 0x100 + (scanRecord[startByte+21] & 0xff);
-
-        //Here is your Minor value
-        int minor = (scanRecord[startByte+22] & 0xff) * 0x100 + (scanRecord[startByte+23] & 0xff);
-
-        return uuid;
+        if (DebugLog.DEBUG) Log.d(TAG, "BluetoothService.fetchValues: " + sb.toString());
+        // only record Bluetooth device address metric
+        values[BLUETOOTH_DEVICE] = sb.toString();
+        devices.clear();
     }
 
     @Override

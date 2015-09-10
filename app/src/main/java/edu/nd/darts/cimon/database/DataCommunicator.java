@@ -34,7 +34,7 @@ import edu.nd.darts.cimon.MyApplication;
 public class DataCommunicator {
     private URL url;
     private String url_c = "http://129.74.246.85:8100/Update_Data/";
-    //private String url_c = "http://10.11.132.136:8300/Update_Data/";
+    //private String url_c = "http://129.74.152.106:8100/Update_Data/";
     private HttpURLConnection connection = null;
 
     public DataCommunicator() throws MalformedURLException{

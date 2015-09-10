@@ -15,7 +15,7 @@ import edu.nd.darts.cimon.database.DataCommunicator;
 public class PingService extends Service {
 
     private static final String TAG = "CimonReminderService";
-    private static final int period = 1000 * 15;
+    private static final int period = 1000 * 3600;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

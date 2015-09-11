@@ -78,6 +78,7 @@ public class PhysicianInterface extends Activity {
     private static final int REQUEST_ENABLE_BT = 1;
 
     private static UploadingService us;
+    private static PingService ps;
 
 
     @Override
@@ -122,6 +123,8 @@ public class PhysicianInterface extends Activity {
 
         us = new UploadingService();
         startService(new Intent(this, UploadingService.class));
+        ps = new PingService();
+        startService(new Intent(this, PingService.class));
     }
 
     private void loadMetricInfoTable() {

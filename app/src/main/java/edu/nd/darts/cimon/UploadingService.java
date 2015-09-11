@@ -294,7 +294,7 @@ public class UploadingService extends Service {
      *
      * @author Xiao(Sean) Bo
      */
-    private String getDeviceID(){
+    public static String getDeviceID(){
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String phoneNumber = telephonyManager.getLine1Number();
         String IMEI = telephonyManager.getDeviceId();

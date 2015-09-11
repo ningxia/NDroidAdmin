@@ -61,6 +61,12 @@
             </intent-filter>
         </service>
 
+        <service android:name="edu.nd.darts.cimon.PingService">
+            <intent-filter>
+                <action android:name="edu.nd.darts.cimon.NDroidService" />
+            </intent-filter>
+        </service>
+
         <service android:name="edu.nd.darts.cimon.LabelingReminderService">
             <intent-filter>
                 <action android:name="edu.nd.darts.cimon.NDroidService" />

@@ -177,9 +177,7 @@ public class PhysicianInterface extends Activity {
         if (bool) {
             checkedCategories = new HashSet();
             for (ActivityCategory ac : categories) {
-                if (ac.isChecked()) {
-                    checkedCategories.add(ac.getTitle());
-                }
+                checkedCategories.add(ac.getTitle());
             }
             editor.putStringSet(CHECKED_CATEGORIES, checkedCategories);
             editor.putStringSet(RUNNING_METRICS, runningMetrics);
@@ -275,13 +273,11 @@ public class PhysicianInterface extends Activity {
     private void monitorManager(boolean register) {
         runningMetrics = new HashSet();
         for (ActivityItem ai : allItems) {
-            if (ai.getSelected()) {
-                for (int i = ai.getGroupId(); i < ai.getGroupId() + ai.getMembers(); i ++) {
-                    if (DebugLog.DEBUG) {
-                        Log.d(TAG, "PhysicianInterface.monitorManager - metric: " + i);
-                    }
-                    runningMetrics.add(Integer.toString(i) + "|" + ai.getPeriod() + "|" + DURATION);
+            for (int i = ai.getGroupId(); i < ai.getGroupId() + ai.getMembers(); i ++) {
+                if (DebugLog.DEBUG) {
+                    Log.d(TAG, "PhysicianInterface.monitorManager - metric: " + i);
                 }
+                runningMetrics.add(Integer.toString(i) + "|" + ai.getPeriod() + "|" + DURATION);
             }
         }
         // set or clear the SharedPreference accordingly
@@ -620,14 +616,6 @@ public class PhysicianInterface extends Activity {
                         /* Enable Bluetooth explicitly */
                         // enableBluetooth();
                         mBluetoothAdapter.enable();
-                    }
-
-                    if (isChecked()) {
-                        btnMonitor.setEnabled(true);
-                    }
-
-                    if (nonChecked()) {
-                        btnMonitor.setEnabled(false);
                     }
                 }
             });

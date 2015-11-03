@@ -49,7 +49,7 @@ public class AutoStartReceiver extends BroadcastReceiver {
 		SharedPreferences appPrefs = context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
 	    boolean startup = appPrefs.getBoolean(PREF_STARTUP, true);
 	    if (startup) {
-			context.startService(new Intent(context, NDroidService.class));;
+			context.startService(new Intent(context, NDroidService.class));
 			if (DebugLog.DEBUG) Log.d(TAG, "+ start CIMON Monitor +");
 	    }
 	    else {

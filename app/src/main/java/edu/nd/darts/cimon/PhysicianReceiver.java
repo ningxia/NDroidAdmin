@@ -39,16 +39,5 @@ public class PhysicianReceiver extends BroadcastReceiver {
                 if (DebugLog.DEBUG) Log.d(TAG, "+ stop PhysicianService +");
             }
         }
-        if (uploadingService == null){
-            uploadingService = new Intent(context,UploadingService.class);
-        }
-        if(ACTION_START.equals(intent.getAction())){
-            context.startService(uploadingService);
-            if (DebugLog.DEBUG) Log.d(TAG,"+ start Uploading Service");
-        }
-        if(ACTION_SHUTDOWN.equals(intent.getAction())){
-            context.stopService(uploadingService);
-            if (DebugLog.DEBUG) Log.d(TAG,"+ stop Uploading Service");
-        }
     }
 }

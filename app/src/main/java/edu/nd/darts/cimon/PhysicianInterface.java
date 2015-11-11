@@ -111,7 +111,7 @@ public class PhysicianInterface extends Activity {
         // make sure that the NDroidService is running
 //        sensorService = new Intent(this, NDroidService.class);
 //        startService(sensorService);
-        this.startSensors();
+//        this.startSensors();
         //startService(new Intent(this, NDroidService.class));
 
         settings = getSharedPreferences(PHYSICIAN_PREFS, MODE_PRIVATE);
@@ -122,9 +122,7 @@ public class PhysicianInterface extends Activity {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         us = new UploadingService();
-        startService(new Intent(this, UploadingService.class));
         ps = new PingService();
-        startService(new Intent(this, PingService.class));
     }
 
     private void loadMetricInfoTable() {
@@ -291,9 +289,12 @@ public class PhysicianInterface extends Activity {
      * Start PhysicianService
      */
     private void startPhysicianService() {
+        this.startSensors();
         Intent intent = new Intent(MyApplication.getAppContext(), PhysicianService.class);
         intent.putStringArrayListExtra(PACKAGE_NAME + "." + RUNNING_METRICS, new ArrayList(runningMetrics));
         startService(intent);
+        startService(new Intent(this, UploadingService.class));
+        startService(new Intent(this, PingService.class));
         if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.startPhysicianService - started");
     }
 

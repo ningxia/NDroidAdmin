@@ -60,6 +60,8 @@ public class PhysicianService extends Service {
         else {
             mCimonInterface = getCimonInterface();
         }
+        startService(new Intent(this, UploadingService.class));
+        startService(new Intent(this, PingService.class));
         return super.onStartCommand(intent, flags, startId);
     }
 

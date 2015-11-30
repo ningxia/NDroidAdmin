@@ -21,6 +21,9 @@ package edu.nd.darts.cimon;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -32,6 +35,8 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -60,6 +65,9 @@ public final class BrowserHistoryService extends MetricService<String> {
     private static final String BROWSING_URL = Browser.BookmarkColumns.URL;
 
     private static final Uri uri = Browser.BOOKMARKS_URI;
+    private static final Uri BOOKMARKS_URI_DEFAULT = Uri.parse("content://com.android.chrome.browser/history");
+    private static final Uri BOOKMARKS_URI_CHROME = Uri.parse("content://com.android.chrome.browser/bookmarks");
+    private static final Uri BOOKMARKS_URI_SAMSUNG_S = Uri.parse("content://com.sec.android.app.sbrowser.browser/history");
     private static final String[] browsing_projection = new String[]{BaseColumns._ID,
             BROWSING_TITLE, BROWSING_DATE, BROWSING_URL};
 
@@ -84,6 +92,7 @@ public final class BrowserHistoryService extends MetricService<String> {
         adminObserver = UserObserver.getInstance();
         adminObserver.registerObservable(this, groupId);
         schedules = new SparseArray<TimerNode>();
+        displayProviders();
         init();
     }
 
@@ -93,8 +102,26 @@ public final class BrowserHistoryService extends MetricService<String> {
         return INSTANCE;
     }
 
+    private void displayProviders() {
+        List<String> contentProviders = new ArrayList<>();
+        PackageManager pm = MyApplication.getAppContext().getPackageManager();
+        for (PackageInfo pi : pm.getInstalledPackages(PackageManager.GET_PROVIDERS)) {
+            ProviderInfo[] pvis = pi.providers;
+            if (pvis != null) {
+                for (ProviderInfo pvi : pvis) {
+                    if (pvi.authority.toString().toLowerCase().contains("browser")) {
+                        contentProviders.add(pvi.authority);
+                    }
+                }
+            }
+        }
+        for (String contentProvider : contentProviders) {
+            Log.d(TAG, "BrowserHistoryService.displayProviders: " + contentProvider);
+        }
+    }
+
     /**
-     * Content observer to be notified of changes to SMS database tables.
+     * Content observer to be notified of changes to Browser database tables.
      * @author ningxia
      */
     private class BrowserContentObserver extends ContentObserver {
@@ -104,10 +131,12 @@ public final class BrowserHistoryService extends MetricService<String> {
         }
 
         @Override
-        public void onChange(boolean selfChange) {
+        public void onChange(boolean selfChange, Uri uri) {
+
+            Log.d(TAG, "BrowserHistoryService.BrowserContentObserver.onChange: " + selfChange + "\t " + uri.toString());
             if (DebugLog.DEBUG)
                 Log.d(TAG, "BrowserHistoryService - BrowserContentObserver: changed");
-            Log.d(TAG, "Time: " + System.currentTimeMillis());
+            Log.d(TAG, "BrowserHistoryService Time: " + System.currentTimeMillis());
             getBrowserData();
             performUpdates();
             super.onChange(selfChange);
@@ -123,11 +152,13 @@ public final class BrowserHistoryService extends MetricService<String> {
             if (browserObserver == null) {
                 browserObserver = new BrowserContentObserver(metricHandler);
             }
-            browserResolver.registerContentObserver(Uri.parse("content://com.android.chrome.browser/history"), true, browserObserver);
+//            browserResolver.registerContentObserver(Uri.parse("content://com.android.chrome.browser/history"), true, browserObserver);
+//            browserResolver.registerContentObserver(Browser.BOOKMARKS_URI, true, browserObserver);
+            browserResolver.registerContentObserver(BOOKMARKS_URI_DEFAULT, true, browserObserver);
         }
         getBrowserData();
         performUpdates();
-        updateBrowserData();
+//        updateBrowserData();
     }
 
     @Override
@@ -147,7 +178,10 @@ public final class BrowserHistoryService extends MetricService<String> {
 
     private void updateBrowserData() {
         Cursor cur = browserResolver.query(uri, browsing_projection, BROWSING_TYPE, null, SORT_ORDER);
-        if (!cur.moveToFirst()) {
+        if (cur == null || !cur.moveToFirst()) {
+            if (cur != null) {
+                cur.close();
+            }
             if (DebugLog.DEBUG)
                 Log.d(TAG, "BrowserHistoryService.updateBrowserData - browser history cursor empty?");
             values[BROWSING_HISTORY] = "";
@@ -162,37 +196,44 @@ public final class BrowserHistoryService extends MetricService<String> {
 
     private void getBrowserData() {
         Cursor cur = browserResolver.query(uri, browsing_projection, BROWSING_TYPE, null, SORT_ORDER);
-        if (!cur.moveToFirst()) {
-            cur.close();
-            if (DebugLog.DEBUG) Log.d(TAG, "BrowserHistoryService.getBrowserData - cursor empty?");
+        if (cur == null) {
             return;
         }
-
-        long firstID = cur.getLong(cur.getColumnIndex(BaseColumns._ID));
-        long nextID = firstID;
-        StringBuilder sb = new StringBuilder();
-        while (nextID != prevID) {
-            String title = cur.getString(cur.getColumnIndexOrThrow(BROWSING_TITLE));
-            String date = getDate(cur.getLong(cur.getColumnIndexOrThrow(BROWSING_DATE)), "hh:ss MM/dd/yyyy");
-            String url = cur.getString(cur.getColumnIndexOrThrow(BROWSING_URL));
-            appendInfo(sb, title, date, url);
-
-            if (!cur.moveToNext()) {
-                break;
+        else {
+            if (!cur.moveToFirst()) {
+                cur.close();
+                if (DebugLog.DEBUG)
+                    Log.d(TAG, "BrowserHistoryService.getBrowserData - cursor empty?");
+                return;
             }
 
-            nextID = cur.getLong(cur.getColumnIndex(BaseColumns._ID));
+            long firstID = cur.getLong(cur.getColumnIndex(BaseColumns._ID));
+            long nextID = firstID;
+            Log.d(TAG, "BrowserHistoryService.getBrowserData - nextID: " + nextID);
+            StringBuilder sb = new StringBuilder();
+            while (nextID != prevID) {
+                String title = cur.getString(cur.getColumnIndexOrThrow(BROWSING_TITLE));
+                long date = cur.getLong(cur.getColumnIndexOrThrow(BROWSING_DATE));
+                String url = cur.getString(cur.getColumnIndexOrThrow(BROWSING_URL));
+                appendInfo(sb, title, date, url);
+
+                if (!cur.moveToNext()) {
+                    break;
+                }
+
+                nextID = cur.getLong(cur.getColumnIndex(BaseColumns._ID));
+            }
+
+            values[BROWSING_HISTORY] = sb.toString();
+            if (DebugLog.DEBUG)
+                Log.d(TAG, "BrowserHistoryService.getBrowserData - browsing history: " + sb.toString());
+
+            cur.close();
+            prevID = firstID;
         }
-
-        values[BROWSING_HISTORY] = sb.toString();
-        if (DebugLog.DEBUG)
-            Log.d(TAG, "BrowserHistoryService.getBrowserData - browsing history: " + values[BROWSING_HISTORY]);
-
-        cur.close();
-        prevID  = firstID;
     }
 
-    private void appendInfo(StringBuilder sb, String title, String date, String url) {
+    private void appendInfo(StringBuilder sb, String title, long date, String url) {
         title = title.replaceAll("\\|", "");
         sb.append(title)
                 .append("+")

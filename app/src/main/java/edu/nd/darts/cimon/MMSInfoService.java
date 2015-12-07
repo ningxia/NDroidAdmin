@@ -7,9 +7,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.BaseColumns;
+import android.provider.Telephony;
 import android.util.Log;
 import android.util.SparseArray;
 
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -34,14 +36,15 @@ public final class MMSInfoService extends MetricService<String> {
 
     public static final String MMS_ADDRESS = "address";
     public static final String MMS_DATE = "date";
-    public static final String MMS_TYPE = "msg_box";
+//    public static final String MMS_TYPE = "msg_box";
+    public static final String MMS_TYPE = "m_type";
 
     private static final int MESSAGE_TYPE_INBOX  = 1;
     private static final int MESSAGE_TYPE_SENT   = 2;
 
     private static final Uri uri = Uri.parse("content://mms/");
     private static final String[] mms_projection = new String[]{BaseColumns._ID,
-            MMS_DATE, MMS_TYPE};
+            MMS_ADDRESS, MMS_DATE, MMS_TYPE};
 
     private static final String SORT_ORDER = BaseColumns._ID + " DESC";
     private long prevMMSID  = -1;
@@ -88,21 +91,19 @@ public final class MMSInfoService extends MetricService<String> {
         public void onChange(boolean selfChange) {
             if (DebugLog.DEBUG) Log.d(TAG, "MMSInfoService - MmsContentObserver: changed");
             getMmsData();
-            performUpdates();
             super.onChange(selfChange);
         }
-    };
+    }
 
     @Override
     void getMetricInfo() {
         if (DebugLog.DEBUG) Log.d(TAG, "MMSInfoService.getMetricInfo - updating mms activity value");
 
         if (prevMMSID  < 0) {
-            updateMmsData();
             if (mmsObserver == null) {
                 mmsObserver = new MmsContentObserver(metricHandler);
             }
-            mmsResolver.registerContentObserver(uri, true, mmsObserver);
+            mmsResolver.registerContentObserver(Uri.parse("content://mms-sms"), true, mmsObserver);
 
             performUpdates();
         }
@@ -153,7 +154,7 @@ public final class MMSInfoService extends MetricService<String> {
     }
 
     private void getMmsData() {
-        Cursor cur = mmsResolver.query(uri, mms_projection, null, null, SORT_ORDER);
+        Cursor cur = mmsResolver.query(uri, null, "msg_box = 1 or msg_box = 4", null, SORT_ORDER);
         if (!cur.moveToFirst()) {
             cur.close();
             if (DebugLog.DEBUG) Log.d(TAG, "MMSInfoService.getMmsData - cursor empty?");
@@ -163,30 +164,14 @@ public final class MMSInfoService extends MetricService<String> {
         long firstID = cur.getLong(cur.getColumnIndex(BaseColumns._ID));
         long nextID = firstID;
         final int TYPE_COLUMN = cur.getColumnIndex(MMS_TYPE);
-        StringBuilder sbReceived = new StringBuilder();
-        StringBuilder sbSent = new StringBuilder();
-        while (nextID != prevMMSID) {
+        while (nextID > prevMMSID) {
+            if (DebugLog.DEBUG) Log.d(TAG, "getMmsData prevMMSID: " + prevMMSID + " - nextID: " + nextID);
             int type = cur.getInt(TYPE_COLUMN);
-            String mmsAddress = cur.getString(cur.getColumnIndexOrThrow(MMS_ADDRESS));
-            String mmsDate = getDate(cur.getLong(cur.getColumnIndexOrThrow(MMS_DATE)), "hh:ss MM/dd/yyyy");
-            switch (type) {
-                case MESSAGE_TYPE_INBOX:
-                    appendInfo(sbReceived, mmsAddress, mmsDate);
-                    break;
-                case MESSAGE_TYPE_SENT:
-                    appendInfo(sbSent, mmsAddress, mmsDate);
-                    break;
-                default:
-                    break;
-            }
-
             if (DebugLog.DEBUG) Log.d(TAG, "MMSInfoService.getMmsData - type: " + type);
-
+            long date = cur.getLong(cur.getColumnIndexOrThrow(MMS_DATE)) * 1000L;
+            String mmsDate = String.valueOf(date);
+            handleMessage(nextID, type, mmsDate);
             if (!cur.moveToNext()) {
-                values[MMS_RECEIVED] = sbReceived.substring(0, sbReceived.length() - 1);
-                if (DebugLog.DEBUG) Log.d(TAG, "MMSInfoService.updateMmsData - received: " + values[MMS_RECEIVED]);
-                values[MMS_SENT] = sbSent.substring(0, sbSent.length() - 1);
-                if (DebugLog.DEBUG) Log.d(TAG, "MMSInfoService.updateMmsData - sent: " + values[MMS_SENT]);
                 break;
             }
 
@@ -197,16 +182,53 @@ public final class MMSInfoService extends MetricService<String> {
         prevMMSID  = firstID;
     }
 
-    private void appendInfo(StringBuilder sb, String mmsAddress, String mmsDate) {
-        sb.append(mmsAddress)
-                .append("+")
-                .append(mmsDate)
-                .append("|");
+    private void handleMessage(final long nextID, final int type, final String mmsDate) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                String mmsAddress = getAddress(nextID);
+                switch (type) {
+                    case 132:
+                        values[MMS_RECEIVED] = mmsAddress + "+" + mmsDate;
+                        if (DebugLog.DEBUG) Log.d(TAG, "MMSInfoService.getMmsData RECEIVED: " + mmsAddress + " - " + mmsDate);
+                        values[MMS_SENT] = null;
+                        performUpdates();
+                        break;
+                    case 128:
+                        values[MMS_SENT] = mmsAddress + "+" + mmsDate;
+                        if (DebugLog.DEBUG) Log.d(TAG, "MMSInfoService.getMmsData SENT: " + mmsAddress + " - " + mmsDate);
+                        values[MMS_RECEIVED] = null;
+                        performUpdates();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }, 500);
     }
 
-    private String getDate(long milliSeconds, String dateFormat) {
-        SimpleDateFormat formatter = new SimpleDateFormat(dateFormat, Locale.US);
-        return formatter.format(milliSeconds);
+    private String getAddress(long id) {
+        Uri uriAddress = Uri.parse("content://mms/" + id + "/addr");
+        String[] selectAddr = {"address"};
+        Cursor curAddress = mmsResolver.query(uriAddress, selectAddr, "msg_id=" + id, null, null);
+        String address = "";
+        String val;
+        if (curAddress.moveToFirst()) {
+            do {
+                val = curAddress.getString(curAddress.getColumnIndex("address"));
+                if (val != null) {
+                    val = val.replaceAll("[^0-9]", "");
+                    if (!val.equals("")) {
+                        address = val;
+                        break;
+                    }
+                }
+            } while (curAddress.moveToNext());
+        }
+        if (curAddress != null) {
+            curAddress.close();
+        }
+        return address;
     }
 
     @Override

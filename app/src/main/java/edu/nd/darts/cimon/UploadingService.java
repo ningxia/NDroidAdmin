@@ -52,7 +52,7 @@ public class UploadingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        scheduleUploading();
+//        scheduleUploading();
         return super.onStartCommand(intent, flags, startId);
     }
 

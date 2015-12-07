@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Debug;
 import android.os.Handler;
 import android.provider.BaseColumns;
 import android.util.Log;
@@ -35,13 +36,15 @@ public final class SMSInfoService extends MetricService<String> {
     public static final String SMS_ADDRESS = "address";
     public static final String SMS_DATE = "date";
     public static final String SMS_TYPE = "type";
+    public static final String SMS_BODY = "body";
+    public static final String SMS_PROTOCOL = "protocol";
 
     private static final int MESSAGE_TYPE_INBOX  = 1;
-    private static final int MESSAGE_TYPE_SENT   = 2;
+    private static final int MESSAGE_TYPE_SENT   = 6;
 
     private static final Uri uri = Uri.parse("content://sms/");
     private static final String[] sms_projection = new String[]{BaseColumns._ID,
-            SMS_DATE, SMS_TYPE};
+            SMS_ADDRESS, SMS_DATE, SMS_TYPE, SMS_BODY, SMS_PROTOCOL};
 
     private static final String SORT_ORDER = BaseColumns._ID + " DESC";
     private long prevSMSID  = -1;
@@ -88,17 +91,15 @@ public final class SMSInfoService extends MetricService<String> {
         public void onChange(boolean selfChange) {
             if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService - SmsContentObserver: changed");
             getSmsData();
-            performUpdates();
             super.onChange(selfChange);
         }
-    };
+    }
 
     @Override
     void getMetricInfo() {
         if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.getMetricInfo - updating sms activity value");
 
         if (prevSMSID  < 0) {
-            updateSmsData();
             if (smsObserver == null) {
                 smsObserver = new SmsContentObserver(metricHandler);
             }
@@ -162,31 +163,29 @@ public final class SMSInfoService extends MetricService<String> {
 
         long firstID = cur.getLong(cur.getColumnIndex(BaseColumns._ID));
         long nextID = firstID;
-        final int TYPE_COLUMN = cur.getColumnIndex(SMS_TYPE);
-        StringBuilder sbReceived = new StringBuilder();
-        StringBuilder sbSent = new StringBuilder();
-        while (nextID != prevSMSID) {
-            int type = cur.getInt(TYPE_COLUMN);
+        if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.getSmsData IDs: " + prevSMSID + " - " + nextID);
+        while (nextID > prevSMSID) {
+            String protocol = cur.getString(cur.getColumnIndexOrThrow(SMS_PROTOCOL));
             String smsAddress = cur.getString(cur.getColumnIndexOrThrow(SMS_ADDRESS));
-            String smsDate = getDate(cur.getLong(cur.getColumnIndexOrThrow(SMS_DATE)), "hh:ss MM/dd/yyyy");
-            switch (type) {
-                case MESSAGE_TYPE_INBOX:
-                    appendInfo(sbReceived, smsAddress, smsDate);
-                    break;
-                case MESSAGE_TYPE_SENT:
-                    appendInfo(sbSent, smsAddress, smsDate);
-                    break;
-                default:
-                    break;
+            if (smsAddress != null) {
+                smsAddress = smsAddress.replaceAll("[^0-9]", "");
+            }
+            long smsDate = cur.getLong(cur.getColumnIndexOrThrow(SMS_DATE));
+
+            if (protocol != null) {
+                values[SMS_RECEIVED] = smsAddress + "+" + smsDate;
+                values[SMS_SENT] = null;
+                if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.getSmsData RECEIVED: " + smsAddress + " - " + smsDate);
+            }
+            else {
+                values[SMS_SENT] = smsAddress + "+" + smsDate;
+                values[SMS_RECEIVED] = null;
+                if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.getSmsData SENT: " + smsAddress + " - " + smsDate);
             }
 
-            if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.getSmsData - type: " + type);
+            performUpdates();
 
             if (!cur.moveToNext()) {
-                values[SMS_RECEIVED] = sbReceived.substring(0, sbReceived.length() - 1);
-                if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.updateSmsData - received: " + values[SMS_RECEIVED]);
-                values[SMS_SENT] = sbSent.substring(0, sbSent.length() - 1);
-                if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.updateSmsData - sent: " + values[SMS_SENT]);
                 break;
             }
 
@@ -195,18 +194,6 @@ public final class SMSInfoService extends MetricService<String> {
 
         cur.close();
         prevSMSID  = firstID;
-    }
-
-    private void appendInfo(StringBuilder sb, String smsAddress, String smsDate) {
-        sb.append(smsAddress)
-                .append("+")
-                .append(smsDate)
-                .append("|");
-    }
-
-    private String getDate(long milliSeconds, String dateFormat) {
-        SimpleDateFormat formatter = new SimpleDateFormat(dateFormat, Locale.US);
-        return formatter.format(milliSeconds);
     }
 
     @Override

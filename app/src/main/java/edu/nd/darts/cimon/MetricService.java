@@ -716,6 +716,7 @@ public abstract class MetricService<T extends Comparable<T>> implements Observab
 				if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch proximity service");
 				return ProximityService.getInstance();
 			case Metrics.SCREEN_ON:
+            case Metrics.SCREEN_LOCK:
 				if (DebugLog.DEBUG) Log.d(TAG, "MetricService.getService - fetch screen state service");
 				return ScreenService.getInstance();
 			case Metrics.PHONESTATE:

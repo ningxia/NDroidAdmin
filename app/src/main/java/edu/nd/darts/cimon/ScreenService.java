@@ -20,6 +20,8 @@
 package edu.nd.darts.cimon;
 
 import edu.nd.darts.cimon.database.CimonDatabaseAdapter;
+
+import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -43,17 +45,18 @@ import android.view.WindowManager;
 public final class ScreenService extends MetricService<Byte> {
 	
 	private static final String TAG = "NDroid";
-	private static final int SCREEN_METRICS = 1;
+	private static final int SCREEN_METRICS = 2;
 	private static final long THIRTY_SECONDS = 30000;
 	
 	// NOTE: title and string array must be defined above instance,
 	//   otherwise, they will be null in constructor
 	private static final String title = "Screen state";
-	private static final String metrics = "Screen on";
+	private static final String[] metrics = {"Screen on", "Screen lock"};
 	private static final ScreenService INSTANCE = new ScreenService();
 
-	private static final IntentFilter onfilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-	private static final IntentFilter offfilter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+	private static final IntentFilter onFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+	private static final IntentFilter offFilter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+    private static final IntentFilter unlockFilter = new IntentFilter(Intent.ACTION_USER_PRESENT);
 	private static BroadcastReceiver screenReceiver = null;
 
 	private ScreenService() {
@@ -61,7 +64,7 @@ public final class ScreenService extends MetricService<Byte> {
 		if (INSTANCE != null) {
 			throw new IllegalStateException("ScreenService already instantiated");
 		}
-		groupId = Metrics.SCREEN_ON;
+		groupId = Metrics.SCREEN_STATE;
 		metricsCount = SCREEN_METRICS;
 		
 		values = new Byte[SCREEN_METRICS];
@@ -87,7 +90,9 @@ public final class ScreenService extends MetricService<Byte> {
 		database.insertOrReplaceMetricInfo(groupId, title, description, 
 				SUPPORTED, 0, 0, "1 (boolean)", "1", Metrics.TYPE_USER);
 		// insert information for metrics in group into database
-		database.insertOrReplaceMetrics(groupId, groupId, metrics, "", 1);
+        for (int i = 0; i < SCREEN_METRICS; i ++) {
+            database.insertOrReplaceMetrics(groupId + i, groupId, metrics[i], "", 1);
+        }
 	}
 
 	/**
@@ -164,10 +169,12 @@ public final class ScreenService extends MetricService<Byte> {
 		
 		if (screenReceiver == null) {
 			screenReceiver = new ScreenReceiver();
-			MyApplication.getAppContext().registerReceiver(screenReceiver, onfilter, 
+			MyApplication.getAppContext().registerReceiver(screenReceiver, onFilter,
 					null, metricHandler);
-			MyApplication.getAppContext().registerReceiver(screenReceiver, offfilter, 
+			MyApplication.getAppContext().registerReceiver(screenReceiver, offFilter,
 					null, metricHandler);
+            MyApplication.getAppContext().registerReceiver(screenReceiver, unlockFilter,
+                    null, metricHandler);
 
 			PowerManager pm = (PowerManager)MyApplication.getAppContext(
 					).getSystemService(Context.POWER_SERVICE);
@@ -177,6 +184,14 @@ public final class ScreenService extends MetricService<Byte> {
 			else {
 				values[0] = 0;
 			}
+
+            KeyguardManager km = (KeyguardManager) MyApplication.getAppContext().getSystemService(Context.KEYGUARD_SERVICE);
+            if (km.inKeyguardRestrictedInputMode()) {
+                values[1] = 0;
+            }
+            else {
+                values[1] = 1;
+            }
 		}
 		performUpdates();
 	}
@@ -205,13 +220,19 @@ public final class ScreenService extends MetricService<Byte> {
 			if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
 				if (DebugLog.DEBUG) Log.d(TAG, "ScreenService.ScreenReceiver - screen off");
 				values[0] = 0;
+                if (DebugLog.DEBUG) Log.d(TAG, "ScreenService.ScreenReceiver - screen locked");
+                values[1] = 1;
 			}
 			else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
 				if (DebugLog.DEBUG) Log.d(TAG, "ScreenService.ScreenReceiver - screen on");
 				values[0] = 1;
 			}
+            else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {   // Screen Unlocked
+                values[1] = 0;
+                if (DebugLog.DEBUG) Log.d(TAG, "ScreenService.ScreenReceiver - screen unlocked");
+            }
 			else {
-				if (DebugLog.DEBUG) Log.d(TAG, "ScreenService.ScreenReceiver - unknown event");
+				if (DebugLog.DEBUG) Log.d(TAG, "ScreenService.ScreenReceiver - screen unknown");
 				return;
 			}
 			performUpdates();
@@ -225,14 +246,25 @@ public final class ScreenService extends MetricService<Byte> {
 			PowerManager pm = (PowerManager)MyApplication.getAppContext(
 					).getSystemService(Context.POWER_SERVICE);
 			if (pm.isScreenOn()) {
-				return Byte.valueOf((byte) 1);
+				values[0] = 1;
 			}
 			else {
-				return Byte.valueOf((byte) 0);
+                values[0] = 0;
 			}
+            KeyguardManager km = (KeyguardManager) MyApplication.getAppContext().getSystemService(Context.KEYGUARD_SERVICE);
+            if (km.inKeyguardRestrictedInputMode()) {
+                values[1] = 1;
+            }
+            else {
+                values[1] = 0;
+            }
 		}
-		if (metric == Metrics.SCREEN_ON)
-			return values[0];
+		if (metric == Metrics.SCREEN_ON) {
+            return values[0];
+        }
+        else if (metric == Metrics.SCREEN_LOCK) {
+            return values[1];
+        }
 		return null;
 	}
 

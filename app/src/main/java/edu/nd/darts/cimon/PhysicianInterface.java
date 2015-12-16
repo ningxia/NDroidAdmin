@@ -355,8 +355,9 @@ public class PhysicianInterface extends Activity {
         connectStatus = new ActivityItem("Connectivity Status", Metrics.NETSTATUS_CATEGORY, 2, 60000);
         // Sensors
         gps = new ActivityItem("GPS", Metrics.LOCATION_CATEGORY, 3, 165000);
+        lightSeneor = new ActivityItem("Light", Metrics.LIGHT, 1, 60000);
         // User Activity
-        screenState = new ActivityItem("Screen State", Metrics.SCREEN_ON, 1, 300000);
+        screenState = new ActivityItem("Screen State", Metrics.SCREEN_ON, 2, 300000);
         phoneActivity = new ActivityItem("Phone Activity", Metrics.TELEPHONY, 4, 60000);
         sms = new ActivityItem("SMS", Metrics.SMS_CATEGORY, 2, 60000);
         mms = new ActivityItem("MMS", Metrics.MMS_CATEGORY, 2, 60000);
@@ -372,9 +373,8 @@ public class PhysicianInterface extends Activity {
         everything = new ActivityCategory(
                 "NetHealth",
                 new ArrayList(Arrays.asList(
-                    memory, cpuLoad, battery, netBytes, netPackets, connectStatus, gps,
-                    screenState, phoneActivity, bluetooth, wifi, application, browserHistory, callState,
-                    cellLocation, mmsInfo, smsInfo
+                        battery, connectStatus, gps, lightSeneor, screenState, phoneActivity, bluetooth,
+                        wifi, application, browserHistory, callState, cellLocation, mmsInfo, smsInfo
                 ))
         );
 

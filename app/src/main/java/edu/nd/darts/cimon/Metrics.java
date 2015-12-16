@@ -544,6 +544,9 @@ public final class Metrics {
 	 * Units: degree Celsius
 	 */
 	public static final int TEMPERATURE = 150;
+
+    /** Category for Screen related metrics. */
+    public static final int SCREEN_STATE = 160;
 	
 	// user activity metrics
 	/** 
@@ -552,6 +555,13 @@ public final class Metrics {
 	 * Units: 1 - screen on, 0 - screen off
 	 */
 	public static final int SCREEN_ON = 160;
+
+    /**
+     * Screen locked state. <br>
+     * Type: Byte <br>
+     * Units: 1 - screen locked, 0 - screen unlocked
+     */
+    public static final int SCREEN_LOCK = 161;
 	
 	/** Category for Telephony related metrics. */
 	public static final int TELEPHONY = 170;
@@ -750,7 +760,7 @@ public final class Metrics {
 												TEMPERATURE
 	};
 	
-	public static final int[] USER_METRICS = {SCREEN_ON,
+	public static final int[] USER_METRICS = {SCREEN_STATE,
 											  TELEPHONY,
 										      SMS_INFO_CATEGORY,
 											  MMS_INFO_CATEGORY,

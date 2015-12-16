@@ -142,13 +142,13 @@ public final class LightService extends MetricService<Float> implements
 	 */
 	private void getLightData(SensorEvent event) {
 		values[0] = event.values[0];
-		
+        if (DebugLog.DEBUG) Log.d(TAG, "LightService.getLightData: " + Float.toString(values[0]));
 		performUpdates();
 	}
 
 	@Override
 	protected void performUpdates() {
-		if (DebugLog.DEBUG) Log.d(TAG, "GyroscopeService.performUpdates - updating values");
+		if (DebugLog.DEBUG) Log.d(TAG, "LightService.performUpdates - updating values");
 		long nextUpdate = updateValueNodes();
 		if (nextUpdate < 0) {
 			mSensorManager.unregisterListener(this);

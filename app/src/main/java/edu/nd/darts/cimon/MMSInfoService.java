@@ -14,6 +14,8 @@ import android.util.SparseArray;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import edu.nd.darts.cimon.database.CimonDatabaseAdapter;
 
@@ -183,20 +185,22 @@ public final class MMSInfoService extends MetricService<String> {
     }
 
     private void handleMessage(final long nextID, final int type, final String mmsDate) {
-        new Handler().postDelayed(new Runnable() {
+        new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 String mmsAddress = getAddress(nextID);
                 switch (type) {
                     case 132:
                         values[MMS_RECEIVED] = mmsAddress + "+" + mmsDate;
-                        if (DebugLog.DEBUG) Log.d(TAG, "MMSInfoService.getMmsData RECEIVED: " + mmsAddress + " - " + mmsDate);
+                        if (DebugLog.DEBUG)
+                            Log.d(TAG, "MMSInfoService.getMmsData RECEIVED: " + mmsAddress + " - " + mmsDate);
                         values[MMS_SENT] = null;
                         performUpdates();
                         break;
                     case 128:
                         values[MMS_SENT] = mmsAddress + "+" + mmsDate;
-                        if (DebugLog.DEBUG) Log.d(TAG, "MMSInfoService.getMmsData SENT: " + mmsAddress + " - " + mmsDate);
+                        if (DebugLog.DEBUG)
+                            Log.d(TAG, "MMSInfoService.getMmsData SENT: " + mmsAddress + " - " + mmsDate);
                         values[MMS_RECEIVED] = null;
                         performUpdates();
                         break;
@@ -204,7 +208,7 @@ public final class MMSInfoService extends MetricService<String> {
                         break;
                 }
             }
-        }, 500);
+        }, 100);
     }
 
     private String getAddress(long id) {

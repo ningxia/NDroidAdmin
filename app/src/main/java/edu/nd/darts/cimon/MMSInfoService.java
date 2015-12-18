@@ -14,6 +14,8 @@ import android.util.SparseArray;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import edu.nd.darts.cimon.database.CimonDatabaseAdapter;
 
@@ -183,7 +185,7 @@ public final class MMSInfoService extends MetricService<String> {
     }
 
     private void handleMessage(final long nextID, final int type, final String mmsDate) {
-        new Handler().postDelayed(new Runnable() {
+        new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 String mmsAddress = getAddress(nextID);
@@ -204,7 +206,7 @@ public final class MMSInfoService extends MetricService<String> {
                         break;
                 }
             }
-        }, 500);
+        }, 100);
     }
 
     private String getAddress(long id) {

@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: /Users/ningxia/Development/Android/ndroidadmin/app/src/main/aidl/edu/nd/darts/cimon/CimonInterface.aidl
+ * Original file: /Users/xiaobo/StudioProjects/NDroidAdmin/app/src/main/aidl/edu/nd/darts/cimon/CimonInterface.aidl
  */
 package edu.nd.darts.cimon;
 /** 

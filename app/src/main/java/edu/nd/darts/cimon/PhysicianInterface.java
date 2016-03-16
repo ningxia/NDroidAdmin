@@ -2,22 +2,17 @@ package edu.nd.darts.cimon;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.RemoteException;
+import android.text.Html;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,15 +24,28 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import edu.nd.darts.cimon.database.CimonDatabaseAdapter;
+import edu.nd.darts.cimon.database.ComplianceTable;
+import edu.nd.darts.cimon.database.MetricInfoTable;
+
+
 /**
  * Physician Interface
+ *
  * @author ningxia
  */
 public class PhysicianInterface extends Activity {
@@ -49,13 +57,14 @@ public class PhysicianInterface extends Activity {
     private static List<ActivityCategory> categories;
     private static Set<ActivityItem> allItems;
     private ArrayAdapter<ActivityCategory> listAdapter;
-    private ActivityCategory mobility, activity, social, wellbeing , everything;
+    private ActivityCategory mobility, activity, social, wellbeing, everything;
     private ActivityItem memory, cpuLoad, cpuUtil, battery, netBytes, netPackets, connectStatus, instructionCount, sdcard;
     private ActivityItem gps, accelerometer, magnetometer, gyroscope, linearAcceleration, orientation, proximity, pressure, lightSeneor, humidity, temperature;
     private ActivityItem screenState, phoneActivity, sms, mms, bluetooth, wifi, smsInfo, mmsInfo, phoneCall, callState, browserHistory, cellLocation, application;
     private static Button btnMonitor;
     private static Button btnUpload;
-    private static TextView message;
+    private static Button btnCompliance;
+    private static TextView appVersion, lastCollect, lastUpload, dataLeft, message;
 
     public static final long PERIOD = 1000;
     public static final long DURATION = 0;                  // continuous
@@ -65,20 +74,26 @@ public class PhysicianInterface extends Activity {
     private static final String PHYSICIAN_PREFS = "physician_prefs";
     private static final String CHECKED_CATEGORIES = "checked_categories";
     private static final String RUNNING_METRICS = "running_metrics";
+    private static final String MONITOR_STARTED = "monitor_started";
     private static SharedPreferences settings;
+    private static SharedPreferences.Editor editor;
     private static Set<String> checkedCategories;
 
     public static Intent sensorService;
     /**
-     * Metrics {@link edu.nd.darts.cimon.Metrics}
+     * Metrics {@link Metrics}
      */
     private static Set<String> runningMetrics;
 
     private BluetoothAdapter mBluetoothAdapter;
+    private WifiManager mWifiManager;
     private static final int REQUEST_ENABLE_BT = 1;
 
     private static UploadingService us;
     private static PingService ps;
+
+    private static long COLLECT_THRESHOLD = 2 * 60 * 1000;
+    private static long UPLOAD_THRESHOLD = 24 * 3600 * 1000;
 
 
     @Override
@@ -90,7 +105,7 @@ public class PhysicianInterface extends Activity {
 
         /**
          * Insert existing metric categories into
-         * @see edu.nd.darts.cimon.database.MetricInfoTable
+         * @see MetricInfoTable
          */
         loadMetricInfoTable();
 
@@ -103,19 +118,21 @@ public class PhysicianInterface extends Activity {
         btnMonitor = (Button) findViewById(R.id.physician_monitor_btn);
         btnMonitor.setOnClickListener(btnMonitorHandler);
 
-//        btnUpload = (Button) findViewById(R.id.physician_upload_btn);
-//        btnUpload.setOnClickListener(btnUploadHandler);
+        btnUpload = (Button) findViewById(R.id.physician_upload_btn);
+        btnUpload.setOnClickListener(btnUploadHandler);
+
+        appVersion = (TextView) findViewById(R.id.app_version);
+        appVersion.setText("Current version: " + BuildConfig.VERSION_NAME);
+
+        btnCompliance = (Button) findViewById(R.id.physician_compliance_btn);
+        btnCompliance.setOnClickListener(btnComplianceHandler);
 
         message = (TextView) findViewById(R.id.physician_message);
 
-        // make sure that the NDroidService is running
-//        sensorService = new Intent(this, NDroidService.class);
-//        startService(sensorService);
-//        this.startSensors();
-        //startService(new Intent(this, NDroidService.class));
-
         settings = getSharedPreferences(PHYSICIAN_PREFS, MODE_PRIVATE);
-        if (ifPreference()) {
+        editor = settings.edit();
+        if (settings.getBoolean(MONITOR_STARTED, false)) {
+            Log.d(TAG, "settings names: " + settings.getAll().keySet().toString());
             resumeStatus();
         }
 
@@ -123,6 +140,33 @@ public class PhysicianInterface extends Activity {
 
         us = new UploadingService();
         ps = new PingService();
+
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!mBluetoothAdapter.isEnabled()) {
+            Toast.makeText(this, "It is necessary to keep Bluetooth on! Now enabling...", Toast.LENGTH_LONG).show();
+            mBluetoothAdapter.enable();
+        }
+
+        mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        if (!mWifiManager.isWifiEnabled()) {
+            Toast.makeText(this, "Please connect your device to proper WiFi network.", Toast.LENGTH_LONG).show();
+            mWifiManager.setWifiEnabled(true);
+        }
+
+        startService(new Intent(this, UploadingService.class));
+        startService(new Intent(this, PingService.class));
+
+        /**
+         * Refresh activity every 30 seconds.
+         */
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                updateCompliance();
+                handler.postDelayed(this, COLLECT_THRESHOLD / 4);
+            }
+        }, COLLECT_THRESHOLD / 4);
     }
 
     private void loadMetricInfoTable() {
@@ -167,13 +211,13 @@ public class PhysicianInterface extends Activity {
 
     /**
      * Set preference
+     *
      * @param bool boolean value indicating set or clear preferences
      */
     public void setPreference(boolean bool) {
         if (DebugLog.DEBUG) {
             Log.d(TAG, "PhysicianInterface.setPreference - preferences set " + bool);
         }
-        SharedPreferences.Editor editor = settings.edit();
 
         if (bool) {
             checkedCategories = new HashSet();
@@ -182,8 +226,7 @@ public class PhysicianInterface extends Activity {
             }
             editor.putStringSet(CHECKED_CATEGORIES, checkedCategories);
             editor.putStringSet(RUNNING_METRICS, runningMetrics);
-        }
-        else {
+        } else {
             editor.clear();
         }
 
@@ -194,10 +237,11 @@ public class PhysicianInterface extends Activity {
      * Resume previous status
      */
     private void resumeStatus() {
-        if (ifPreference()) {
+        if (settings.getBoolean(MONITOR_STARTED, false)) {
             Toast.makeText(this, "Monitors are running...", Toast.LENGTH_LONG).show();
+            checkedCategories = settings.getStringSet(CHECKED_CATEGORIES, null);
             for (ActivityCategory ac : categories) {
-                if (checkedCategories.contains(ac.getTitle())) {
+                if (checkedCategories != null && checkedCategories.contains(ac.getTitle())) {
                     ac.setChecked(true);
                 }
             }
@@ -210,16 +254,69 @@ public class PhysicianInterface extends Activity {
 
     /**
      * Check if there is SharedPreference
+     *
      * @return boolean
      */
     public static boolean ifPreference() {
         checkedCategories = settings.getStringSet(CHECKED_CATEGORIES, null);
         if (checkedCategories != null) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
+    }
+
+    private View.OnClickListener btnComplianceHandler = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            Intent i = new Intent(PhysicianInterface.this, ComplianceInterface.class);
+            startActivity(i);
+            updateCompliance();
+        }
+    };
+
+
+    private void updateCompliance() {
+//        if (DebugLog.DEBUG)
+        Log.d(TAG, "PhysicianInterface.updateCompliance()");
+        String timeString;
+        String color;
+        lastCollect = (TextView) findViewById(R.id.last_collect);
+        long lastSuccessCollectTimestamp = CimonDatabaseAdapter.getLastCompliance(ComplianceTable.TYPE_COLLECTED, ComplianceTable.COLUMN_TIMESTAMP);
+        timeString = formatTime(lastSuccessCollectTimestamp);
+        color = "white";
+        if (settings.getStringSet(RUNNING_METRICS, null) != null &&
+                (System.currentTimeMillis() - lastSuccessCollectTimestamp > COLLECT_THRESHOLD)) {
+            color = "red";
+        }
+        lastCollect.setText(Html.fromHtml("Last collected: " + "<font color=" + color + ">" + timeString + "</font>"));
+
+        lastUpload = (TextView) findViewById(R.id.last_upload);
+        long lastSuccessUploadTimestamp = CimonDatabaseAdapter.getLastCompliance(ComplianceTable.TYPE_UPLOADED, ComplianceTable.COLUMN_TIMESTAMP);
+        timeString = formatTime(lastSuccessUploadTimestamp);
+        color = "white";
+        if (settings.getStringSet(RUNNING_METRICS, null) != null &&
+                (System.currentTimeMillis() - lastSuccessUploadTimestamp > UPLOAD_THRESHOLD)) {
+            color = "red";
+        }
+        lastUpload.setText(Html.fromHtml("Last uploaded: " + "<font color=" + color + ">" + timeString + "</font>"));
+
+        dataLeft = (TextView) findViewById(R.id.data_left);
+        long dataLeftCount = CimonDatabaseAdapter.getDataLeft();
+        dataLeft.setText("Data records to be uploaded: " +
+                (dataLeftCount >= 0 ? Long.toString(dataLeftCount) : "N/A"));
+    }
+
+    private static String formatTime(long timestamp) {
+        Calendar pingCal = Calendar.getInstance();
+        String pingStr = "N/A";
+        if (timestamp != 0) {
+            pingCal.setTimeInMillis(timestamp);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy MMM dd HH:mm:ss");
+            pingStr = sdf.format(pingCal.getTime());
+        }
+        return pingStr;
     }
 
     /**
@@ -231,23 +328,51 @@ public class PhysicianInterface extends Activity {
             Button btn = (Button) v;
 
             if (btn.getText().toString().equalsIgnoreCase("Track")) {
+                boolean monitorStarted = settings.getBoolean(MONITOR_STARTED, false);
+                if (!monitorStarted) {
+                    editor.putBoolean(MONITOR_STARTED, true);
+                    editor.commit();
+                }
                 btn.setText("Stop");
                 enableCheckbox(false);
                 monitorManager(true);
                 message.setText("Running...");
                 message.setVisibility(View.VISIBLE);
                 startPhysicianService();
-            }
-            else {
+                updateCompliance();
+            } else {
                 btn.setText("Track");
                 enableCheckbox(true);
                 monitorManager(false);
+                editor.remove(MONITOR_STARTED);
+                editor.remove(RUNNING_METRICS);
+                editor.remove(CHECKED_CATEGORIES);
+                editor.commit();
+//                clearSharedPreferencesFiles(getApplicationContext());
                 message.setVisibility(View.GONE);
                 Intent intent = new Intent(PhysicianInterface.this, PhysicianService.class);
                 stopService(intent);
+                updateCompliance();
             }
         }
     };
+
+    public static void clearSharedPreferencesFiles(Context ctx) {
+        File dir = new File(ctx.getFilesDir().getParent() + "/shared_prefs/");
+        String[] children = dir.list();
+        for (int i = 0; i < children.length; i++) {
+            ctx.getSharedPreferences(children[i].replace(".xml", ""), Context.MODE_PRIVATE).edit().clear().commit();
+        }
+        // Make sure it has enough time to save all the commited changes
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+        for (int i = 0; i < children.length; i++) {
+            // delete the files
+            new File(dir, children[i]).delete();
+        }
+    }
 
     /**
      * Upload button OnClickListener
@@ -258,23 +383,24 @@ public class PhysicianInterface extends Activity {
         public void onClick(View v) {
             Button btn = (Button) v;
             if (us.getCount() > 0) {
-                Toast.makeText(getApplicationContext(), "CIMON uploading is running, please try it again later.", Toast.LENGTH_SHORT).show();
-            }
-            else {
-                Toast.makeText(getApplicationContext(), "CIMON is uploading data...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "CIMON uploading is running, please try it again later.", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "CIMON is uploading data...", Toast.LENGTH_LONG).show();
                 us.uploadForPhysician();
             }
+            updateCompliance();
         }
     };
 
     /**
      * Manage multiple monitors registering
+     *
      * @param register register multiple monitors or not
      */
     private void monitorManager(boolean register) {
         runningMetrics = new HashSet();
         for (ActivityItem ai : allItems) {
-            for (int i = ai.getGroupId(); i < ai.getGroupId() + ai.getMembers(); i ++) {
+            for (int i = ai.getGroupId(); i < ai.getGroupId() + ai.getMembers(); i++) {
                 if (DebugLog.DEBUG) {
                     Log.d(TAG, "PhysicianInterface.monitorManager - metric: " + i);
                 }
@@ -291,15 +417,13 @@ public class PhysicianInterface extends Activity {
     private void startPhysicianService() {
         this.startSensors();
         Intent intent = new Intent(MyApplication.getAppContext(), PhysicianService.class);
-        intent.putStringArrayListExtra(PACKAGE_NAME + "." + RUNNING_METRICS, new ArrayList(runningMetrics));
         startService(intent);
-        startService(new Intent(this, UploadingService.class));
-        startService(new Intent(this, PingService.class));
         if (DebugLog.DEBUG) Log.d(TAG, "PhysicianInterface.startPhysicianService - started");
     }
 
     /**
      * Manage accessibility of CheckBoxes and TextViews
+     *
      * @param bool enable or disable
      */
     private void enableCheckbox(boolean bool) {
@@ -307,7 +431,7 @@ public class PhysicianInterface extends Activity {
             Log.d(TAG, "PhysicianInterface.enableCheckbox - " + bool);
         }
         ListView lv = (ListView) findViewById(R.id.physician_listView);
-        for (int i = 0; i < lv.getCount(); i ++) {
+        for (int i = 0; i < lv.getCount(); i++) {
             RelativeLayout rl = (RelativeLayout) lv.getChildAt(i);
             CheckBox cb = (CheckBox) rl.findViewById(R.id.physician_item_checkBox);
             TextView tv = (TextView) rl.findViewById(R.id.physician_item_textView);
@@ -318,6 +442,7 @@ public class PhysicianInterface extends Activity {
 
     /**
      * Test if there is any ActivityCategory is checked
+     *
      * @return true if checked
      */
     private static boolean isChecked() {
@@ -331,6 +456,7 @@ public class PhysicianInterface extends Activity {
 
     /**
      * Test if none of ActivityCategories is checked
+     *
      * @return true if none is checked
      */
     private static boolean nonChecked() {
@@ -348,7 +474,7 @@ public class PhysicianInterface extends Activity {
     private void loadCategoryList() {
         // System
         memory = new ActivityItem("Memory", Metrics.MEMORY_CATEGORY, 11, 60000);
-        cpuLoad = new ActivityItem("CPU Load", Metrics.CPULOAD_CATEGORY ,3, 60000);
+        cpuLoad = new ActivityItem("CPU Load", Metrics.CPULOAD_CATEGORY, 3, 60000);
         battery = new ActivityItem("Battery", Metrics.BATTERY_CATEGORY, 6, 60000);
         netBytes = new ActivityItem("Network Bytes", Metrics.NETBYTES_CATEGORY, 4, 60000);
         netPackets = new ActivityItem("Network Packets", Metrics.NETPACKETS_CATEGORY, 4, 60000);
@@ -372,9 +498,9 @@ public class PhysicianInterface extends Activity {
         everything = new ActivityCategory(
                 "NetHealth",
                 new ArrayList(Arrays.asList(
-                    memory, cpuLoad, battery, netBytes, netPackets, connectStatus, gps,
-                    screenState, phoneActivity, bluetooth, wifi, application, browserHistory, callState,
-                    cellLocation, mmsInfo, smsInfo
+                        memory, cpuLoad, battery, netBytes, netPackets, connectStatus, gps,
+                        screenState, phoneActivity, bluetooth, wifi, application, browserHistory, callState,
+                        cellLocation, mmsInfo, smsInfo
                 ))
         );
 
@@ -421,7 +547,7 @@ public class PhysicianInterface extends Activity {
 
         public void setChecked(boolean checked) {
             this.checked = checked;
-            for(ActivityItem item : items) {
+            for (ActivityItem item : items) {
                 item.setSelected(checked);
             }
         }
@@ -437,7 +563,7 @@ public class PhysicianInterface extends Activity {
         public String getActivitiesString() {
             StringBuilder sb = new StringBuilder();
             sb.append("(");
-            for(ActivityItem item : items) {
+            for (ActivityItem item : items) {
                 sb.append(item.toString());
                 sb.append(", ");
             }
@@ -589,8 +715,7 @@ public class PhysicianInterface extends Activity {
                 textView = (TextView) convertView.findViewById(R.id.physician_item_textView);
 
                 convertView.setTag(new ActivityHolder(checkBox, textView));
-            }
-            else {
+            } else {
                 ActivityHolder activityHolder = (ActivityHolder) convertView.getTag();
                 checkBox = activityHolder.getCheckBox();
                 textView = activityHolder.getTextView();
@@ -607,19 +732,19 @@ public class PhysicianInterface extends Activity {
                     if (cb.isChecked()) {
                         if (ac.getTitle().equals(everything.getTitle())) {
                             textView.setText("");
-                        }
-                        else {
+                        } else {
                             textView.setText(ac.getActivitiesString());
                         }
-                    }
-                    else {
+                    } else {
                         textView.setText("");
                     }
 
                     if (ac.isChecked() && ac.getItems().contains(bluetooth)) {
                         /* Enable Bluetooth explicitly */
                         // enableBluetooth();
-                        mBluetoothAdapter.enable();
+                        if (!mBluetoothAdapter.isEnabled()) {
+                            mBluetoothAdapter.enable();
+                        }
                     }
                 }
             });
@@ -635,12 +760,10 @@ public class PhysicianInterface extends Activity {
             if (category.isChecked()) {
                 if (category.getTitle().equals(everything.getTitle())) {
                     textView.setText("");
-                }
-                else {
+                } else {
                     textView.setText(category.getActivitiesString());
                 }
-            }
-            else {
+            } else {
                 textView.setText("");
             }
 
@@ -651,36 +774,19 @@ public class PhysicianInterface extends Activity {
         }
     }
 
-    /**
-     * Enable Bluetooth explicitly
-     */
-    public void enableBluetooth() {
-        if (!mBluetoothAdapter.isEnabled()) {
-            Log.i(TAG, "PhysicianInterface.enableBluetooth - is enabled");
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-        }
+    public void startSensors() {
+        sensorService = new Intent(MyApplication.getAppContext(), NDroidService.class);
+        MyApplication.getAppContext().startService(sensorService);
+    }
+
+    public void stopSensors() {
+        stopService(this.sensorService);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == REQUEST_ENABLE_BT){
-            if(mBluetoothAdapter.isEnabled()) {
-                Toast.makeText(this, "Bluetooth is enabled.", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "It is necessary to turn on Bluetooth!", Toast.LENGTH_SHORT).show();
-                enableBluetooth();
-            }
-        }
-    }
-
-    public void startSensors(){
-        sensorService = new Intent(this, NDroidService.class);
-        startService(sensorService);
-    }
-
-    public void stopSensors(){
-        stopService(this.sensorService);
+    protected void onResume() {
+        super.onResume();
+        updateCompliance();
     }
 
 }

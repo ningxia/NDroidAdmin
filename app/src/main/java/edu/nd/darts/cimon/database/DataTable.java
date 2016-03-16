@@ -53,7 +53,7 @@ public final class DataTable {
 	public static final String COLUMN_VALUE = "value";
 	
 	// Database creation SQL statement
-	private static final String DATABASE_CREATE = "create table " 
+	private static final String DATABASE_CREATE = "create table if not exists "
 			+ TABLE_DATA
 			+ "(" 
 			+ COLUMN_ID + " integer primary key autoincrement, " 

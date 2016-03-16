@@ -28,6 +28,7 @@ import edu.nd.darts.cimon.contentprovider.CimonContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
@@ -54,11 +55,22 @@ public final class CimonDatabaseAdapter {
 //	private String[] allColumns = { MySQLiteHelper.COLUMN_ID,
 //			MySQLiteHelper.COLUMN_COMMENT };
 
+    /** Data collected counter and garbage data cleaned*/
+    private static long COLLECT_COUNT;
+    private static long COLLECT_TIMER;
+    private static long UPLOAD_COUNT;
+    private static long UPLOAD_TIMER;
+    private static long TIMER_THRESHOLD = 10 * 1000L;
+
     private CimonDatabaseAdapter(Context context) {
         if (DebugLog.DEBUG) Log.d(TAG, "CimonDatabaseAdapter - constructor");
         dbHelper = new CimonDatabaseHelper(context);
         CimonDatabaseAdapter.context = context;
         this.open();
+        COLLECT_COUNT = getLastCompliance(ComplianceTable.TYPE_COLLECTED, ComplianceTable.COLUMN_VALUE);
+        UPLOAD_COUNT = getLastCompliance(ComplianceTable.TYPE_UPLOADED, ComplianceTable.COLUMN_VALUE);
+        COLLECT_TIMER = System.currentTimeMillis();
+        UPLOAD_TIMER = System.currentTimeMillis();
     }
 
     public static synchronized CimonDatabaseAdapter getInstance(Context context) {
@@ -78,6 +90,147 @@ public final class CimonDatabaseAdapter {
      */
     public void close() {
         dbHelper.close();
+    }
+
+    private static Cursor getLastCursor(int type) {
+        Cursor cursor = database.query(
+                ComplianceTable.TABLE_COMPLIANCE,
+                null,
+                ComplianceTable.COLUMN_TYPE + "=?",
+                new String[]{Integer.toString(type)},
+                null, null, ComplianceTable.COLUMN_ID + " DESC", "1");
+        return cursor;
+    }
+
+    /**
+     * Get compliance values of ComplianceTable
+     * @param type  compliance value type
+     * @return  value
+     */
+    public static long getLastCompliance(int type, String field) {
+        long value = 0;
+        try {
+            Cursor cursor = getLastCursor(type);
+            if (cursor != null && cursor.moveToFirst()) {
+                value = cursor.getLong(cursor.getColumnIndex(field));
+            }
+            cursor.close();
+        }
+        catch (Exception e) {
+//            if (DebugLog.ERROR)
+                Log.e(TAG, "Error on getLastCompliance(): " + e.toString());
+        }
+        return value;
+    }
+
+    public static long getDataLeft() {
+        return DatabaseUtils.queryNumEntries(database, DataTable.TABLE_DATA);
+    }
+
+    private static void insertCompliance(int type) {
+        ContentValues v = new ContentValues();
+        v.put(ComplianceTable.COLUMN_TIMESTAMP, System.currentTimeMillis());
+        long value;
+        String typeStr;
+        if (type == ComplianceTable.TYPE_COLLECTED) {
+            value = COLLECT_COUNT;
+            typeStr = "collected";
+        }
+        else {
+            value = UPLOAD_COUNT;
+            typeStr = "uploaded";
+        }
+        v.put(ComplianceTable.COLUMN_TYPE, type);
+        v.put(ComplianceTable.COLUMN_VALUE, value);
+        database.beginTransaction();
+        try {
+            database.insert(ComplianceTable.TABLE_COMPLIANCE, null, v);
+//            if (DebugLog.DEBUG)
+                Log.d(TAG, "CimonDatabaseAdapter.insertCompliance - " + typeStr + ": " + value);
+            database.setTransactionSuccessful();
+        } catch (Exception e) {
+//            if (DebugLog.ERROR)
+                Log.e(TAG, "Error on insertCompliance() - " + typeStr + " insert: " + e.toString());
+        } finally {
+            //End the transaction
+            database.endTransaction();
+        }
+    }
+
+    public static long getCollectCount() {
+        return COLLECT_COUNT;
+    }
+
+    public static void setCollectCount(int rowsInserted) {
+        if (COLLECT_COUNT == 0) insertCompliance(ComplianceTable.TYPE_COLLECTED);
+        COLLECT_COUNT += (long) rowsInserted;
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - COLLECT_TIMER >= TIMER_THRESHOLD) {
+            insertCompliance(ComplianceTable.TYPE_COLLECTED);
+            COLLECT_TIMER = currentTime;
+        }
+    }
+
+    public static void setUploadCount(int deleted) {
+        if (UPLOAD_COUNT == 0) insertCompliance(ComplianceTable.TYPE_UPLOADED);
+        UPLOAD_COUNT += (long) deleted;
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - UPLOAD_TIMER >= TIMER_THRESHOLD) {
+            insertCompliance(ComplianceTable.TYPE_UPLOADED);
+            UPLOAD_TIMER = currentTime;
+        }
+    }
+
+    public static long getUploadCount() {
+        return UPLOAD_COUNT;
+    }
+
+    private static long getLatestValue(int type, long startTimestamp, long endTimestamp) {
+        long firstValue = 0;
+        long lastValue = 0;
+        try {
+            Cursor cursor = database.query(
+                    ComplianceTable.TABLE_COMPLIANCE,
+                    null,
+                    ComplianceTable.COLUMN_TYPE + "=? AND " + ComplianceTable.COLUMN_TIMESTAMP + " BETWEEN ? AND ?",
+                    new String[]{Integer.toString(type), Long.toString(startTimestamp), Long.toString(endTimestamp)},
+                    null, null, null, null);
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    firstValue = cursor.getLong(cursor.getColumnIndex(ComplianceTable.COLUMN_VALUE));
+                }
+                if (cursor.moveToLast()) {
+                    lastValue = cursor.getLong(cursor.getColumnIndex(ComplianceTable.COLUMN_VALUE));
+                }
+            }
+            cursor.close();
+        }
+        catch (Exception e) {
+//            if (DebugLog.ERROR)
+                Log.e(TAG, "Error on CimonDatabaseAdapter.getLatestValue: " + e.toString());
+        }
+        Log.d(TAG, "getLastValue(): " + lastValue + " - " + firstValue);
+        return lastValue - firstValue;
+    }
+
+    public static float getPercentage(long startTimestamp, long endTimestamp) {
+
+        long collectCount = getLatestValue(ComplianceTable.TYPE_COLLECTED, startTimestamp, endTimestamp);
+        long uploadCount = getLatestValue(ComplianceTable.TYPE_UPLOADED, startTimestamp, endTimestamp);
+        Log.d(TAG, "CimonDatabaseAdapeter.getPercentage: collected - " + collectCount + " uploaded - " + uploadCount);
+        float percentage;
+        if (collectCount == 0) {
+            percentage = 0;
+        }
+        else {
+            if (uploadCount > collectCount) {
+                percentage = 100;
+            }
+            else {
+                percentage = ((float) uploadCount / collectCount) * 100;
+            }
+        }
+        return percentage;
     }
 
     /**
@@ -207,6 +360,7 @@ public final class CimonDatabaseAdapter {
         database.beginTransaction();
         try {
             for (DataEntry entry : data) {
+                if (entry.value == null) continue;
                 ContentValues contentValues = new ContentValues(values);
                 contentValues.put(DataTable.COLUMN_TIMESTAMP, this.upTimeToRealTime(entry.timestamp));
 

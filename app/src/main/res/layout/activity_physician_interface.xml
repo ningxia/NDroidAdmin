@@ -9,10 +9,82 @@
     android:background="@android:color/black" >
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/app_version"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="5dp"
+        android:text="Current version: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/last_collect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="5dp"
+        android:text="Last collected: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/last_upload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="5dp"
+        android:text="Last uploaded: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/data_left"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="5dp"
+        android:text="Data records to be uploaded: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/physician_compliance_btn"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
+        android:enabled="true"
+        android:layout_gravity="center"
+        android:text="@string/check_compliance" />
+
+    <Button
+        android:id="@+id/physician_upload_btn"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
+        android:enabled="true"
+        android:layout_gravity="center"
+        android:text="@string/upload_data"/>
+
+    <TextView
+        android:id="@+id/track_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Please click TRACK:"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/physician_upload_btn"
+        android:layout_marginTop="10dp"
+        android:text="@string/please_click_track"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ListView
@@ -26,26 +98,23 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/track_info"
+        android:layout_marginTop="-30dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
         android:enabled="true"
         android:layout_gravity="center"
-        android:text="Track" />
-
-    <!--<Button-->
-        <!--android:id="@+id/physician_upload_btn"-->
-        <!--style="?android:attr/buttonStyleSmall"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:enabled="true"-->
-        <!--android:layout_gravity="center"-->
-        <!--android:text="Upload"/>-->
+        android:text="@string/track" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Running..."
+        android:text="@string/running"
         android:id="@+id/physician_message"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:layout_gravity="center_horizontal"
         android:visibility="invisible" />
 

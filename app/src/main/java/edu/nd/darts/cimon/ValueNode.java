@@ -301,6 +301,7 @@ public class ValueNode<T extends Comparable<T>> implements CurrentNode<T> {	//Nu
 				Context context = MyApplication.getAppContext();
 				CimonDatabaseAdapter database = CimonDatabaseAdapter.getInstance(context);
 				database.insertBatchData(metric, monitorId, data);
+                database.setCollectCount(data.size());
 			}
 		});
 	}

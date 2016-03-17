@@ -165,6 +165,8 @@ public final class SMSInfoService extends MetricService<String> {
         long nextID = firstID;
         if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.getSmsData IDs: " + prevSMSID + " - " + nextID);
         while (nextID > prevSMSID) {
+            if (cur.getColumnIndex(SMS_PROTOCOL) == -1) continue;
+            if (cur.getColumnIndex(SMS_ADDRESS) == -1) continue;
             String protocol = cur.getString(cur.getColumnIndexOrThrow(SMS_PROTOCOL));
             String smsAddress = cur.getString(cur.getColumnIndexOrThrow(SMS_ADDRESS));
             if (smsAddress != null) {

@@ -61,4 +61,11 @@
     <string name="title_activity_technician_interface">Admin</string>
     <string name="title_activity_physician_interface">Physician Interface</string>
 
+    <string name="compliance_message">Please click the button to check compliance:</string>
+    <string name="check_compliance">Check Compliance</string>
+    <string name="upload_data">Upload Data</string>
+    <string name="please_click_track">Please click TRACK:</string>
+    <string name="track">Track</string>
+    <string name="running">Running...</string>
+
 </resources>

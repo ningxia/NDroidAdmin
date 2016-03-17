@@ -18,24 +18,27 @@ public class PhysicianReceiver extends BroadcastReceiver {
 
 
     private static final String PHYSICIAN_PREFS = "physician_prefs";
-    private static final String RUNNING_METRICS = "running_metrics";
-    private static final String EXTRA_NAME = "edu.nd.darts.cimon" + "." + RUNNING_METRICS;
-    private static Set<String> runningMetrics;
-    private static Intent uploadingService;
+    private static final String MONITOR_STARTED = "monitor_started";
+    private static boolean monitorStarted;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences physicianPrefs = context.getSharedPreferences(PHYSICIAN_PREFS, Context.MODE_PRIVATE);
-        Intent i = new Intent(context, PhysicianService.class);
-        runningMetrics = physicianPrefs.getStringSet(RUNNING_METRICS, null);
-        if (runningMetrics != null) {
-            i.putStringArrayListExtra(EXTRA_NAME, new ArrayList(runningMetrics));
+        Intent intentPhysician = new Intent(context, PhysicianService.class);
+        Intent intentUpload = new Intent(context, UploadingService.class);
+        Intent intentPing = new Intent(context, PingService.class);
+        monitorStarted = physicianPrefs.getBoolean(MONITOR_STARTED, false);
+        if (monitorStarted) {
             if (ACTION_START.equals(intent.getAction())) {
-                context.startService(i);
+                context.startService(intentPhysician);
+                context.startService(intentUpload);
+                context.startService(intentPing);
                 if (DebugLog.DEBUG) Log.d(TAG, "+ start PhysicianService +");
             }
             else if (ACTION_SHUTDOWN.equals(intent.getAction())) {
-                context.stopService(i);
+                context.stopService(intentPhysician);
+                context.stopService(intentUpload);
+                context.stopService(intentPing);
                 if (DebugLog.DEBUG) Log.d(TAG, "+ stop PhysicianService +");
             }
         }

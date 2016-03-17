@@ -40,10 +40,12 @@ public class PhysicianService extends Service {
     private static SharedPreferences.Editor editor;
     private static Set<String> runningMetrics;
     private static Set<String> runningMonitorIds;
+    protected static Handler handler = null;
 
     private static final HandlerThread thread = new HandlerThread(THREADTAG) {
         @Override
         protected void onLooperPrepared() {
+            handler = new Handler(getLooper());
             super.onLooperPrepared();
         }
     };
@@ -51,8 +53,11 @@ public class PhysicianService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (DebugLog.DEBUG) Log.d(TAG, "PhysicianService.onStartCommand  - started - serviceConnected: " + serviceConnected);
-        runningMetrics = new HashSet(intent.getStringArrayListExtra(PACKAGE_NAME + "." + RUNNING_METRICS));
+        runningMetrics = new HashSet(settings.getStringSet(RUNNING_METRICS, null));
         if (!serviceConnected) {
+            if (!thread.isAlive()) {
+                thread.start();
+            }
             if (DebugLog.DEBUG) Log.d(TAG, "PhysicianService.onCreate - start binding Cimon");
             Intent i = new Intent(this, NDroidService.class);
             bindService(i, mConnection, Context.BIND_AUTO_CREATE);
@@ -60,8 +65,6 @@ public class PhysicianService extends Service {
         else {
             mCimonInterface = getCimonInterface();
         }
-        startService(new Intent(this, UploadingService.class));
-        startService(new Intent(this, PingService.class));
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -69,9 +72,6 @@ public class PhysicianService extends Service {
     public void onCreate() {
         if (DebugLog.DEBUG) Log.d(TAG, "PhysicianService.onCreate - created");
         super.onCreate();
-        if (!thread.isAlive()) {
-            thread.start();
-        }
         settings = getSharedPreferences(PHYSICIAN_PREFS, MODE_PRIVATE);
         editor = settings.edit();
         runningMonitorIds = new HashSet();
@@ -141,15 +141,22 @@ public class PhysicianService extends Service {
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            if (DebugLog.DEBUG) Log.d(TAG, "PhysicianService.NDroidSystem.onServiceConnected - connected");
+//            if (DebugLog.DEBUG)
+                Log.d(TAG, "PhysicianService.NDroidSystem.onServiceConnected - connected");
             mCimonInterface = CimonInterface.Stub.asInterface(service);
             serviceConnected = true;
-            registerMetrics();
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    registerMetrics();
+                }
+            });
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            if (DebugLog.DEBUG) Log.d(TAG, "PhysicianService.NDroidSystem.onServiceDisconnected - disconnected");
+//            if (DebugLog.DEBUG)
+                Log.d(TAG, "PhysicianService.NDroidSystem.onServiceDisconnected - disconnected");
             mCimonInterface = null;
             serviceConnected = false;
         }

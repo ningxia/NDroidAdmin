@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Debug;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.telephony.TelephonyManager;
@@ -52,7 +53,7 @@ public class UploadingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        scheduleUploading();
+        scheduleUploading();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -138,21 +139,34 @@ public class UploadingService extends Service {
      * Upload for Physician Interface
      */
     public void uploadForPhysician() {
-        count++;
-        new Thread(new Runnable() {
+
+        final Handler handler = new Handler();
+        final Runnable worker = new Runnable() {
             public void run() {
-                try {
-                    for (String table : uploadTables) {
-                        Log.d(TAG, "UploadForPhysicianInterface: " + table);
-                        uploadFromTable(table);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }finally {
-                    count--;
+                Log.d(TAG, "Uploading thread:" + Integer.toString(count) + "\n Time window:"
+                        + Integer.toString(startHour) + "~" + Integer.toString(endHour));
+                //Log.d(TAG,"Wifi connected:" + Boolean.toString(isWifiConnected()));
+                if (count < 1) {
+                    count++;
+                    new Thread(new Runnable() {
+                        public void run() {
+                            try {
+                                for (String table : uploadTables) {
+                                    Log.d(TAG, "UploadForPhysicianInterface: " + table);
+                                    uploadFromTable(table);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }finally {
+                                count--;
+                            }
+                        }
+                    }).start();
                 }
+                handler.postDelayed(this, period);
             }
-        }).start();
+        };
+        handler.postDelayed(worker, period);
     }
 
     /**
@@ -286,6 +300,9 @@ public class UploadingService extends Service {
         }
         IDs.append(rowIDs.get(lastIndex).toString() + ")");
         curDB.delete(tableName, "_id in " + IDs.toString(), null);
+        if (tableName.equals(DataTable.TABLE_DATA)) {
+            CimonDatabaseAdapter.setUploadCount(rowIDs.size());
+        }
         rowIDs.clear();
     }
 

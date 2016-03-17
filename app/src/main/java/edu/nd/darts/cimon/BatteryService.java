@@ -73,7 +73,9 @@ public final class BatteryService extends MetricService<Integer> {
 	private ValueNode<Float> temperatureNode;
 	private ValueNode<Float> voltageNode;
     private static Intent batteryStatus = null;
-	
+    private static long timer = 0;
+    private static long period = 60000;
+
 	private BatteryService() {
 		if (DebugLog.DEBUG) Log.d(TAG, "BatteryService - constructor");
 		if (INSTANCE != null) {
@@ -90,6 +92,7 @@ public final class BatteryService extends MetricService<Integer> {
 		adminObserver.registerObservable(this, groupId);
 		schedules = new SparseArray<TimerNode>();
 			init();
+        timer = System.currentTimeMillis();
 	}
 	
 	public static BatteryService getInstance() {
@@ -215,7 +218,10 @@ public final class BatteryService extends MetricService<Integer> {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (DebugLog.DEBUG) Log.d(TAG, "BatteryService.batteryReceiver - updating battery values");
-			getBatteryData(context, intent);
+            if (System.currentTimeMillis() - timer > period) {
+                getBatteryData(context, intent);
+                timer = System.currentTimeMillis();
+            }
 		}
 	};
 

@@ -166,10 +166,12 @@ public final class MMSInfoService extends MetricService<String> {
         long firstID = cur.getLong(cur.getColumnIndex(BaseColumns._ID));
         long nextID = firstID;
         final int TYPE_COLUMN = cur.getColumnIndex(MMS_TYPE);
+        if (TYPE_COLUMN == -1) return;
         while (nextID > prevMMSID) {
             if (DebugLog.DEBUG) Log.d(TAG, "getMmsData prevMMSID: " + prevMMSID + " - nextID: " + nextID);
             int type = cur.getInt(TYPE_COLUMN);
             if (DebugLog.DEBUG) Log.d(TAG, "MMSInfoService.getMmsData - type: " + type);
+            if (cur.getColumnIndex(MMS_DATE) == -1) continue;
             long date = cur.getLong(cur.getColumnIndexOrThrow(MMS_DATE)) * 1000L;
             String mmsDate = String.valueOf(date);
             handleMessage(nextID, type, mmsDate);

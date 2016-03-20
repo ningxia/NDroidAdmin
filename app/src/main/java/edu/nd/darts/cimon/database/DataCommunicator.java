@@ -2,6 +2,10 @@ package edu.nd.darts.cimon.database;
 
 //import android.util.Log;
 
+import android.preference.PreferenceManager;
+
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.InputStream;
@@ -18,6 +22,8 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import edu.nd.darts.cimon.MyApplication;
 
 /**
  * Communication facility for uploading to server
@@ -84,6 +90,38 @@ public class DataCommunicator {
         } finally {
             connection.disconnect();
             return callBack;
+        }
+    }
+
+    public int getVersionCode(String data) {
+        String callBack;
+        int versionCode = -1;
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("content-type",
+                    "application/json; charset=utf-8");
+
+            // Send data
+            OutputStream out = new BufferedOutputStream(
+                    connection.getOutputStream());
+            out.write(data.getBytes());
+            out.flush();
+
+            // Get call back
+            InputStream in = new BufferedInputStream(
+                    connection.getInputStream());
+            if (in != null) {
+                callBack = this.convertStreamToString(in);
+                versionCode = Integer.parseInt(callBack);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        } finally {
+            connection.disconnect();
+            return versionCode;
         }
     }
 }

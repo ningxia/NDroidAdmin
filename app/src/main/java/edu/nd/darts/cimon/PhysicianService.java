@@ -40,7 +40,7 @@ public class PhysicianService extends Service {
     private static SharedPreferences.Editor editor;
     private static Set<String> runningMetrics;
     private static Set<String> runningMonitorIds;
-    protected static Handler handler = null;
+    protected static Handler handler;
 
     private static final HandlerThread thread = new HandlerThread(THREADTAG) {
         @Override
@@ -145,6 +145,13 @@ public class PhysicianService extends Service {
                 Log.d(TAG, "PhysicianService.NDroidSystem.onServiceConnected - connected");
             mCimonInterface = CimonInterface.Stub.asInterface(service);
             serviceConnected = true;
+            if (handler == null) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             handler.post(new Runnable() {
                 @Override
                 public void run() {

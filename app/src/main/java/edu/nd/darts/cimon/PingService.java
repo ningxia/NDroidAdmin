@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import org.json.JSONObject;
 
@@ -16,7 +17,8 @@ import edu.nd.darts.cimon.database.DataCommunicator;
 public class PingService extends Service {
 
     private static final String TAG = "CimonReminderService";
-    private static final int period = 1000 * 3600;
+//    private static final int period = 1000 * 3600;
+    private static final int period = 1000 * 5;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -48,7 +50,7 @@ public class PingService extends Service {
                             mainPackage.put("device_id", deviceID);
                             String callBack = comm.postData(mainPackage.toString().getBytes());
                             //if(DebugLog.DEBUG)
-                                Log.d(TAG,"Ping Callback:"+callBack);
+                                Log.d(TAG,"Ping Callback:"+callBack + " device_id: " + deviceID);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

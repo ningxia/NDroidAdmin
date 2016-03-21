@@ -1,19 +1,22 @@
 package edu.nd.darts.cimon;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerThread;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -24,11 +27,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.File;
+import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +42,7 @@ import java.util.Set;
 
 import edu.nd.darts.cimon.database.CimonDatabaseAdapter;
 import edu.nd.darts.cimon.database.ComplianceTable;
+import edu.nd.darts.cimon.database.DataCommunicator;
 import edu.nd.darts.cimon.database.MetricInfoTable;
 
 
@@ -48,10 +51,12 @@ import edu.nd.darts.cimon.database.MetricInfoTable;
  *
  * @author ningxia
  */
-public class PhysicianInterface extends Activity {
+public class PhysicianInterface extends Activity{
 
     private static final String TAG = "NDroid";
     private static final String PACKAGE_NAME = "edu.nd.darts.cimon";
+    public static final int REQUEST_CODE = 1002;
+    public static final int RESULT_CODE = 2001;
 
     private static ListView listView;
     private static List<ActivityCategory> categories;
@@ -71,12 +76,13 @@ public class PhysicianInterface extends Activity {
 
     private static final String SHARED_PREFS = "CimonSharedPrefs";
     private static final String PREF_VERSION = "version";
+    private static final String PHONE_NUMBER = "phone_number";
     private static final String PHYSICIAN_PREFS = "physician_prefs";
     private static final String CHECKED_CATEGORIES = "checked_categories";
     private static final String RUNNING_METRICS = "running_metrics";
     private static final String MONITOR_STARTED = "monitor_started";
-    private static SharedPreferences settings;
-    private static SharedPreferences.Editor editor;
+    private static SharedPreferences settings, appPrefs;
+    private static SharedPreferences.Editor editor, appEditor;
     private static Set<String> checkedCategories;
 
     public static Intent sensorService;
@@ -94,6 +100,8 @@ public class PhysicianInterface extends Activity {
 
     private static long COLLECT_THRESHOLD = 2 * 60 * 1000;
     private static long UPLOAD_THRESHOLD = 24 * 3600 * 1000;
+
+    private static String phoneNumber;
 
 
     @Override
@@ -153,9 +161,6 @@ public class PhysicianInterface extends Activity {
             mWifiManager.setWifiEnabled(true);
         }
 
-        startService(new Intent(this, UploadingService.class));
-        startService(new Intent(this, PingService.class));
-
         /**
          * Refresh activity every 30 seconds.
          */
@@ -167,6 +172,66 @@ public class PhysicianInterface extends Activity {
                 handler.postDelayed(this, COLLECT_THRESHOLD / 4);
             }
         }, COLLECT_THRESHOLD / 4);
+
+        appPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        appEditor = appPrefs.edit();
+        phoneNumber = appPrefs.getString(PHONE_NUMBER, null);
+        if (phoneNumber == null) {
+            alertPhoneNumber();
+        }
+        else {
+            new RetrieveVersionTask().execute();
+        }
+
+    }
+
+    private void alertPhoneNumber() {
+        new AlertDialog.Builder(PhysicianInterface.this)    // it has to be "PhysicianInterface.this" as context in dialog
+                .setTitle("Phone Number Required")
+                .setMessage("Please input your phone number in menu!")
+                .setNeutralButton("OK", null)
+                .show();
+    }
+
+    private static JSONObject getJSON() {
+        JSONObject jsonRequest = new JSONObject();
+        try {
+            jsonRequest.put("table", "Version");
+            jsonRequest.put("device_id", phoneNumber);
+            Log.d(TAG, "JsonRequest: " + jsonRequest.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonRequest;
+    }
+
+    private class RetrieveVersionTask extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String color;
+            int versionCode = -1;
+            try {
+                DataCommunicator comm = new DataCommunicator();
+                versionCode = comm.getVersionCode(getJSON().toString());
+                if(DebugLog.DEBUG)
+                    Log.d(TAG, "VersionCode: " + versionCode);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            if (versionCode > BuildConfig.VERSION_CODE) {
+                color = "red";
+            }
+            else {
+                color = "white";
+            }
+            return color;
+        }
+
+        @Override
+        protected void onPostExecute(String color) {
+            appVersion.setText(Html.fromHtml("Current version: " + "<font color=" + color + ">" + BuildConfig.VERSION_NAME + "</font>"));
+        }
     }
 
     private void loadMetricInfoTable() {
@@ -278,8 +343,8 @@ public class PhysicianInterface extends Activity {
 
 
     private void updateCompliance() {
-//        if (DebugLog.DEBUG)
-        Log.d(TAG, "PhysicianInterface.updateCompliance()");
+        if (DebugLog.DEBUG)
+            Log.d(TAG, "PhysicianInterface.updateCompliance()");
         String timeString;
         String color;
         lastCollect = (TextView) findViewById(R.id.last_collect);
@@ -327,6 +392,14 @@ public class PhysicianInterface extends Activity {
         public void onClick(View v) {
             Button btn = (Button) v;
 
+            if (PreferenceManager.getDefaultSharedPreferences(MyApplication.getAppContext()).getString(PHONE_NUMBER, null) == null) {
+                alertPhoneNumber();
+                return;
+            }
+
+            startService(new Intent(PhysicianInterface.this, UploadingService.class));
+            startService(new Intent(PhysicianInterface.this, PingService.class));
+
             if (btn.getText().toString().equalsIgnoreCase("Track")) {
                 boolean monitorStarted = settings.getBoolean(MONITOR_STARTED, false);
                 if (!monitorStarted) {
@@ -356,23 +429,6 @@ public class PhysicianInterface extends Activity {
             }
         }
     };
-
-    public static void clearSharedPreferencesFiles(Context ctx) {
-        File dir = new File(ctx.getFilesDir().getParent() + "/shared_prefs/");
-        String[] children = dir.list();
-        for (int i = 0; i < children.length; i++) {
-            ctx.getSharedPreferences(children[i].replace(".xml", ""), Context.MODE_PRIVATE).edit().clear().commit();
-        }
-        // Make sure it has enough time to save all the commited changes
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-        }
-        for (int i = 0; i < children.length; i++) {
-            // delete the files
-            new File(dir, children[i]).delete();
-        }
-    }
 
     /**
      * Upload button OnClickListener
@@ -781,6 +837,35 @@ public class PhysicianInterface extends Activity {
 
     public void stopSensors() {
         stopService(this.sensorService);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            Intent intent = new Intent();
+            intent.setClass(this, CimonPreferenceActivity.class);
+            startActivityForResult(intent, REQUEST_CODE);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE) {
+            if (resultCode == RESULT_CODE) {
+                new RetrieveVersionTask().execute();
+            }
+        }
     }
 
     @Override

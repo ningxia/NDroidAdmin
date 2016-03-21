@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.os.AsyncTask;
@@ -51,6 +52,9 @@ public class UploadingService extends Service {
     private static int endHour = 8;
     private static Context context;
 
+    private static final String PHONE_NUMBER = "phone_number";
+    private static String phoneNumber;
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         scheduleUploading();
@@ -69,6 +73,8 @@ public class UploadingService extends Service {
 //        }
         context = MyApplication.getAppContext();
         count = 0;
+        phoneNumber = PreferenceManager.getDefaultSharedPreferences(MyApplication.getAppContext())
+                .getString(PHONE_NUMBER, null);
     }
 
     @Override
@@ -272,7 +278,7 @@ public class UploadingService extends Service {
         Log.d(TAG,"Device ID : " + deviceID);
         mainPackage.put("device_id", deviceID);
         String callBack = comm.postData(mainPackage.toString().getBytes());
-        Log.d(TAG,"Callback: " + callBack);
+        Log.d(TAG, "Callback: " + callBack);
         if (callBack.equals("Success")
                 && (tableName.equals(DataTable.TABLE_DATA) || tableName
                 .equals(LabelingHistory.TABLE_NAME))) {
@@ -311,11 +317,14 @@ public class UploadingService extends Service {
      *
      * @author Xiao(Sean) Bo
      */
-    public static String getDeviceID(){
-        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        String phoneNumber = telephonyManager.getLine1Number();
-        String IMEI = telephonyManager.getDeviceId();
-        return phoneNumber==null? IMEI : phoneNumber;
+//    public static String getDeviceID(){
+//        TelephonyManager telephonyManager = (TelephonyManager) MyApplication.getAppContext().getSystemService(Context.TELEPHONY_SERVICE);
+//        String phoneNumber = telephonyManager.getLine1Number();
+//        String IMEI = telephonyManager.getDeviceId();
+//        return phoneNumber==null? IMEI : phoneNumber;
+//    }
+    public static String getDeviceID() {
+        return phoneNumber;
     }
 
     /**

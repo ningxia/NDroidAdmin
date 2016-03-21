@@ -41,6 +41,10 @@
             android:label="@string/app_name"
             android:launchMode="singleTask"></activity>
 
+        <activity
+            android:name=".CimonPreferenceActivity">
+        </activity>
+
         <service
             android:name=".NDroidService"
             android:enabled="true"

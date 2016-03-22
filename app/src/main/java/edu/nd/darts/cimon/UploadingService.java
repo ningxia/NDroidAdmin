@@ -52,6 +52,7 @@ public class UploadingService extends Service {
     private static int endHour = 8;
     private static Context context;
 
+    private static final String SHARED_PREFS = "CimonSharedPrefs";
     private static final String PHONE_NUMBER = "phone_number";
     private static String phoneNumber;
 
@@ -73,7 +74,7 @@ public class UploadingService extends Service {
 //        }
         context = MyApplication.getAppContext();
         count = 0;
-        phoneNumber = PreferenceManager.getDefaultSharedPreferences(MyApplication.getAppContext())
+        phoneNumber = context.getSharedPreferences(SHARED_PREFS, context.MODE_PRIVATE)
                 .getString(PHONE_NUMBER, null);
     }
 

@@ -2,6 +2,9 @@ package edu.nd.darts.cimon.database;
 
 //import android.util.Log;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 
 import org.json.JSONObject;

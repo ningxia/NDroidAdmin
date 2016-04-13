@@ -112,7 +112,7 @@ public class UploadingService extends Service {
         timeConverter.set(Calendar.HOUR_OF_DAY, endHour);
         long endTime = timeConverter.getTimeInMillis();
         long currentTime = System.currentTimeMillis();
-        Log.d(TAG, "curTime:" + Long.toString(currentTime));
+        Log.d(TAG, "curTime:" + Long.toString(currentTime) + " Thread id:" + Long.toString(Thread.currentThread().getId()));
         if (currentTime >= startTime && currentTime <= endTime
                 && CimonDatabaseAdapter.database != null) {
             count++;

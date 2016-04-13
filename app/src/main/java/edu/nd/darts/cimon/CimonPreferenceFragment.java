@@ -1,9 +1,17 @@
 package edu.nd.darts.cimon;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
+import android.util.AttributeSet;
+import android.util.Log;
+
+import com.github.mikephil.charting.utils.Utils;
 
 /**
  * Preference Fragment for option menu
@@ -12,6 +20,8 @@ import android.preference.PreferenceFragment;
  */
 public class CimonPreferenceFragment extends PreferenceFragment {
 
+    private static final String TAG = "NDroid";
+    private static final String SHARED_PREFS = "CimonSharedPrefs";
     private static final String PHONE_NUMBER = "phone_number";
     private EditTextPreference phoneNumberPreference;
 
@@ -26,8 +36,12 @@ public class CimonPreferenceFragment extends PreferenceFragment {
         phoneNumberPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                String duration = (String) newValue;
-                phoneNumberPreference.setSummary(duration);
+                String phoneNumber = (String) newValue;
+                phoneNumber = phoneNumber.replaceAll("[\\D]", "");
+                SharedPreferences appPrefs = MyApplication.getAppContext().getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);
+                appPrefs.edit().putString(PHONE_NUMBER, phoneNumber).commit();
+                Log.d(TAG, "Phone number updated: " + phoneNumber);
+                phoneNumberPreference.setSummary((String) newValue);
                 return true;
             }
         });

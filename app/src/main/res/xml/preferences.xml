@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="Phone Number">
+    <PreferenceCategory android:title="@string/your_phone_number">
         <EditTextPreference
             android:key="phone_number"
             android:inputType="phone"
-            android:title="Click to modify phone number"/>
+            android:title="@string/update_phone_number"/>
     </PreferenceCategory>
 </PreferenceScreen>

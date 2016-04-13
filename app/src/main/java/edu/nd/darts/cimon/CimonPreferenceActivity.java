@@ -10,18 +10,11 @@ import android.os.Bundle;
  */
 public class CimonPreferenceActivity extends Activity {
 
-    public static final int RESULT_CODE = 2001;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, new CimonPreferenceFragment())
                 .commit();
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        setResult(RESULT_CODE);
     }
 }

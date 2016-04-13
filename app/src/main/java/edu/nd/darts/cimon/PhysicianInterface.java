@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -11,7 +12,6 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,7 +56,6 @@ public class PhysicianInterface extends Activity{
     private static final String TAG = "NDroid";
     private static final String PACKAGE_NAME = "edu.nd.darts.cimon";
     public static final int REQUEST_CODE = 1002;
-    public static final int RESULT_CODE = 2001;
 
     private static ListView listView;
     private static List<ActivityCategory> categories;
@@ -173,7 +172,7 @@ public class PhysicianInterface extends Activity{
             }
         }, COLLECT_THRESHOLD / 4);
 
-        appPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        appPrefs = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
         appEditor = appPrefs.edit();
         phoneNumber = appPrefs.getString(PHONE_NUMBER, null);
         if (phoneNumber == null) {
@@ -189,7 +188,14 @@ public class PhysicianInterface extends Activity{
         new AlertDialog.Builder(PhysicianInterface.this)    // it has to be "PhysicianInterface.this" as context in dialog
                 .setTitle("Phone Number Required")
                 .setMessage("Please input your phone number in menu!")
-                .setNeutralButton("OK", null)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent();
+                        intent.setClass(PhysicianInterface.this, CimonPreferenceActivity.class);
+                        startActivityForResult(intent, REQUEST_CODE);
+                    }
+                })
                 .show();
     }
 
@@ -392,13 +398,10 @@ public class PhysicianInterface extends Activity{
         public void onClick(View v) {
             Button btn = (Button) v;
 
-            if (PreferenceManager.getDefaultSharedPreferences(MyApplication.getAppContext()).getString(PHONE_NUMBER, null) == null) {
+            if (appPrefs.getString(PHONE_NUMBER, null) == null) {
                 alertPhoneNumber();
                 return;
             }
-
-            startService(new Intent(PhysicianInterface.this, UploadingService.class));
-            startService(new Intent(PhysicianInterface.this, PingService.class));
 
             if (btn.getText().toString().equalsIgnoreCase("Track")) {
                 boolean monitorStarted = settings.getBoolean(MONITOR_STARTED, false);
@@ -413,6 +416,10 @@ public class PhysicianInterface extends Activity{
                 message.setVisibility(View.VISIBLE);
                 startPhysicianService();
                 updateCompliance();
+                stopService(new Intent(PhysicianInterface.this, UploadingService.class));
+                stopService(new Intent(PhysicianInterface.this, PingService.class));
+                startService(new Intent(PhysicianInterface.this, UploadingService.class));
+                startService(new Intent(PhysicianInterface.this, PingService.class));
             } else {
                 btn.setText("Track");
                 enableCheckbox(true);
@@ -421,7 +428,6 @@ public class PhysicianInterface extends Activity{
                 editor.remove(RUNNING_METRICS);
                 editor.remove(CHECKED_CATEGORIES);
                 editor.commit();
-//                clearSharedPreferencesFiles(getApplicationContext());
                 message.setVisibility(View.GONE);
                 Intent intent = new Intent(PhysicianInterface.this, PhysicianService.class);
                 stopService(intent);
@@ -856,16 +862,6 @@ public class PhysicianInterface extends Activity{
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE) {
-            if (resultCode == RESULT_CODE) {
-                new RetrieveVersionTask().execute();
-            }
-        }
     }
 
     @Override

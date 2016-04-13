@@ -15,7 +15,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_marginTop="5dp"
-        android:text="Current version: "
+        android:text="@string/current_version"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -25,7 +25,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_marginTop="5dp"
-        android:text="Last collected: "
+        android:text="@string/last_collected"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -35,7 +35,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_marginTop="5dp"
-        android:text="Last uploaded: "
+        android:text="@string/last_uploaded"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -45,7 +45,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_marginTop="5dp"
-        android:text="Data records to be uploaded: "
+        android:text="@string/to_be_uploaded"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Button

@@ -42,8 +42,8 @@ import edu.nd.darts.cimon.database.MetricsTable;
  */
 public class UploadingService extends Service {
     private static final String TAG = "CimonUploadingService";
-    private static final String[] uploadTables = {MetricInfoTable.TABLE_METRICINFO, LabelingHistory.TABLE_NAME, MetricsTable.TABLE_METRICS, DataTable.TABLE_DATA};
-    //private static final String[] uploadTables = {LabelingHistory.TABLE_NAME};
+    //private static final String[] uploadTables = {MetricInfoTable.TABLE_METRICINFO, LabelingHistory.TABLE_NAME, MetricsTable.TABLE_METRICS, DataTable.TABLE_DATA};
+    private static final String[] uploadTables = {DataTable.TABLE_DATA};
     private static final int period = 1000 * 10;
     private static int count;
     private static int MAXRECORDS = 3000;
@@ -112,7 +112,7 @@ public class UploadingService extends Service {
         timeConverter.set(Calendar.HOUR_OF_DAY, endHour);
         long endTime = timeConverter.getTimeInMillis();
         long currentTime = System.currentTimeMillis();
-        Log.d(TAG, "curTime:" + Long.toString(currentTime));
+        Log.d(TAG, "curTime:" + Long.toString(currentTime) + " Thread id:" + Long.toString(Thread.currentThread().getId()));
         if (currentTime >= startTime && currentTime <= endTime
                 && CimonDatabaseAdapter.database != null) {
             count++;

@@ -48,9 +48,10 @@ public class PingService extends Service {
                             mainPackage.put("table", "Ping");
                             String deviceID = UploadingService.getDeviceID();
                             mainPackage.put("device_id", deviceID);
+                            String versionCode = Integer.toString(BuildConfig.VERSION_CODE);
+                            mainPackage.put("version", versionCode);
                             String callBack = comm.postData(mainPackage.toString().getBytes());
-                            //if(DebugLog.DEBUG)
-                                Log.d(TAG,"Ping Callback:"+callBack + " device_id: " + deviceID);
+                            Log.d(TAG,"Ping Callback:"+callBack + " device_id: " + deviceID);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

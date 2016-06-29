@@ -46,7 +46,10 @@ public class CimonDatabaseHelper extends SQLiteOpenHelper {
 	private final static String TAG = "NDroid";
 	
 	private final static String DATABASE_NAME = "cimon.db";
-	private final static int DATABASE_VERSION = 1;
+    private final static int DATABASE_VERSION_DEBUG = 0;
+    private final static int DATABASE_VERSION_DEFAULT = 1;
+    private final static int DATABASE_VERSION_COMPLIANCE = 2;
+	private static int DATABASE_VERSION = DATABASE_VERSION_COMPLIANCE;
 	
 	public CimonDatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -68,12 +71,20 @@ public class CimonDatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		if (DebugLog.DEBUG) Log.d(TAG, "CimonDatabaseHelper.onUpgrade - upgrading tables");
-		MetricInfoTable.onUpgrade(db, oldVersion, newVersion);
-		MetricsTable.onUpgrade(db, oldVersion, newVersion);
-		MetricStatusTable.onUpgrade(db, oldVersion, newVersion);
-		DataTable.onUpgrade(db, oldVersion, newVersion);
-		MonitorTable.onUpgrade(db, oldVersion, newVersion);
-        ComplianceTable.onUpgrade(db, oldVersion, newVersion);
+        switch (newVersion) {
+            case DATABASE_VERSION_DEBUG:
+                MetricInfoTable.onUpgrade(db, oldVersion, newVersion);
+                MetricsTable.onUpgrade(db, oldVersion, newVersion);
+                MetricStatusTable.onUpgrade(db, oldVersion, newVersion);
+                DataTable.onUpgrade(db, oldVersion, newVersion);
+                MonitorTable.onUpgrade(db, oldVersion, newVersion);
+                ComplianceTable.onUpgrade(db, oldVersion, newVersion);
+                break;
+            case DATABASE_VERSION_COMPLIANCE:
+                ComplianceTable.onCreate(db);
+                break;
+        }
+
 	}
 
 }

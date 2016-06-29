@@ -45,6 +45,9 @@ import edu.nd.darts.cimon.database.ComplianceTable;
 import edu.nd.darts.cimon.database.DataCommunicator;
 import edu.nd.darts.cimon.database.MetricInfoTable;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
+import io.fabric.sdk.android.services.common.Crash;
 
 /**
  * Physician Interface
@@ -181,6 +184,8 @@ public class PhysicianInterface extends Activity{
         else {
             new RetrieveVersionTask().execute();
         }
+
+        Fabric.with(this, new Crashlytics());
 
     }
 
@@ -432,6 +437,7 @@ public class PhysicianInterface extends Activity{
                 Intent intent = new Intent(PhysicianInterface.this, PhysicianService.class);
                 stopService(intent);
                 updateCompliance();
+//                Crashlytics.getInstance().crash();
             }
         }
     };

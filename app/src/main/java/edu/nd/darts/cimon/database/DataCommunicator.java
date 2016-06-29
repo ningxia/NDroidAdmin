@@ -4,6 +4,8 @@ package edu.nd.darts.cimon.database;
 
 import android.preference.PreferenceManager;
 
+import com.crashlytics.android.Crashlytics;
+
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -86,6 +88,7 @@ public class DataCommunicator {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            Crashlytics.logException(e);
             return "Fail";
         } finally {
             connection.disconnect();

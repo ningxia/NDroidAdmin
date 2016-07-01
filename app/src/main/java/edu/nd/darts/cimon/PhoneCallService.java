@@ -10,6 +10,8 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -193,64 +195,73 @@ public final class PhoneCallService extends MetricService<String> {
      * Update the values for telephony metrics from telephony database tables.
      */
     private void getTelephonyData() {
-        ContentResolver resolver = MyApplication.getAppContext().getContentResolver();
-        Cursor cur = resolver.query(phone_uri, phone_projection, null, null, SORTORDER);
-        if (!cur.moveToFirst()) {
-            //do we really want to close the cursor?
+        try {
+            ContentResolver resolver = MyApplication.getAppContext().getContentResolver();
+            Cursor cur = resolver.query(phone_uri, phone_projection, null, null, SORTORDER);
+            if (!cur.moveToFirst()) {
+                //do we really want to close the cursor?
+                cur.close();
+                if (DebugLog.DEBUG)
+                    Log.d(TAG, "PhoneStateService.getTelephonyData - cursor empty?");
+                return;
+            }
+
+            long firstID = cur.getLong(cur.getColumnIndex(CallLog.Calls._ID));
+            long nextID = firstID;
+            StringBuilder sbIncoming = new StringBuilder();
+            StringBuilder sbOutgoing = new StringBuilder();
+            StringBuilder sbMissed = new StringBuilder();
+            while (nextID != prevPhoneID) {
+                final int NUMBER_COLUMN = cur.getColumnIndex(CallLog.Calls.NUMBER);
+                final int DATE_COLUMN = cur.getColumnIndex(CallLog.Calls.DATE);
+                final int DURATION_COLUMN = cur.getColumnIndex(CallLog.Calls.DURATION);
+                final int TYPE_COLUMN = cur.getColumnIndex(CallLog.Calls.TYPE);
+
+                String phoneNumber = cur.getString(cur.getColumnIndex(CallLog.Calls.CACHED_NAME)) == null ?
+                        "Unknown Number" : cur.getString(NUMBER_COLUMN);
+                String startTime = getDate(cur.getLong(DATE_COLUMN), "hh:ss MM/dd/yyyy");
+                String endTime = getDate(cur.getLong(DATE_COLUMN) + cur.getLong(DURATION_COLUMN), "hh:ss MM/dd/yyyy");
+
+                int type = cur.getInt(TYPE_COLUMN);
+
+                switch (type) {
+                    case CallLog.Calls.OUTGOING_TYPE:
+                        appendCalls(sbOutgoing, phoneNumber, startTime, endTime);
+                        break;
+                    case CallLog.Calls.INCOMING_TYPE:
+                        appendCalls(sbIncoming, phoneNumber, startTime, endTime);
+                        break;
+                    case CallLog.Calls.MISSED_TYPE:
+                        appendCalls(sbMissed, phoneNumber, startTime, endTime);
+                        break;
+                    default:
+                        break;
+                }
+
+                if (DebugLog.DEBUG)
+                    Log.d(TAG, "PhoneStateService.getTelephonyData - type: " + type);
+
+                if (!cur.moveToNext()) {
+                    values[INCOMING] = sbIncoming.substring(0, sbIncoming.length() - 1);
+                    if (DebugLog.DEBUG)
+                        Log.d(TAG, "PhoneCallService.getTelephonyData - incoming: " + values[INCOMING]);
+                    values[OUTGOING] = sbOutgoing.substring(0, sbOutgoing.length() - 1);
+                    if (DebugLog.DEBUG)
+                        Log.d(TAG, "PhoneCallService.getTelephonyData - outgoing: " + values[OUTGOING]);
+                    values[MISSED] = sbMissed.substring(0, sbMissed.length() - 1);
+                    if (DebugLog.DEBUG)
+                        Log.d(TAG, "PhoneCallService.getTelephonyData - missed: " + values[MISSED]);
+                    break;
+                }
+                nextID = cur.getLong(cur.getColumnIndex(CallLog.Calls._ID));
+            }
+
             cur.close();
-            if (DebugLog.DEBUG) Log.d(TAG, "PhoneStateService.getTelephonyData - cursor empty?");
-            return;
+            prevPhoneID = firstID;
         }
-
-        long firstID = cur.getLong(cur.getColumnIndex(CallLog.Calls._ID));
-        long nextID = firstID;
-        StringBuilder sbIncoming = new StringBuilder();
-        StringBuilder sbOutgoing = new StringBuilder();
-        StringBuilder sbMissed = new StringBuilder();
-        while (nextID != prevPhoneID) {
-			final int NUMBER_COLUMN = cur.getColumnIndex(CallLog.Calls.NUMBER);
-			final int DATE_COLUMN = cur.getColumnIndex(CallLog.Calls.DATE);
-            final int DURATION_COLUMN = cur.getColumnIndex(CallLog.Calls.DURATION);
-            final int TYPE_COLUMN = cur.getColumnIndex(CallLog.Calls.TYPE);
-
-            String phoneNumber = cur.getString(cur.getColumnIndex(CallLog.Calls.CACHED_NAME)) == null ?
-                    "Unknown Number" : cur.getString(NUMBER_COLUMN);
-            String startTime = getDate(cur.getLong(DATE_COLUMN), "hh:ss MM/dd/yyyy");
-            String endTime = getDate(cur.getLong(DATE_COLUMN) + cur.getLong(DURATION_COLUMN), "hh:ss MM/dd/yyyy");
-
-            int type = cur.getInt(TYPE_COLUMN);
-
-            switch (type) {
-                case CallLog.Calls.OUTGOING_TYPE:
-                    appendCalls(sbOutgoing, phoneNumber, startTime, endTime);
-                    break;
-                case CallLog.Calls.INCOMING_TYPE:
-                    appendCalls(sbIncoming, phoneNumber, startTime, endTime);
-                    break;
-                case CallLog.Calls.MISSED_TYPE:
-                    appendCalls(sbMissed, phoneNumber, startTime, endTime);
-                    break;
-                default:
-                    break;
-            }
-
-            if (DebugLog.DEBUG) Log.d(TAG, "PhoneStateService.getTelephonyData - type: " + type);
-
-            if (!cur.moveToNext()) {
-                values[INCOMING] = sbIncoming.substring(0, sbIncoming.length() - 1);
-                if (DebugLog.DEBUG) Log.d(TAG, "PhoneCallService.getTelephonyData - incoming: " + values[INCOMING]);
-                values[OUTGOING] = sbOutgoing.substring(0, sbOutgoing.length() - 1);
-                if (DebugLog.DEBUG) Log.d(TAG, "PhoneCallService.getTelephonyData - outgoing: " + values[OUTGOING]);
-                values[MISSED] = sbMissed.substring(0, sbMissed.length() - 1);
-                if (DebugLog.DEBUG) Log.d(TAG, "PhoneCallService.getTelephonyData - missed: " + values[MISSED]);
-                break;
-            }
-            nextID = cur.getLong(cur.getColumnIndex(CallLog.Calls._ID));
+        catch (Exception e) {
+            Crashlytics.logException(e);
         }
-
-        cur.close();
-        prevPhoneID = firstID;
-
     }
 
     private String getDate(long milliSeconds, String dateFormat) {

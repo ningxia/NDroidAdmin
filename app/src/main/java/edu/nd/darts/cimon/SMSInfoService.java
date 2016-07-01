@@ -11,6 +11,8 @@ import android.provider.BaseColumns;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -154,48 +156,55 @@ public final class SMSInfoService extends MetricService<String> {
     }
 
     private void getSmsData() {
-        Cursor cur = smsResolver.query(uri, sms_projection, null, null, SORT_ORDER);
-        if (!cur.moveToFirst()) {
+        try {
+            Cursor cur = smsResolver.query(uri, sms_projection, null, null, SORT_ORDER);
+            if (!cur.moveToFirst()) {
+                cur.close();
+                if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.getSmsData - cursor empty?");
+                return;
+            }
+
+            long firstID = cur.getLong(cur.getColumnIndex(BaseColumns._ID));
+            long nextID = firstID;
+            if (DebugLog.DEBUG)
+                Log.d(TAG, "SMSInfoService.getSmsData IDs: " + prevSMSID + " - " + nextID);
+            while (nextID > prevSMSID) {
+                if (cur.getColumnIndex(SMS_PROTOCOL) == -1) continue;
+                if (cur.getColumnIndex(SMS_ADDRESS) == -1) continue;
+                String protocol = cur.getString(cur.getColumnIndexOrThrow(SMS_PROTOCOL));
+                String smsAddress = cur.getString(cur.getColumnIndexOrThrow(SMS_ADDRESS));
+                if (smsAddress != null) {
+                    smsAddress = smsAddress.replaceAll("[^0-9]", "");
+                }
+                long smsDate = cur.getLong(cur.getColumnIndexOrThrow(SMS_DATE));
+
+                if (protocol != null) {
+                    values[SMS_RECEIVED] = smsAddress + "+" + smsDate;
+                    values[SMS_SENT] = null;
+                    if (DebugLog.DEBUG)
+                        Log.d(TAG, "SMSInfoService.getSmsData RECEIVED: " + smsAddress + " - " + smsDate);
+                } else {
+                    values[SMS_SENT] = smsAddress + "+" + smsDate;
+                    values[SMS_RECEIVED] = null;
+                    if (DebugLog.DEBUG)
+                        Log.d(TAG, "SMSInfoService.getSmsData SENT: " + smsAddress + " - " + smsDate);
+                }
+
+                performUpdates();
+
+                if (!cur.moveToNext()) {
+                    break;
+                }
+
+                nextID = cur.getLong(cur.getColumnIndex(BaseColumns._ID));
+            }
+
             cur.close();
-            if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.getSmsData - cursor empty?");
-            return;
+            prevSMSID = firstID;
         }
-
-        long firstID = cur.getLong(cur.getColumnIndex(BaseColumns._ID));
-        long nextID = firstID;
-        if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.getSmsData IDs: " + prevSMSID + " - " + nextID);
-        while (nextID > prevSMSID) {
-            if (cur.getColumnIndex(SMS_PROTOCOL) == -1) continue;
-            if (cur.getColumnIndex(SMS_ADDRESS) == -1) continue;
-            String protocol = cur.getString(cur.getColumnIndexOrThrow(SMS_PROTOCOL));
-            String smsAddress = cur.getString(cur.getColumnIndexOrThrow(SMS_ADDRESS));
-            if (smsAddress != null) {
-                smsAddress = smsAddress.replaceAll("[^0-9]", "");
-            }
-            long smsDate = cur.getLong(cur.getColumnIndexOrThrow(SMS_DATE));
-
-            if (protocol != null) {
-                values[SMS_RECEIVED] = smsAddress + "+" + smsDate;
-                values[SMS_SENT] = null;
-                if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.getSmsData RECEIVED: " + smsAddress + " - " + smsDate);
-            }
-            else {
-                values[SMS_SENT] = smsAddress + "+" + smsDate;
-                values[SMS_RECEIVED] = null;
-                if (DebugLog.DEBUG) Log.d(TAG, "SMSInfoService.getSmsData SENT: " + smsAddress + " - " + smsDate);
-            }
-
-            performUpdates();
-
-            if (!cur.moveToNext()) {
-                break;
-            }
-
-            nextID = cur.getLong(cur.getColumnIndex(BaseColumns._ID));
+        catch (Exception e) {
+            Crashlytics.logException(e);
         }
-
-        cur.close();
-        prevSMSID  = firstID;
     }
 
     @Override

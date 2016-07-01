@@ -92,7 +92,6 @@ public final class BrowserHistoryService extends MetricService<String> {
         adminObserver = UserObserver.getInstance();
         adminObserver.registerObservable(this, groupId);
         schedules = new SparseArray<TimerNode>();
-        displayProviders();
         init();
     }
 
@@ -100,24 +99,6 @@ public final class BrowserHistoryService extends MetricService<String> {
         if (DebugLog.DEBUG) Log.d(TAG, "BrowserHistoryService.getInstance - get single instance");
         if (!INSTANCE.supportedMetric) return null;
         return INSTANCE;
-    }
-
-    private void displayProviders() {
-        List<String> contentProviders = new ArrayList<>();
-        PackageManager pm = MyApplication.getAppContext().getPackageManager();
-        for (PackageInfo pi : pm.getInstalledPackages(PackageManager.GET_PROVIDERS)) {
-            ProviderInfo[] pvis = pi.providers;
-            if (pvis != null) {
-                for (ProviderInfo pvi : pvis) {
-                    if (pvi.authority.toString().toLowerCase().contains("browser")) {
-                        contentProviders.add(pvi.authority);
-                    }
-                }
-            }
-        }
-        for (String contentProvider : contentProviders) {
-            Log.d(TAG, "BrowserHistoryService.displayProviders: " + contentProvider);
-        }
     }
 
     /**

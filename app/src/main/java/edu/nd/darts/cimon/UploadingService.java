@@ -64,14 +64,6 @@ public class UploadingService extends Service {
 
     @Override
     public void onCreate() {
-//        SecretKeySpec key = new SecretKeySpec(keyCode.getBytes(),algorithm);
-//        try{
-//            cipher = Cipher.getInstance(algorithm);
-//            //cipher.init(Cipher.ENCRYPT_MODE,key);
-//        }catch(Exception e){
-//            Log.d(TAG,"Fail to initialize cipher");
-//            e.printStackTrace();
-//        }
         context = MyApplication.getAppContext();
         count = 0;
         phoneNumber = context.getSharedPreferences(SHARED_PREFS, context.MODE_PRIVATE)
@@ -88,9 +80,9 @@ public class UploadingService extends Service {
         final Handler handler = new Handler();
         final Runnable worker = new Runnable() {
             public void run() {
-                Log.d(TAG, "Uploading thread:" + Integer.toString(count) + "\n Time window:"
+                if (DebugLog.DEBUG)
+                    Log.d(TAG, "Uploading thread:" + Integer.toString(count) + "\n Time window:"
                         + Integer.toString(startHour) + "~" + Integer.toString(endHour));
-                //Log.d(TAG,"Wifi connected:" + Boolean.toString(isWifiConnected()));
                 if (count < 1) {
                     runUpload();
                 }
@@ -364,4 +356,8 @@ public class UploadingService extends Service {
             e.printStackTrace();
         }
     }
+
+    /*
+    * Check number of sen
+    * */
 }

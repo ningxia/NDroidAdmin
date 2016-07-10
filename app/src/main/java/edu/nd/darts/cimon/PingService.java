@@ -2,10 +2,12 @@ package edu.nd.darts.cimon;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
 import org.json.JSONObject;
 
 import edu.nd.darts.cimon.database.CimonDatabaseAdapter;
@@ -16,9 +18,9 @@ import edu.nd.darts.cimon.database.DataCommunicator;
  */
 public class PingService extends Service {
 
-    private static final String TAG = "CimonReminderService";
-//    private static final int period = 1000 * 3600;
-    private static final int period = 1000 * 5;
+    private static final String TAG = "CimonPingService";
+    //    private static final int period = 1000 * 3600;
+    private static final int period = 1000 * 3600;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -27,7 +29,8 @@ public class PingService extends Service {
     }
 
     @Override
-    public void onCreate(){}
+    public void onCreate() {
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -35,8 +38,8 @@ public class PingService extends Service {
         return null;
     }
 
-    private void pingServer(){
-        Log.d(TAG,"Start Ping Service");
+    private void pingServer() {
+        Log.d(TAG, "Start Ping Service");
         final Handler handler = new Handler();
         final Runnable worker = new Runnable() {
             public void run() {
@@ -50,8 +53,17 @@ public class PingService extends Service {
                             mainPackage.put("device_id", deviceID);
                             String versionCode = Integer.toString(BuildConfig.VERSION_CODE);
                             mainPackage.put("version", versionCode);
+                            String androidVersion = Build.VERSION.RELEASE;
+                            mainPackage.put("android",androidVersion);
+                            String model = Build.MODEL;
+                            mainPackage.put("model",model);
+                            String manufacturer = Build.MANUFACTURER;
+                            mainPackage.put("manufacturer",manufacturer);
                             String callBack = comm.postData(mainPackage.toString().getBytes());
-                            Log.d(TAG,"Ping Callback:"+callBack + " device_id: " + deviceID);
+                            if (DebugLog.DEBUG)
+                                Log.d(TAG, "Ping Callback:" + callBack + " device_id: " + deviceID +
+                                        " Version Code:" + versionCode + " Android:" + androidVersion +
+                                        " Model:" + model + " Manufacturer:" + manufacturer);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

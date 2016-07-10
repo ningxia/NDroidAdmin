@@ -35,6 +35,7 @@ import android.widget.Toast;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
+import edu.nd.darts.cimon.database.CimonDatabaseAdapter;
 import edu.nd.darts.cimon.database.DataTable;
 import edu.nd.darts.cimon.database.LabelingDB;
 import edu.nd.darts.cimon.database.LabelingHistory;

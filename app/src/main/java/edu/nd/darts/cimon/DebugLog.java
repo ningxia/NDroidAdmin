@@ -28,7 +28,7 @@ package edu.nd.darts.cimon;
  */
 public class DebugLog {
 
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	public static final boolean INFO = false;
 	public static final boolean WARNING = true;
 	public static final boolean ERROR = true;

@@ -97,7 +97,8 @@ public class WifiService extends MetricService<String> {
             return;
         }
         mWifiManager.startScan();
-        scanResultList = new ArrayList(mWifiManager.getScanResults());
+        scanResultList = new ArrayList
+                (mWifiManager.getScanResults());
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < scanResultList.size(); i ++) {

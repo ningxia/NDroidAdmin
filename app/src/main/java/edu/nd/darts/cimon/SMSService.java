@@ -46,7 +46,7 @@ import android.util.SparseArray;
  */
 public final class SMSService extends MetricService<Long> {
 
-	private static final String TAG = "NDroid";
+	private static final String TAG = "NDroidSMS";
 	private static final int SMS_METRICS = 2;
 	private static final long THIRTY_SECONDS = 30000;
 	

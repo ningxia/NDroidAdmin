@@ -99,8 +99,11 @@ public class CellLocationService extends MetricService<Integer> {
                 break;
             case TelephonyManager.PHONE_TYPE_GSM:
                 GsmCellLocation gsmCellLocation = (GsmCellLocation) telephonyManager.getCellLocation();
-                values[CELL_CID] = gsmCellLocation.getCid() & 0xffff;
-                values[CELL_LAC] = gsmCellLocation.getLac() & 0xffff;
+                /*values[CELL_CID] = gsmCellLocation.getCid() & 0xffff;
+                values[CELL_LAC] = gsmCellLocation.getLac() & 0xffff;*/
+                //Insert -1 if gsmCellLocation returns null
+                values[CELL_CID] = gsmCellLocation == null? -1 : gsmCellLocation.getCid() & 0xffff;
+                values[CELL_LAC] = gsmCellLocation == null? -1 : gsmCellLocation.getLac() & 0xffff;
                 if (DebugLog.DEBUG) Log.d(TAG, "CellLocationService.fetchValues: " + " GSM "+ values[CELL_CID] + " " + values[CELL_LAC]);
                 break;
             default:

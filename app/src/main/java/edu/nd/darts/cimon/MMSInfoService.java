@@ -217,6 +217,9 @@ public final class MMSInfoService extends MetricService<String> {
         Cursor curAddress = mmsResolver.query(uriAddress, selectAddr, "msg_id=" + id, null, null);
         String address = "";
         String val;
+        if (curAddress == null){
+            return "Null";
+        }
         if (curAddress.moveToFirst()) {
             do {
                 val = curAddress.getString(curAddress.getColumnIndex("address"));

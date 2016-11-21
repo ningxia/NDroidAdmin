@@ -20,7 +20,7 @@ public class PingService extends Service {
 
     private static final String TAG = "CimonPingService";
     //    private static final int period = 1000 * 3600;
-    private static final int period = 1000 * 3600;
+    private static final int period = 1000 * 15;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

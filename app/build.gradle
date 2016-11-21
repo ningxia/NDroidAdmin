@@ -19,7 +19,7 @@ repositories {
 }
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 22
     buildToolsVersion "23.0.2"
 
     defaultConfig {
@@ -44,9 +44,9 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:21.0.+'
-//    compile 'com.android.support:appcompat-v7:21.0.+'
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:support-v4:22.0.+'
+    //    compile 'com.android.support:appcompat-v7:21.0.+'
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.2'
     compile 'com.google.android.gms:play-services-appindexing:8.1.0'
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
